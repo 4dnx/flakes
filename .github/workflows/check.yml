@@ -31,7 +31,8 @@ jobs:
           # The base branch too, for macOS to compare against.
           fetch-depth: 0
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # Compare main with its last successful ancestor; PRs use their base.
+      # Compare main with a successful ancestor, including merged PRs.
+      # PRs use their base.
       # No trustworthy baseline means building all macOS checks.
       - name: Plan macOS checks
         id: changed

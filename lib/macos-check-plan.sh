@@ -6,10 +6,11 @@ system=aarch64-darwin
 base=${BASE:-origin/main}
 if [ "${GITHUB_REF:-}" = refs/heads/main ]; then
   base=""
-  # Only successful runs on main qualify. Failed/cancelled runs may have
-  # skipped changes that still need building. Reject non-ancestor commits.
-  candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?branch=main&status=success&per_page=100" \
-    --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch") | .head_sha') || candidates=""
+  # A successful merged PR or update branch can validate the same package
+  # derivations as main. Reuse it only when its commit is an ancestor.
+  # Failed/cancelled runs and unmerged side branches cannot be baselines.
+  candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?status=success&per_page=100" \
+    --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch" or .event == "pull_request") | .head_sha') || candidates=""
   for rev in $candidates; do
     if git merge-base --is-ancestor "$rev" HEAD; then
       base=$rev

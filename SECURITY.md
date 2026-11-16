@@ -48,7 +48,8 @@ fixes; there are no release branches.
   libraries and tools come from, is bumped weekly the same way. See
   [LAYOUT.md](LAYOUT.md) for how the workflow runs.
 - **macOS checks.** CI evaluates macOS package derivations and rebuilds those
-  that differ from the PR base or a successful ancestor Check on `main`.
+  that differ from the PR base or a successful ancestor Check on `main`
+  (including checks of merged PRs).
   Unchanged derivations reuse that baseline's validation. Missing baselines
   and changes to check machinery trigger all macOS package checks. Linux
   continues to run the full flake checks, including formatting.
