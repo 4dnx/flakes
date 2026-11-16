@@ -68,14 +68,15 @@ jobs:
         run: |
           system="$(nix eval --raw --impure --expr builtins.currentSystem)"
           nix build --no-link --keep-going -L $(printf ".#checks.$system.\"%s\" " $CHECKS)
-      # Only hermes-agent's runtime closure, and only from main: builds of
-      # pull requests and update/<name> branches never reach the cache.
-      # Paths already on cache.nixos.org are skipped.
-      - name: Push hermes-agent to Cachix
+      # Only hermes-agent's and llama's runtime closures (llama compiles for
+      # minutes; its aarch64 build is short enough to leave out), and only from
+      # main: builds of pull requests and update/<name> branches never reach the
+      # cache. Paths already on cache.nixos.org are skipped.
+      - name: Push hermes-agent and llama to Cachix
         if: env.HAS_CACHIX == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && runner.os == 'Linux' && runner.arch == 'X64'
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: nix build .#hermes-agent --no-link --print-out-paths | cachix push ret
+        run: nix build .#hermes-agent .#llama --no-link --print-out-paths | cachix push ret
 
   # An update/<name> branch that update.yml proposed and every system above
   # built: merge its pull request, unless the branch moved on since this run

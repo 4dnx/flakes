@@ -65,8 +65,8 @@ fixes; there are no release branches.
   and telemetry are only defaults, which your own config can set back; each
   package's README says what is off and how. An updater built into a signed
   app bundle can only be turned off in the app.
-- **Binary cache.** CI pushes only `hermes-agent`'s closure, built from `main`,
-  to `ret.cachix.org`; builds of pull requests and `update/<name>` branches
+- **Binary cache.** CI pushes only the closures of `hermes-agent` and `llama`, built from
+  `main`, to `ret.cachix.org`; builds of pull requests and `update/<name>` branches
   never reach it. Trusting that cache means trusting this repository's CI.
 
 ## CI hardening
