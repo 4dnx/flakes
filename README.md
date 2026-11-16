@@ -41,6 +41,8 @@ Nix packages by `Prompter`.
 | [opencode](pkgs/opencode) | OpenCode 2 AI coding agent from upstream's prebuilt npm release, kept on Nix (no self-update); Apple Silicon macOS and Linux, no compilation |
 | [rayfish](pkgs/rayfish) | P2P mesh VPN (iroh), with a nix-darwin/NixOS service module |
 | [tailscale](pkgs/tailscale) | Tailscale CLI and node agent (`tailscale`, `tailscaled`, no GUI) from upstream's static build, for NixOS' `services.tailscale`; log upload off by default, no self-update; Linux only, no compilation |
+| [telegram](pkgs/telegram) | Native Telegram for macOS from its official app bundle (not Telegram Desktop); Apple Silicon, no compilation |
+| [whatsapp](pkgs/whatsapp) | Native WhatsApp for macOS from its official app bundle (unfree), with a Home Manager module for update defaults; Apple Silicon, no compilation |
 | [utm](pkgs/utm) | UTM virtual machine host for macOS from the upstream release dmg, no compilation |
 
 ## Usage
