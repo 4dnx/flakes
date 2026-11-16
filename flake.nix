@@ -26,6 +26,7 @@
         "cloudflare-warp-headless"
         "google-chrome"
         "littlesnitch"
+        "whatsapp"
       ];
 
       pkgsFor = eachSystem (

@@ -14,7 +14,8 @@
 | `lib/changed-checks.sh` | Prints the checks of a system whose derivation differs from those at a git revision; `check.yml` builds only those on macOS. |
 | `lib/macos-check-plan.sh` | Selects macOS checks against a successful ancestor Check of the PR base branch or `main`, including merged PRs; falls back to all checks without a baseline or when check machinery changes. |
 | `lib/macos-cache-key.sh` | Hashes macOS package derivations (including rolling packages) for the store cache shared by Check and Update; Linux-only changes do not replace it. |
-| `lib/check-app.py` | Install check for a macOS app bundle: its executable exists, and its version is the pinned one. |
+| `lib/macos-app-release.py` | Selects the newest stable WhatsApp or native Telegram version/build from the official Sparkle feed; validates the download URL against each vendor's release endpoint. |
+| `lib/check-app.py` | Install check for a macOS app bundle: its executable exists, and its version is the pinned one; optional build-number and native Mach-O architecture checks. |
 | `lib/update.sh` | Helpers for `update.sh`: `check_version` (rejects unexpected upstream versions), `gh_latest`, `skip_if_current`, `prefetch` (checks a download against upstream's sha256 when given one, and a GitHub release asset against GitHub's digest), `write_hashes` (with `sums` set, against upstream's checksum list or per-file `.sha256`). |
 | `pkgs/<name>/module.nix` | Optional. `self: { config, ... }: { ... }`; exported as both `darwinModules.<name>` and `nixosModules.<name>`. Default package is `self.packages.${system}.<name>`. |
 | `pkgs/<name>/nixos-module.nix`, `darwin-module.nix` | Same shape as `module.nix`, exported only to `nixosModules` or `darwinModules`. |
