@@ -10,6 +10,12 @@ See `LAYOUT.md`; keep it in sync when adding a kind of file or workflow.
 
 ## Adding a package
 
+Use upstream's native application binaries for each declared operating system
+and CPU architecture, including Apple Silicon on macOS and the matching Linux
+architecture. Do not substitute a web wrapper or an emulated binary when an
+upstream native release is missing; leave that system unsupported and say so.
+
+
 1. `pkgs/<name>/package.nix` (+ `hashes.json` and `update.sh` if it tracks upstream releases).
    `update.sh` sources `lib/update.sh` and passes every upstream version
    through `check_version`. Where upstream publishes checksums (a sums file,
