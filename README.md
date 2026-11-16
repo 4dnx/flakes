@@ -78,6 +78,12 @@ Or run one without installing: `nix run github:xr3t/flakes#rayfish -- --version`
 
 Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
+CI builds every Linux check. On macOS it evaluates the package checks and builds
+those whose derivations changed since a successful ancestor Check on the PR base
+branch or `main` (including checks of merged PRs). Without a usable baseline, or when check scripts or the Check
+workflow change, it builds all macOS package checks. Its store cache follows the
+macOS package derivations, so Linux-only updates do not replace it.
+
 ## Updates
 
 Packages follow upstream automatically: a workflow checks for new releases

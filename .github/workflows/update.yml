@@ -79,11 +79,16 @@ jobs:
           ref: main
           fetch-depth: 0
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # Keeps the Nix store between runs, as in check.yml.
+      - name: Compute macOS cache key
+        id: macos-cache
+        run: |
+          key="$(lib/macos-cache-key.sh)"
+          echo "key=$key" >>"$GITHUB_OUTPUT"
+      # Share the package-derived key with check.yml.
       - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
         with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('flake.lock', '**/*.nix', 'pkgs/**/hashes.json') }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v2-${{ steps.macos-cache.outputs.key }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-v2-
           gc-max-store-size-macos: 4G
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
