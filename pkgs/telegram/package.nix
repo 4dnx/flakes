@@ -40,9 +40,8 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Telegram.app" "$version"
-    ${python3.interpreter} -c 'import plistlib, sys; assert plistlib.load(open(sys.argv[1], "rb"))["CFBundleVersion"] == sys.argv[2]' \
-      "$out/Applications/Telegram.app/Contents/Info.plist" "${sources.build}"
+    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Telegram.app" \
+      "$version" "${sources.build}" arm64
     runHook postInstallCheck
   '';
 
