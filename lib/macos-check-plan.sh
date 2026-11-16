@@ -11,7 +11,7 @@ if [ "${GITHUB_REF:-}" = refs/heads/main ]; then
   candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?branch=main&status=success&per_page=100" \
     --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch") | .head_sha') || candidates=""
   for rev in $candidates; do
-    if [ "$rev" != "$(git rev-parse HEAD)" ] && git merge-base --is-ancestor "$rev" HEAD; then
+    if git merge-base --is-ancestor "$rev" HEAD; then
       base=$rev
       break
     fi
