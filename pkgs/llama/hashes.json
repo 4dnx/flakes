@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "build": "12359",
+  "commit": "b1b770d",
+  "hashes": {
+    "src": "sha256-aYziwYzK9Zj7sopAEsrANhMGs4BO0F2g0cDCGmYLxDA=",
+    "ui": "sha256-Jz0dTkEHFfSDJXnJeGjhKNgJRsG96G1oKrBrS4RAkzs="
+  }
+}
