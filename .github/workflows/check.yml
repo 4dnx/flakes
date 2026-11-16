@@ -6,8 +6,14 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  # PR checks cannot cancel the dispatched run that merges update branches.
+  group: check-${{ github.event_name == 'pull_request' && 'pr' || 'branch' }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
+  actions: read
 
 jobs:
   check:
@@ -25,28 +31,22 @@ jobs:
           # The base branch too, for macOS to compare against.
           fetch-depth: 0
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # On macOS outside main, only the checks whose derivation differs from
-      # the base branch's are built: main's own run already built the rest.
-      # Finding them evaluates every macOS check. Most updates change none
-      # (a Linux-only package), which skips the store below as well.
-      - name: Find what differs from the base branch
+      # Compare main with its last successful ancestor; PRs use their base.
+      # No trustworthy baseline means building all macOS checks.
+      - name: Plan macOS checks
         id: changed
-        if: runner.os == 'macOS' && github.ref != 'refs/heads/main'
+        if: runner.os == 'macOS'
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           BASE: origin/${{ github.base_ref || 'main' }}
-        run: |
-          changed="$(lib/changed-checks.sh "$(nix eval --raw --impure --expr builtins.currentSystem)" "$BASE")"
-          echo "To build: ${changed:-nothing}"
-          echo "checks=$(echo $changed)" >>"$GITHUB_OUTPUT"
-      # macOS packages are mostly app downloads that no binary cache holds:
-      # keep the Nix store between runs instead of fetching them each time.
-      # The key changes with any package; a run restores the newest store
-      # saved before it, and the store is trimmed to 4G before saving.
-      - if: runner.os == 'macOS' && (steps.changed.conclusion == 'skipped' || steps.changed.outputs.checks != '')
+        run: lib/macos-check-plan.sh
+      # Package derivations include their inputs, but exclude Linux-only changes.
+      - if: runner.os == 'macOS' && steps.changed.outputs.checks != ''
         uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
         with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('flake.lock', '**/*.nix', 'pkgs/**/hashes.json') }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v2-${{ steps.changed.outputs.cache-key }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-v2-
           gc-max-store-size-macos: 4G
       # Pull from ret.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
@@ -58,7 +58,7 @@ jobs:
       # filtered sources read during evaluation (hermes-agent's uv.lock).
       # --keep-going reports every failing package, not just the first.
       - name: Evaluate and build this runner's system
-        if: steps.changed.conclusion == 'skipped'
+        if: runner.os != 'macOS'
         run: nix flake check --keep-going -L
       - name: Build the checks that differ from the base branch
         if: steps.changed.outputs.checks != ''

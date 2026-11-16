@@ -47,6 +47,11 @@ fixes; there are no release branches.
   x86_64, Linux aarch64 and macOS. The pinned nixpkgs, which every package's
   libraries and tools come from, is bumped weekly the same way. See
   [LAYOUT.md](LAYOUT.md) for how the workflow runs.
+- **macOS checks.** CI evaluates macOS package derivations and rebuilds those
+  that differ from the PR base or a successful ancestor Check on `main`.
+  Unchanged derivations reuse that baseline's validation. Missing baselines
+  and changes to check machinery trigger all macOS package checks. Linux
+  continues to run the full flake checks, including formatting.
 - **Dependencies follow upstream's lock.** A package assembled from
   upstream's own lockfile installs exactly what that lock names, advisories
   included; they close when upstream ships a new lock and the next update
