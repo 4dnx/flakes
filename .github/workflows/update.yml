@@ -59,13 +59,14 @@ jobs:
           UPDATE_SYSTEM: x86_64-linux
         run: lib/update-all.sh
 
-      # Only hermes-agent's runtime closure, as main now has it; paths already
-      # on cache.nixos.org are skipped. Runs after a failed update too.
-      - name: Push hermes-agent to Cachix
+      # Only hermes-agent's and llama's runtime closures, as main now has them;
+      # paths already on cache.nixos.org are skipped. Runs after a failed update
+      # too.
+      - name: Push hermes-agent and llama to Cachix
         if: ${{ !cancelled() && env.HAS_CACHIX == 'true' }}
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: nix build .#hermes-agent --no-link --print-out-paths | cachix push ret
+        run: nix build .#hermes-agent .#llama --no-link --print-out-paths | cachix push ret
 
   # The packages that build only on macOS, built there before they land, on
   # top of what the Linux job pushed.
