@@ -3,21 +3,23 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 system=aarch64-darwin
-base=${BASE:-origin/main}
+target=${BASE:-origin/main}
 if [ "${GITHUB_REF:-}" = refs/heads/main ]; then
-  base=""
-  # A successful merged PR or update branch can validate the same package
-  # derivations as main. Reuse it only when its commit is an ancestor.
-  # Failed/cancelled runs and unmerged side branches cannot be baselines.
-  candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?status=success&per_page=100" \
-    --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch" or .event == "pull_request") | .head_sha') || candidates=""
-  for rev in $candidates; do
-    if git merge-base --is-ancestor "$rev" HEAD; then
-      base=$rev
-      break
-    fi
-  done
+  target=HEAD
 fi
+base=""
+# A successful merged PR or update branch can validate the same package
+# derivations as main. Reuse it only when its commit is an ancestor.
+# PRs also require a successful baseline, rather than assuming that every
+# commit on their base branch passed. Failed/cancelled runs do not qualify.
+candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?status=success&per_page=100" \
+  --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch" or .event == "pull_request") | .head_sha') || candidates=""
+for rev in $candidates; do
+  if git merge-base --is-ancestor "$rev" "$target"; then
+    base=$rev
+    break
+  fi
+done
 # Changes to the check machinery must exercise the builds too, even when
 # package derivations are unchanged (for example a new Nix installer).
 if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml lib/; then
