@@ -130,8 +130,9 @@
       nixosModules = modulesFrom "module.nix" // modulesFrom "nixos-module.nix";
       homeManagerModules = modulesFrom "home-module.nix";
 
-      # Every package but the rolling ones, and every .nix file formatted
-      # with `nix fmt`.
+      # Every package but the rolling ones, every .nix file formatted with
+      # `nix fmt`, and on Linux the scripts and workflows linted and the NixOS
+      # modules evaluated.
       checks = eachSystem (
         system:
         let
@@ -145,6 +146,31 @@
           '';
         }
         // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+          # shellcheck over every shell script, and actionlint (which runs
+          # shellcheck on the `run` scripts too) over the workflows. Its
+          # source is only those files, so other changes don't rebuild it.
+          lint =
+            pkgs.runCommand "lint"
+              {
+                nativeBuildInputs = [
+                  pkgs.actionlint
+                  pkgs.shellcheck
+                ];
+                src = lib.fileset.toSource {
+                  root = ./.;
+                  fileset = lib.fileset.unions [
+                    ./.github/workflows
+                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./lib)
+                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./pkgs)
+                  ];
+                };
+              }
+              ''
+                cd "$src"
+                find lib pkgs -name '*.sh' -exec shellcheck -x {} +
+                actionlint .github/workflows/*.yml
+                touch "$out"
+              '';
           # A NixOS system with every NixOS module here enabled, evaluated
           # (not built): its drv path is the check's only content.
           nixos-modules = pkgs.writeText "nixos-modules" (
@@ -153,6 +179,7 @@
         }
       );
 
-      formatter = eachSystem (system: pkgsFor.${system}.nixfmt);
+      # nixfmt over the whole tree: plain `nix fmt` needs no path.
+      formatter = eachSystem (system: pkgsFor.${system}.nixfmt-tree);
     };
 }

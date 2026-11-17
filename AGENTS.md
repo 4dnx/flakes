@@ -66,7 +66,7 @@ bundle), say that and how to turn it off in the app.
 ## Checking changes
 
 ```sh
-nix flake check --all-systems   # evaluate everything, build this host's packages
+nix flake check --all-systems   # evaluate everything, build this host's packages; on Linux also lint scripts and workflows
 nix build .#<name> && ./result/bin/<prog> --version
 nix fmt                         # nixfmt; checks.formatting fails otherwise
 ```

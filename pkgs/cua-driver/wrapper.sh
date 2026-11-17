@@ -1,4 +1,5 @@
 #!@shell@
+# shellcheck shell=bash
 # cua-driver's telemetry and background update check are on by default. Turn
 # them off unless the environment or cua-driver's own config.json says
 # otherwise (`cua-driver telemetry enable` writes telemetry_enabled; the

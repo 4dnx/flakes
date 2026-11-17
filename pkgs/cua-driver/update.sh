@@ -17,7 +17,7 @@ cd "$(dirname "$0")"
 prefix=cua-driver-rs-v
 version=""
 for tag in $(git ls-remote --tags --refs https://github.com/trycua/cua "refs/tags/$prefix*" |
-  sed -n "s|.*refs/tags/\($prefix[0-9]*\.[0-9]*\.[0-9]*\)\$|\1|p" | sort -rV | head -n 10); do
+  sed -n "s|.*refs/tags/\(${prefix}[0-9]*\.[0-9]*\.[0-9]*\)\$|\1|p" | sort -rV | head -n 10); do
   if ready="$(gh release view "$tag" -R trycua/cua --json isDraft,assets \
     -q '(.isDraft | not) and any(.assets[]; .name == "SHA256SUMS")' 2>/dev/null)" &&
     [ "$ready" = true ]; then
