@@ -3,7 +3,8 @@
 # (a git revision, such as origin/main), one name per line: what a change
 # needs built on that system, the packages it takes as arguments included.
 # formatting is left out: it takes the whole source, so it always differs, and
-# the Linux jobs build it. Run by check.yml on macOS. Needs git, jq and nix.
+# the Linux jobs build it. Evaluation only: any system can run it for any
+# other (lib/macos-check-plan.sh does, on Linux). Needs git, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 system=$1 rev=$2

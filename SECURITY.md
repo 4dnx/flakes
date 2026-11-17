@@ -47,7 +47,8 @@ fixes; there are no release branches.
   x86_64, Linux aarch64 and macOS. The pinned nixpkgs, which every package's
   libraries and tools come from, is bumped weekly the same way. See
   [LAYOUT.md](LAYOUT.md) for how the workflow runs.
-- **macOS checks.** CI evaluates macOS package derivations and rebuilds those
+- **macOS checks.** CI evaluates macOS package derivations (on a Linux
+  runner: evaluating builds nothing) and rebuilds, on macOS, those
   that differ from a successful ancestor Check of the PR base branch or `main`
   (including checks of merged PRs).
   Unchanged derivations reuse that baseline's validation. Missing baselines
@@ -71,11 +72,15 @@ fixes; there are no release branches.
 
 ## CI hardening
 
-- Workflows default to a read-only `GITHUB_TOKEN`; only the update workflow
-  can write, to commit updates and open their pull requests, and the check
-  workflow's `merge` job, to merge an `update/<name>` pull request it built.
-- Secrets reach only the step that uses them (the Cachix push), never a
-  whole job.
+- Workflows default to a read-only `GITHUB_TOKEN`; only the update
+  workflow's jobs can write, to commit updates and open their pull requests,
+  and the check workflow's `merge` job, to merge an `update/<name>` pull
+  request it built. The check jobs don't keep the token in their checkout.
+- Secrets and the token reach only the step that uses them (the Cachix push,
+  the update script, the merge), never a whole job.
+- Every job has a time limit.
+- `checks.lint` runs shellcheck over the scripts and actionlint over the
+  workflows.
 - Actions are pinned by commit SHA and bumped by Dependabot.
 
 ## Service modules

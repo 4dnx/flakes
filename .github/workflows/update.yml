@@ -19,14 +19,9 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  pull-requests: write
-  # To start check.yml on update/<name>: pushes made with this token start
-  # no workflows, but a dispatch does.
-  actions: write
+  contents: read
 
 env:
-  GH_TOKEN: ${{ github.token }}
   # These run as root, filter the network, or are agents acting with the
   # user's access: their updates go through a pull request (branch
   # update/<name>), which check.yml merges once every system builds it,
@@ -38,6 +33,13 @@ jobs:
   # lib/update-all.sh.
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      pull-requests: write
+      # To start check.yml on update/<name>: pushes made with this token
+      # start no workflows, but a dispatch does.
+      actions: write
     env:
       # Only whether the secret is set; the token itself goes to the push step.
       HAS_CACHIX: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
@@ -55,6 +57,8 @@ jobs:
 
       - name: Update packages
         env:
+          # For gh; git pushes with the credentials the checkout kept.
+          GH_TOKEN: ${{ github.token }}
           PACKAGES: ${{ github.event.inputs.packages }}
           UPDATE_SYSTEM: x86_64-linux
         run: lib/update-all.sh
@@ -74,6 +78,13 @@ jobs:
     needs: update
     if: ${{ !cancelled() }}
     runs-on: macos-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      pull-requests: write
+      # To start check.yml on update/<name>: pushes made with this token
+      # start no workflows, but a dispatch does.
+      actions: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -99,6 +110,8 @@ jobs:
       # nixpkgs' bash and GNU tools, as on Linux.
       - name: Update packages
         env:
+          # For gh; git pushes with the credentials the checkout kept.
+          GH_TOKEN: ${{ github.token }}
           PACKAGES: ${{ github.event.inputs.packages }}
           UPDATE_SYSTEM: aarch64-darwin
         run: >-

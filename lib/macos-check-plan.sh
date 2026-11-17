@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Write the macOS checks and package cache key to GitHub Actions outputs.
+# Write the macOS checks to build to GitHub Actions outputs (checks, names
+# separated by spaces; empty when none differ from the baseline). Evaluation
+# only, so check.yml runs it on Linux. Needs gh, git, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 system=aarch64-darwin
@@ -32,8 +34,5 @@ else
     --apply 'cs: builtins.attrNames (removeAttrs cs [ "formatting" ])' | jq -r '.[]')
 fi
 printf 'Baseline: %s\nTo build: %s\n' "${base:-none; build all}" "${checks:-nothing}"
-# Always evaluate packages for the key, even when no builds are needed.
-# Evaluation errors fail the job rather than silently skipping checks.
-key=$(lib/macos-cache-key.sh)
-echo "cache-key=$key" >>"$GITHUB_OUTPUT"
-echo "checks=$(echo $checks)" >>"$GITHUB_OUTPUT"
+# Evaluation errors above fail the job rather than silently skipping checks.
+echo "checks=$(tr '\n' ' ' <<<"$checks" | sed 's/ *$//')" >>"$GITHUB_OUTPUT"

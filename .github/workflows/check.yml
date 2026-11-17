@@ -13,80 +13,119 @@ concurrency:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
-  check:
+  # Which macOS checks to build, worked out on Linux: a macOS runner takes
+  # longer to get and to set up, and a change that leaves the macOS
+  # derivations alone needs none. Compares main with a successful ancestor,
+  # including merged PRs; PRs use a successful ancestor of their base branch.
+  # No trustworthy baseline means building all macOS checks.
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # To list the successful Check runs.
+      actions: read
+    outputs:
+      checks: ${{ steps.plan.outputs.checks }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The base branch too, to compare against.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - name: Plan macOS checks
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE: origin/${{ github.base_ref || 'main' }}
+        run: lib/macos-check-plan.sh
+
+  linux:
+    name: check (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     env:
       # Only whether the secret is set; the token itself goes to the push step.
       HAS_CACHIX: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The base branch too, for macOS to compare against.
-          fetch-depth: 0
+          persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # Compare main with a successful ancestor, including merged PRs.
-      # PRs use a successful ancestor of their base branch.
-      # No trustworthy baseline means building all macOS checks.
-      - name: Plan macOS checks
-        id: changed
-        if: runner.os == 'macOS'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          BASE: origin/${{ github.base_ref || 'main' }}
-        run: lib/macos-check-plan.sh
-      # Package derivations include their inputs, but exclude Linux-only changes.
-      - if: runner.os == 'macOS' && steps.changed.outputs.checks != ''
-        uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
-        with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v2-${{ steps.changed.outputs.cache-key }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-v2-
-          gc-max-store-size-macos: 4G
       # Pull from ret.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
           name: ret
           skipPush: true
-      # Each runner evaluates and builds its own system only: Linux checks
-      # Linux, macOS checks macOS. Not --no-build: its read-only store breaks
-      # filtered sources read during evaluation (hermes-agent's uv.lock).
-      # --keep-going reports every failing package, not just the first.
+      # Each runner evaluates and builds its own system only. Not --no-build:
+      # its read-only store breaks filtered sources read during evaluation
+      # (hermes-agent's uv.lock). --keep-going reports every failing package,
+      # not just the first.
       - name: Evaluate and build this runner's system
-        if: runner.os != 'macOS'
         run: nix flake check --keep-going -L
-      - name: Build the checks that differ from the base branch
-        if: steps.changed.outputs.checks != ''
-        env:
-          CHECKS: ${{ steps.changed.outputs.checks }}
-        run: |
-          system="$(nix eval --raw --impure --expr builtins.currentSystem)"
-          nix build --no-link --keep-going -L $(printf ".#checks.$system.\"%s\" " $CHECKS)
-      # Only hermes-agent's and llama's runtime closures (llama compiles for
-      # minutes; its aarch64 build is short enough to leave out), and only from
-      # main: builds of pull requests and update/<name> branches never reach the
-      # cache. Paths already on cache.nixos.org are skipped.
+      # Only the runtime closures of the packages that compile for minutes
+      # (hermes-agent, x86_64 only, and llama), and only from main: builds of
+      # pull requests and update/<name> branches never reach the cache. Paths
+      # already on cache.nixos.org are skipped.
       - name: Push hermes-agent and llama to Cachix
-        if: env.HAS_CACHIX == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && runner.os == 'Linux' && runner.arch == 'X64'
+        if: env.HAS_CACHIX == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: nix build .#hermes-agent .#llama --no-link --print-out-paths | cachix push ret
+        run: |
+          packages=(.#llama)
+          [ "$RUNNER_ARCH" != X64 ] || packages+=(.#hermes-agent)
+          nix build "${packages[@]}" --no-link --print-out-paths | cachix push ret
+
+  # Only the checks the plan found to differ from its baseline, and no runner
+  # at all without any. No store cache between runs: the packages here are
+  # upstream's binaries, and restoring and saving a store took longer than
+  # fetching what a few changed checks need. ret.cachix.org holds nothing for
+  # macOS.
+  macos:
+    name: check (macos-latest)
+    needs: plan
+    if: needs.plan.outputs.checks != ''
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - name: Build the checks that differ from the baseline
+        env:
+          CHECKS: ${{ needs.plan.outputs.checks }}
+        run: |
+          installables=()
+          for check in $CHECKS; do
+            installables+=(".#checks.aarch64-darwin.\"$check\"")
+          done
+          nix build --no-link --keep-going -L "${installables[@]}"
 
   # An update/<name> branch that update.yml proposed and every system above
-  # built: merge its pull request, unless the branch moved on since this run
-  # started. Only a dispatch from update.yml (or someone with write access)
-  # runs this, never a pull_request event. This token's merge starts no
-  # workflow, so check.yml is started on main for its Cachix push.
+  # built (macOS may be skipped, but only when the plan found nothing for it
+  # to build): merge its pull request, unless the branch moved on since this
+  # run started. Only a dispatch from update.yml (or someone with write
+  # access) runs this, never a pull_request event. This token's merge starts
+  # no workflow, so check.yml is started on main for its Cachix push.
   merge:
-    needs: check
-    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/update/')
+    needs: [plan, linux, macos]
+    if: >-
+      !cancelled() && github.event_name == 'workflow_dispatch' &&
+      startsWith(github.ref, 'refs/heads/update/') &&
+      needs.plan.result == 'success' && needs.linux.result == 'success' &&
+      (needs.macos.result == 'success' ||
+      (needs.macos.result == 'skipped' && needs.plan.outputs.checks == ''))
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
