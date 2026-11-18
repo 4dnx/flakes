@@ -26,7 +26,7 @@ state stay in `~/.bend`, as upstream does.
 ## Compiler
 
 Building needs clang 14 or newer (19 or newer for GPU calls, `!`). On Linux the
-wrapper appends Nix's clang to `PATH`, so a `clang` or `$CC` of your own still
+wrapper appends Nix's clang to `PATH`, so a `clang` or `$CC` already set still
 comes first. An older `clang` earlier on `PATH` hides Nix's: set `$CC` to a
 newer one, or take the old one off `PATH`. On
 macOS bend uses Apple's clang, from `xcode-select --install`.

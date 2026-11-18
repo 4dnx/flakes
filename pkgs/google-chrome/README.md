@@ -4,7 +4,7 @@ Google Chrome's latest Stable release for macOS, from Google's signed,
 notarized universal dmg, installed untouched as
 `$out/Applications/Google Chrome.app` with a `bin/google-chrome` wrapper.
 Nothing is compiled. Unfree: this flake's own `packages` allow it; through the
-overlay, allow `google-chrome` in your nixpkgs config.
+overlay, the consuming nixpkgs config has to allow `google-chrome`.
 
 ## Updates
 

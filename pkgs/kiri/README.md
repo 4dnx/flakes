@@ -20,8 +20,8 @@ or just the package, in `environment.systemPackages` (nix-darwin) or
 
 Kiri sets itself up when the app opens, as its own installer does (`kiri
 setup`): a LaunchAgent that starts `kiri daemon` at login, `docker` and `kiri`
-in `~/.kiri/bin` (appended to `PATH` in your shell profiles), a `kiri` docker
-context, a buildx builder, and, if you give an administrator password once,
+in `~/.kiri/bin` (appended to `PATH` in the shell profiles), a `kiri` docker
+context, a buildx builder, and, given an administrator password once,
 `*.kiri.local` names and `/var/run/docker.sock`. `kiri setup --uninstall`
 takes them back.
 
@@ -56,11 +56,11 @@ The Home Manager module turns **Settings › Check for updates automatically**
 off, through its key (`updateAuto`) in `~/.kiri/ui.json`, only while that file
 doesn't set it, so turning it back on in Settings sticks. It writes the key
 only into a file the app has made: Kiri takes a missing file for its first
-start. So the check stays on until the first activation after you first open
-Kiri. This is the app's own setting, not a documented redistribution switch;
+start. So the check stays on until the first activation after Kiri is first
+opened. This is the app's own setting, not a documented redistribution switch;
 recheck it on a bump.
 
-Telemetry: none found. Crash reports are off unless you turn them on in
+Telemetry: none found. Crash reports are off unless turned on in
 Settings, and the code sends nothing else to an analytics service.
 
 ## Rechecking on a bump

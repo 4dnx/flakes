@@ -49,7 +49,7 @@ against `_CUA_DRIVER_RUNTIME_CONTRACT_ARGS` in Hermes'
   (`CUA_DRIVER_RS_UPDATE_CHECK=0`, unless that variable is set or
   `~/.cua-driver/config.json` has `update_check_enabled`). Turn it back on
   with `CUA_DRIVER_RS_UPDATE_CHECK=1`, or `"update_check_enabled": true` in
-  that file. `cua-driver check-update` still checks when you run it.
+  that file. `cua-driver check-update` still checks when run.
 - `cua-driver update --apply` is refused: it runs upstream's installer, which
   installs another copy outside the store. Updates come from this flake.
 

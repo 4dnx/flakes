@@ -24,7 +24,7 @@ signature and the system extension inside it) into `$out/Applications`, with
 ## License: unfree
 
 The client is proprietary. This flake's own `packages` allow it. Through the
-overlay, allow it in your nixpkgs:
+overlay, the consuming nixpkgs has to allow it:
 
 ```nix
 nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "cloudflare-warp" ];
@@ -56,7 +56,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "cl
 ```
 
 Then register and connect with `warp-cli` (`warp-cli registration new`,
-`warp-cli connect`; it asks you to accept Cloudflare's terms of service).
+`warp-cli connect`; it asks to accept Cloudflare's terms of service).
 
 `darwinModules.cloudflare-warp` and `nixosModules.cloudflare-warp` are the same
 module. It detects nix-darwin from the `launchd` option. nixpkgs has its own
@@ -137,7 +137,7 @@ Updates come through this flake, so the client's update check is off.
 
 - **Update check: off by default, in the module.** `allow_updates = false` is
   upstream's documented switch for it; the module writes it into `mdm.xml`.
-  Without the module, put it there yourself:
+  Without the module, it goes there by hand:
   ```xml
   <dict>
     <key>allow_updates</key>

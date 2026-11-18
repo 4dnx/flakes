@@ -52,8 +52,8 @@ Upstream's documented switch is `disableAutoUpdates` in the
 It turns off both the app's and the Code tab's automatic updates. The app
 reads it only from managed preferences (`/Library/Managed Preferences`),
 which macOS fills from a configuration profile, not from `defaults write`.
-macOS requires the user to approve a profile, so no module can install it
-for you; the package ships one:
+macOS requires the user to approve a profile, so no module can install it;
+the package ships one:
 
 ```sh
 # installed with nix-darwin
@@ -73,7 +73,7 @@ feed this package follows is the stable one.
 Telemetry: Claude Desktop's telemetry switches (`disableNonessentialTelemetry`
 and the like) apply only to its third-party-inference mode; for a Claude.ai
 account no client-side switch was found, so this package doesn't claim to
-turn telemetry off. Your account's privacy settings on claude.ai still apply.
+turn telemetry off. The account's privacy settings on claude.ai still apply.
 
 ## Rechecking on a bump
 

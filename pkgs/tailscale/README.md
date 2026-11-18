@@ -17,8 +17,8 @@ source (its binary is in the NixOS cache). nix-darwin's module runs
 services.tailscale.enable = true;
 ```
 
-That package is not this one: it has none of the settings below, so set them
-yourself. Set `TS_NO_LOGS_NO_SUPPORT` for the daemon to stop its log upload
+That package is not this one: it has none of the settings below, so they have
+to be set by hand. Set `TS_NO_LOGS_NO_SUPPORT` for the daemon to stop its log upload
 (see Updates and telemetry), and use `tailscale set --update-check=false`.
 
 ## Usage

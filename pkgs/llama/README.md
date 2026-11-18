@@ -48,7 +48,7 @@ as a substituter the package is downloaded instead.
   here it prints that updates are available only when installed from
   llama.app. Update through this flake.
 - **Telemetry and update checks:** none in the program. Models are downloaded
-  from Hugging Face only when you ask (`llama download`, `-hf`, the chat UI).
+  from Hugging Face only on request (`llama download`, `-hf`, the chat UI).
 
 Recheck on a bump: `llama update` in `app/llama.cpp`, any new network call at
 startup, and that `tools/ui/dist` is still what `scripts/ui-assets.cmake` looks

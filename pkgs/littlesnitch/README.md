@@ -19,8 +19,8 @@ patchelf): the license allows redistribution only of the original binary.
 
 The daemon and CLI are proprietary freeware (free to use and redistribute
 unmodified; see `share/doc/littlesnitch/copyright`), so `meta.license` is
-unfree. This flake's own `packages` allow it. Through the overlay, allow it in
-your nixpkgs:
+unfree. This flake's own `packages` allow it. Through the overlay, the consuming
+nixpkgs has to allow it:
 
 ```nix
 nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "littlesnitch" ];
@@ -39,7 +39,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "li
 |---|---|---|
 | `services.littlesnitch.enable` | `false` | Run `littlesnitch --daemon` as upstream's systemd unit does. |
 | `services.littlesnitch.package` | this flake's `littlesnitch` | Package to run. |
-| `services.littlesnitch.updateCheck` | `false` | Let the daemon check for new versions (weekly). `false` links upstream's software update override with automatic checks off, as updates come through Nix; "Check now" in the About dialog still works. `true` leaves that override file to you. |
+| `services.littlesnitch.updateCheck` | `false` | Let the daemon check for new versions (weekly). `false` links upstream's software update override with automatic checks off, as updates come through Nix; "Check now" in the About dialog still works. `true` leaves that override file alone. |
 
 The service is upstream's own `littlesnitch.service` from the tarball
 (`systemd.packages`), with `ExecStart` pointed into the store: its sandboxing,
@@ -51,4 +51,4 @@ The `littlesnitch` CLI is added to the system packages.
 
 State lives in `/var/lib/littlesnitch`, which the daemon creates and manages:
 rules, the connection log, and `override/config/*.toml` (for example
-`web_ui.toml` for the web UI's bind address). Back it up to keep your rules.
+`web_ui.toml` for the web UI's bind address). Back it up to keep the rules.

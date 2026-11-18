@@ -79,5 +79,5 @@ the store, and its updater stays off, since it only follows a release under
 `releases/`. A real directory there is left alone, and so is a link that
 already resolves to this package (Home Manager's, with the module above).
 
-Everything else in `~/.codex` (config, login, sessions) is yours; the store
-holds only the program.
+Everything else in `~/.codex` (config, login, sessions) stays the user's; the
+store holds only the program.

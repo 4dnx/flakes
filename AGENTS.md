@@ -64,6 +64,15 @@ In the package README, say what is off, how, and how to turn it back on.
 Where nothing in the package can turn it off (an updater inside a signed app
 bundle), say that and how to turn it off in the app.
 
+## Writing docs
+
+Write READMEs, `LAYOUT.md`, `SECURITY.md` and comments in a neutral
+documentation style: say what a package, module or script does, instead of
+talking to the reader. No "you", "your" or "for you"; name who it concerns
+("the user", "the consuming nixpkgs", "the configuration") or use the passive.
+Steps may be imperatives ("Install Nix with flakes enabled"). Quoted program
+output, such as an error message, stays as the program prints it.
+
 ## Checking changes
 
 ```sh
