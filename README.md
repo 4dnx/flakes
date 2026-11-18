@@ -1,48 +1,25 @@
 # Flakes
 
-Desktop apps, command-line tools and services for **nix-darwin**, **NixOS**
-and **Linux with Nix**, packaged from each project's own official releases.
-A declarative take on Homebrew's casks and formulae: packages are listed in a
-Nix configuration, and every machine gets the same versions. By `Prompter`.
-
-- **Upstream's own builds.** Most packages are the vendor's signed bundles
-  and binaries, installed unchanged and native on Apple Silicon and Linux:
-  no web wrappers, no emulation. The few built from source here say so.
-- **Checked downloads.** Every download is pinned by hash and, where the
-  vendor publishes more, checked against it: signed release manifests,
-  checksum lists, and for some macOS apps their whole Apple code signature.
-- **Updates through Nix.** New upstream releases arrive here twice a day;
-  apps' own self-updaters are turned off wherever they can be, so updating is
-  `nix flake update xr3t`.
-- **Telemetry off by default** wherever that doesn't break a feature; each
-  package's README says what is off, how to turn it back on, and what
-  couldn't be turned off.
+Nix packages by `Prompter`.
 
 > [!WARNING]
 > **DYOR (Do Your Own Research).** These packages are written largely with AI
-> agents and provided as-is, without warranty. Pinned hashes only prove a
-> download is unchanged, not that the program is safe. Read the package
+> agents and provided as-is, without warranty. Upstream binaries are fetched
+> from their official release pages and pinned by hash, but that only proves
+> the download is unchanged, not that the program is safe. Read the package
 > definition and the upstream project before installing, especially anything
-> that runs as a system service or with root privileges. See
-> [SECURITY.md](SECURITY.md) for what the checks cover, and to report a
-> vulnerability.
-
-## Packages
-
-Among them: Claude Code and Claude Desktop, Codex, OpenCode and other coding
-agents; Ghostty, Google Chrome and Helium; WhatsApp and Telegram; UTM and
-Kiri; Tailscale, Cloudflare WARP and Little Snitch. The full list, with what
-each package brings and the systems it runs on, is in
-**[pkgs/README.md](pkgs/README.md)**; each package's own README covers its
-options and notes.
+> that runs as a system service or with root privileges.
+>
+> See [SECURITY.md](SECURITY.md) for what the pins and checks cover, and to
+> report a vulnerability.
 
 ## Usage
 
 The flake targets three setups: **nix-darwin** on Apple Silicon Macs,
 **NixOS**, and **Ubuntu** (or another Linux distribution) with Nix and,
 optionally, standalone Home Manager. Packages that don't run on a system are
-left out of `packages.<system>`; the package table and each package's README
-say which systems it supports.
+left out of `packages.<system>`; the [package table](pkgs/README.md) and each
+package's README say which systems it supports.
 
 Add it as an input. Its `nix-darwin` and `home-manager` inputs are used only
 by its own checks and are never fetched otherwise; pointing them at existing
