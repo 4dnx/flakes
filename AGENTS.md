@@ -1,7 +1,8 @@
 # AGENTS.md
 
 Guidance for coding agents working in this repo. `README.md` is the user-facing
-doc; keep it and each package's README in sync with behavior. Remote:
+doc; keep it, the package table in `pkgs/README.md` and each package's README
+in sync with behavior. Remote:
 `xr3t/flakes`.
 
 ## Layout
@@ -28,7 +29,7 @@ upstream native release is missing; leave that system unsupported and say so.
 2. Set `meta.platforms` to the systems it really supports; that's what filters `packages.<system>`.
    If evaluating it fetches another flake, also list it in `fixedPlatforms` in
    `flake.nix`.
-3. Add a row to the README package table and a `pkgs/<name>/README.md` if it has options.
+3. Add a row, in alphabetical order, to the package table in `pkgs/README.md`, and a `pkgs/<name>/README.md` if it has options.
    Package-specific notes (gotchas, what to recheck on a bump) go in that README
    or as comments in the package's own files, not in this file.
 4. `git add` new files; flakes ignore untracked files.
