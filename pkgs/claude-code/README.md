@@ -26,6 +26,13 @@ and upstream's release key (`release-key.asc`, fingerprint
 each platform's download against the manifest's SHA-256. Updates pass
 through a pull request.
 
+The macOS binary's Apple code signature is checked too, without macOS
+(`lib/codesign-check.sh`, with `rcodesign` and `openssl`): it must be intact
+and signed with a Developer ID Application certificate of Anthropic's team
+`Q6L2SF6YDW` that chains to Apple's root CA. The macOS install check runs it
+on the installed binary, and `checks.<linux>.claude-code-codesign` on the
+pinned download, so an update that fails it never reaches a Mac.
+
 The wrapper sets these, all documented in
 [upstream's environment variables](https://code.claude.com/docs/en/env-vars):
 
@@ -67,6 +74,6 @@ telemetry variables: upstream counts any non-empty value as opting out.
 ## Rechecking on a bump
 
 The manifest layout (`claude.zst` per platform), the `--version` format the
-install check expects, the variables above, and the libraries the embedded
+install check expects, the signing team ID, the variables above, and the libraries the embedded
 addons link (`patchelf --print-needed` on the shared objects inside the
 binary).

@@ -146,6 +146,15 @@
             touch "$out"
           '';
         }
+        // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
+          # The Apple code signatures of macOS downloads (passthru.codesign),
+          # checked on Linux too, so an update is checked before it reaches a
+          # Mac; on macOS each package's install check does it. Packages that
+          # fetch another flake when evaluated are skipped.
+          lib.concatMapAttrs (
+            name: pkg: lib.optionalAttrs (pkg ? codesign) { "${name}-codesign" = pkg.codesign; }
+          ) (removeAttrs self.packages.${system} (builtins.attrNames fixedPlatforms))
+        )
         // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # shellcheck over every shell script, and actionlint (which runs
           # shellcheck on the `run` scripts too) over the workflows. Its

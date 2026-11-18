@@ -2,12 +2,15 @@
   lib,
   stdenv,
   fetchurl,
+  runCommand,
   makeBinaryWrapper,
   patchelf,
   zstd,
   alsa-lib,
   bubblewrap,
   socat,
+  openssl,
+  rcodesign,
 }:
 
 let
@@ -17,13 +20,27 @@ let
   inherit (stdenv.hostPlatform) system isLinux;
 
   # Upstream's platform names in the release manifest.
-  platform =
-    {
-      aarch64-darwin = "darwin-arm64";
-      x86_64-linux = "linux-x64";
-      aarch64-linux = "linux-arm64";
-    }
-    .${system} or (throw "claude-code: unsupported system ${system}");
+  platforms = {
+    aarch64-darwin = "darwin-arm64";
+    x86_64-linux = "linux-x64";
+    aarch64-linux = "linux-arm64";
+  };
+
+  # Upstream's native release, what claude.ai/install.sh installs: one
+  # Bun-compiled binary, zstd-compressed. Nothing is compiled. update.sh checks
+  # the hash against upstream's GPG-signed manifest.
+  srcFor =
+    system:
+    fetchurl {
+      url = "https://downloads.claude.ai/claude-code-releases/${version}/${platforms.${system}}/claude.zst";
+      hash = hashes.${system};
+    };
+
+  # Anthropic's Apple Developer ID team, which signs the macOS binary.
+  teamId = "Q6L2SF6YDW";
+  codesignCheck = file: ''
+    bash ${../../lib/codesign-check.sh} ${../../lib/apple-root-ca.pem} ${teamId} ${file}
+  '';
 
   # Updates come through this flake. DISABLE_UPDATES is upstream's switch for
   # redistributions: no background update, and `claude update` and `claude
@@ -73,13 +90,7 @@ stdenv.mkDerivation {
   pname = "claude-code";
   inherit version;
 
-  # Upstream's native release, what claude.ai/install.sh installs: one
-  # Bun-compiled binary, zstd-compressed. Nothing is compiled. update.sh checks
-  # the hash against upstream's GPG-signed manifest.
-  src = fetchurl {
-    url = "https://downloads.claude.ai/claude-code-releases/${version}/${platform}/claude.zst";
-    hash = hashes.${system};
-  };
+  src = srcFor system;
 
   nativeBuildInputs = [
     makeBinaryWrapper
@@ -118,6 +129,10 @@ stdenv.mkDerivation {
   '';
 
   doInstallCheck = true;
+  nativeInstallCheckInputs = lib.optionals stdenv.hostPlatform.isDarwin [
+    openssl
+    rcodesign
+  ];
   installCheckPhase = ''
     runHook preInstallCheck
     export HOME="$TMPDIR"
@@ -126,9 +141,31 @@ stdenv.mkDerivation {
   + lib.optionalString isLinux ''
     test -e "$out/lib/claude-code/libasound.so.2"
   ''
+  + lib.optionalString stdenv.hostPlatform.isDarwin (codesignCheck "$out/libexec/claude-code/claude")
   + ''
     runHook postInstallCheck
   '';
+
+  # The macOS binary's code signature, checked on any system: checks.<linux>
+  # runs it, so an update is checked before it reaches a Mac.
+  passthru.codesign =
+    runCommand "claude-code-codesign-${version}"
+      {
+        nativeBuildInputs = [
+          openssl
+          rcodesign
+          zstd
+        ];
+      }
+      (
+        ''
+          zstd -dq ${srcFor "aarch64-darwin"} -o claude
+        ''
+        + codesignCheck "claude"
+        + ''
+          touch "$out"
+        ''
+      );
 
   meta = {
     description = "Claude Code, Anthropic's agentic coding tool for the terminal (upstream's native release)";
