@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Sets Claude Desktop's documented `disableAutoUpdates` key in the
+  com.anthropic.claudefordesktop domain, for installs whose version Nix
+  manages. See pkgs/claude-desktop/README.md.
+-->
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>PayloadType</key>
+      <string>com.anthropic.claudefordesktop</string>
+      <key>PayloadIdentifier</key>
+      <string>io.github.xr3t.flakes.claude-desktop.updates.settings</string>
+      <key>PayloadUUID</key>
+      <string>064C934D-2603-4B3B-8EDB-0132F9009134</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>PayloadDisplayName</key>
+      <string>Claude Desktop updates</string>
+      <key>disableAutoUpdates</key>
+      <true/>
+    </dict>
+  </array>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadIdentifier</key>
+  <string>io.github.xr3t.flakes.claude-desktop.updates</string>
+  <key>PayloadUUID</key>
+  <string>B1784DFF-5265-43C2-B381-0E3FCDA925B6</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+  <key>PayloadScope</key>
+  <string>System</string>
+  <key>PayloadDisplayName</key>
+  <string>Claude Desktop: updates through Nix</string>
+  <key>PayloadDescription</key>
+  <string>Turns off Claude Desktop's own automatic updates (its documented disableAutoUpdates setting), because Nix installs its updates. Remove this profile to turn them back on.</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+</dict>
+</plist>

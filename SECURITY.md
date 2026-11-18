@@ -37,7 +37,10 @@ fixes; there are no release branches.
   manifests, Chrome's update server); GitHub release assets must match the
   digest GitHub recorded at upload; and npm packages are pinned by the registry's integrity hash. Every upstream version goes through `check_version`
   (`lib/update.sh`) before it reaches a URL, `hashes.json` or a commit
-  message.
+  message. Claude Desktop's app bundle must also carry intact Developer ID
+  signatures of Anthropic's team chaining to Apple's root CA, its seal
+  covering every file in the bundle (`lib/codesign-check.py`); this is
+  checked on Linux before an update lands and in the macOS install check.
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
   replaced in place. Its pin only downloads until the next build.
 - **Updates.** New releases are committed to `main` automatically once
