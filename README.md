@@ -20,6 +20,7 @@ Nix packages by `Prompter`.
 | [1mcp](pkgs/1mcp) | Unified MCP runtime that aggregates MCP servers behind one endpoint, with a NixOS service module |
 | [anoa](pkgs/anoa) | Anoa headless browser (CDP, a command per action for agents) from upstream's Linux bundle, run unpatched in an FHS environment; Linux only, no compilation |
 | [bend](pkgs/bend) | Bend parallel functional language (runs `.bend` files directly or builds native binaries) from upstream's prebuilt release, with clang on Linux; update check off, no self-update; Apple Silicon macOS and Linux, no compilation |
+| [claude-desktop](pkgs/claude-desktop) | Claude Desktop for macOS from upstream's signed app bundle (unfree), its whole code-signature seal checked, with a configuration profile that turns its self-update off; Apple Silicon, no compilation |
 | [cloudflare-warp](pkgs/cloudflare-warp) | Cloudflare WARP client (`warp-cli`, the `warp-svc` daemon and tray app, or the macOS app) from upstream's deb and installer (unfree), with a nix-darwin/NixOS service module that keeps its update check off; Apple Silicon macOS and Linux, no compilation |
 | [claude-code](pkgs/claude-code) | Claude Code from upstream's native release (`latest` channel, unfree), checked against its GPG-signed manifest; self-update, telemetry and error reports off; Apple Silicon macOS and Linux, no compilation |
 | [codex](pkgs/codex) | OpenAI Codex CLI from upstream's prebuilt npm release; Apple Silicon macOS and Linux, no compilation |

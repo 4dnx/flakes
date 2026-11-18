@@ -38,10 +38,11 @@ fixes; there are no release branches.
   manifests, Chrome's update server); GitHub release assets must match the
   digest GitHub recorded at upload; and npm packages are pinned by the registry's integrity hash. Every upstream version goes through `check_version`
   (`lib/update.sh`) before it reaches a URL, `hashes.json` or a commit
-  message. Claude Code's macOS binary must also carry a Developer ID
-  signature of Anthropic's team chaining to Apple's root CA
-  (`lib/codesign-check.sh`), checked on Linux before an update lands and in
-  the macOS install check.
+  message. Claude Code's macOS binary and Claude Desktop's whole app bundle
+  must also carry intact Developer ID signatures of Anthropic's team chaining
+  to Apple's root CA, Claude Desktop's seal covering every file in the bundle
+  (`lib/codesign-check.py`); this is checked on Linux before an update lands
+  and in the macOS install check.
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
   replaced in place. Its pin only downloads until the next build.
 - **Updates.** New releases are committed to `main` automatically once
