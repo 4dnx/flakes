@@ -36,6 +36,7 @@ Nix packages by `Prompter`.
 | [herdr](pkgs/herdr) | Herdr desktop app, herdr-core (`hc`) and the `herdr` CLI from upstream's prebuilt releases, with a nix-darwin/NixOS module that routes its updates through Nix; Apple Silicon macOS and Linux, no compilation |
 | [helium](pkgs/helium) | Helium browser (Chromium-based, private by default) from upstream's signed, notarized dmg on macOS and its binary tarball on Linux, with a Home Manager module that keeps its update check off; Apple Silicon macOS and Linux, no compilation |
 | [hermes-agent](pkgs/hermes-agent) | Hermes Agent pinned to upstream's latest stable release tag (`minimal` + telegram, mcp), with upstream's NixOS and Home Manager modules; x86_64 Linux only |
+| [kiri](pkgs/kiri) | Kiri container runtime (a Docker Desktop alternative with its own `docker`, Compose and buildx) from upstream's signed app bundle, its whole code-signature seal checked, with a Home Manager module that turns its update check off; Apple Silicon, no compilation |
 | [littlesnitch](pkgs/littlesnitch) | Little Snitch for Linux network monitor (unfree freeware binary), with a NixOS service module |
 | [lite-xl](pkgs/lite-xl) | Lite XL editor from upstream's addons release (language plugins, colour schemes) as Lite XL.app, Apple Silicon only |
 | [nullclaw](pkgs/nullclaw) | Small, fully autonomous AI assistant in one static Zig binary, with a Home Manager module that runs it as upstream's user service |

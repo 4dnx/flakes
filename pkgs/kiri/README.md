@@ -1,0 +1,70 @@
+# kiri
+
+[Kiri](https://runkiri.com), a small container runtime (one Rust daemon and a
+lightweight VM) that brings its own `docker` CLI, Compose and buildx, from
+upstream's signed, notarized `Kiri.app`. `$out/Applications/Kiri.app` is the
+bundle unchanged, with `bin/kiri` linked to its binary. Nothing is compiled.
+
+Systems: `aarch64-darwin`, macOS 14 or later. Upstream also ships an Intel
+app, Windows and Linux builds; this flake doesn't package them yet.
+
+```nix
+imports = [ inputs.xr3t.homeManagerModules.kiri ];
+programs.kiri.enable = true;
+```
+
+or just the package, in `environment.systemPackages` (nix-darwin) or
+`home.packages`.
+
+## Setup
+
+Kiri sets itself up when the app opens, as its own installer does (`kiri
+setup`): a LaunchAgent that starts `kiri daemon` at login, `docker` and `kiri`
+in `~/.kiri/bin` (appended to `PATH` in your shell profiles), a `kiri` docker
+context, a buildx builder, and, if you give an administrator password once,
+`*.kiri.local` names and `/var/run/docker.sock`. `kiri setup --uninstall`
+takes them back.
+
+The LaunchAgent and the links name the binary's resolved store path. A newly
+opened copy of Kiri replaces those of the one before, so after an update open
+the app once; until then the daemon at login is the old version (or none, if
+the old one was garbage-collected).
+
+## Integrity
+
+`update.sh` follows the release feed the app's updater reads
+(`download.runkiri.com/latest-mac-arm64.json`) and checks the tar.gz against
+the SHA-256 it lists. The bundle's Apple code signature is checked too,
+without macOS (`lib/codesign-check.py`): every file matches the seal, and the
+app is signed by the Developer ID of team `Z44N5GDT9Q`, the maintainer who
+signs Kiri's release tags, chaining to Apple's root CA. The macOS install
+check runs it on the installed bundle and `checks.<linux>.kiri-codesign` on
+the pinned download. Updates pass through a pull request.
+
+The archive, made on a Mac, carries AppleDouble files (`._*`) that only a
+Mac's tar folds back into extended attributes; they aren't part of the app
+and aren't unpacked.
+
+## Updates and telemetry
+
+Kiri checks its feed when the window opens and every 6 hours, and offers to
+install a newer app. It can't replace the read-only store copy (its staging
+directory goes beside the app), so updates come through this flake
+(`nix flake update xr3t`).
+
+The Home Manager module turns **Settings › Check for updates automatically**
+off, through its key (`updateAuto`) in `~/.kiri/ui.json`, only while that file
+doesn't set it, so turning it back on in Settings sticks. It writes the key
+only into a file the app has made: Kiri takes a missing file for its first
+start. So the check stays on until the first activation after you first open
+Kiri. This is the app's own setting, not a documented redistribution switch;
+recheck it on a bump.
+
+Telemetry: none found. Crash reports are off unless you turn them on in
+Settings, and the code sends nothing else to an analytics service.
+
+## Rechecking on a bump
+
+The feed's layout and URL pattern, the bundle identifier and minimum macOS
+version, the signing team, the `updateAuto` key and the settings file's
+location, and what `kiri setup` installs.
