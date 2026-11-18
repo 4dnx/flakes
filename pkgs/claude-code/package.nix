@@ -5,6 +5,9 @@
   makeBinaryWrapper,
   patchelf,
   zstd,
+  alsa-lib,
+  bubblewrap,
+  socat,
 }:
 
 let
@@ -21,6 +24,50 @@ let
       aarch64-linux = "linux-arm64";
     }
     .${system} or (throw "claude-code: unsupported system ${system}");
+
+  # Updates come through this flake. DISABLE_UPDATES is upstream's switch for
+  # redistributions: no background update, and `claude update` and `claude
+  # install` refuse. It would also stop plugin auto-updates, which upstream
+  # otherwise does, so FORCE_AUTOUPDATE_PLUGINS keeps those as upstream has
+  # them. Telemetry and error reports are off unless the environment, or an
+  # `env` block in Claude Code's settings, sets them (to an empty value, which
+  # turns them back on). Installation checks would warn that the binary isn't
+  # in ~/.local/bin.
+  wrapperArgs = [
+    "--set"
+    "DISABLE_UPDATES"
+    "1"
+    "--set-default"
+    "FORCE_AUTOUPDATE_PLUGINS"
+    "1"
+    "--set-default"
+    "DISABLE_TELEMETRY"
+    "1"
+    "--set-default"
+    "DISABLE_ERROR_REPORTING"
+    "1"
+    "--set-default"
+    "DISABLE_INSTALLATION_CHECKS"
+    "1"
+  ]
+  ++ lib.optionals isLinux [
+    # Voice input's libasound.so.2 (see installPhase); appended, so a
+    # library path the user sets comes first.
+    "--suffix"
+    "LD_LIBRARY_PATH"
+    ":"
+    "${placeholder "out"}/lib/claude-code"
+    # The sandbox runs the first bwrap on PATH and relays network traffic
+    # through socat. Appended, so a distribution's own bwrap (with the
+    # AppArmor profile Ubuntu needs) and the user's tools come first.
+    "--suffix"
+    "PATH"
+    ":"
+    (lib.makeBinPath [
+      bubblewrap
+      socat
+    ])
+  ];
 in
 stdenv.mkDerivation {
   pname = "claude-code";
@@ -54,25 +101,19 @@ stdenv.mkDerivation {
     chmod 755 "$out/libexec/claude-code/claude"
   ''
   + lib.optionalString isLinux ''
-    # Linked against glibc only; point it at Nix's loader. Adding a RUNPATH
-    # (for the ALSA and libsecret it dlopens) makes it crash, so don't.
+    # Linked against glibc only; point it at Nix's loader. That loader doesn't
+    # search a distribution's library directories, and a RUNPATH makes the
+    # binary crash, so the one library its embedded voice addon
+    # (audio-capture.node) links, libasound.so.2, gets a directory of its own
+    # for LD_LIBRARY_PATH: child processes inherit that, so nothing else goes
+    # in it.
     patchelf --set-interpreter ${stdenv.cc.bintools.dynamicLinker} "$out/libexec/claude-code/claude"
+    mkdir -p "$out/lib/claude-code"
+    ln -s ${lib.getLib alsa-lib}/lib/libasound.so.2 "$out/lib/claude-code/"
   ''
   + ''
-    # Updates come through this flake. DISABLE_UPDATES is upstream's switch
-    # for redistributions: no background update, and `claude update` and
-    # `claude install` refuse. It would also stop plugin auto-updates, which
-    # upstream otherwise does, so FORCE_AUTOUPDATE_PLUGINS keeps those as
-    # upstream has them. Telemetry and error reports are off unless the
-    # environment, or an `env` block in Claude Code's settings, sets them
-    # (to an empty value, which turns them back on). Installation checks would
-    # warn that the binary isn't in ~/.local/bin.
     makeWrapper "$out/libexec/claude-code/claude" "$out/bin/claude" \
-      --set DISABLE_UPDATES 1 \
-      --set-default FORCE_AUTOUPDATE_PLUGINS 1 \
-      --set-default DISABLE_TELEMETRY 1 \
-      --set-default DISABLE_ERROR_REPORTING 1 \
-      --set-default DISABLE_INSTALLATION_CHECKS 1
+      ${lib.escapeShellArgs wrapperArgs}
     runHook postInstall
   '';
 
@@ -81,6 +122,11 @@ stdenv.mkDerivation {
     runHook preInstallCheck
     export HOME="$TMPDIR"
     test "$("$out/bin/claude" --version)" = "$version (Claude Code)"
+  ''
+  + lib.optionalString isLinux ''
+    test -e "$out/lib/claude-code/libasound.so.2"
+  ''
+  + ''
     runHook postInstallCheck
   '';
 

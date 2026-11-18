@@ -43,13 +43,30 @@ the environment wins, and so does one in the `env` block of
 An empty value (`""`) undoes any of them. Don't use `0` for the two
 telemetry variables: upstream counts any non-empty value as opting out.
 
-## Notes
+## Linux
 
-- On Linux, the binary loads ALSA (voice input) and libsecret (keyring) at
-  run time from the library path. Most distributions have them; NixOS doesn't
-  put them in one, and adding them to the binary's RUNPATH with patchelf makes
-  it crash, so those two features may be missing there.
-- The Linux sandbox needs `bubblewrap` and `socat` on `PATH`, as upstream
-  documents; install them alongside.
-- On a bump, recheck the manifest layout (`claude.zst` per platform), the
-  `--version` format the install check expects, and the variables above.
+- **Voice input.** Its addon, embedded in the binary (`audio-capture.node`),
+  links `libasound.so.2`. Nix's loader doesn't search a distribution's
+  library directories, and a RUNPATH makes the Bun binary crash, so the
+  wrapper appends `lib/claude-code`, a directory holding only Nix's
+  `libasound.so.2`, to `LD_LIBRARY_PATH`. Commands Claude Code runs inherit
+  that variable, so they find Nix's ALSA library before their own RUNPATH; a
+  `LD_LIBRARY_PATH` you set comes first. Nix's ALSA reads `/etc/asound.conf`
+  and `~/.asoundrc`; on a distribution whose sound server reaches ALSA through
+  a plugin configured elsewhere, check that voice input records.
+- **Sandbox.** `bubblewrap` and `socat` from Nix are appended to `PATH`.
+  Claude Code runs the first `bwrap` on `PATH`, so a distribution's own
+  `/usr/bin/bwrap` still wins. Ubuntu 24.04 and later restrict unprivileged
+  user namespaces through AppArmor: give the `bwrap` Claude Code runs a
+  profile, as [upstream's sandbox guide](https://code.claude.com/docs/en/sandboxing#add-an-apparmor-profile-for-bubblewrap)
+  shows, or install the distribution's `bubblewrap`. The optional seccomp
+  filter (`@anthropic-ai/sandbox-runtime` on npm) isn't included.
+- **Keyring.** The Bun runtime can load libsecret, but Claude Code doesn't
+  use it: on Linux it keeps its login in `~/.claude/.credentials.json`.
+
+## Rechecking on a bump
+
+The manifest layout (`claude.zst` per platform), the `--version` format the
+install check expects, the variables above, and the libraries the embedded
+addons link (`patchelf --print-needed` on the shared objects inside the
+binary).
