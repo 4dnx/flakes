@@ -2,9 +2,8 @@
 
 Desktop apps, command-line tools and services for **nix-darwin**, **NixOS**
 and **Linux with Nix**, packaged from each project's own official releases.
-Think of it as Homebrew's casks and formulae, but declarative: you list what
-you want in your Nix configuration, and the same versions land on every
-machine. By `Prompter`.
+A declarative take on Homebrew's casks and formulae: packages are listed in a
+Nix configuration, and every machine gets the same versions. By `Prompter`.
 
 - **Upstream's own builds.** Most packages are the vendor's signed bundles
   and binaries, installed unchanged and native on Apple Silicon and Linux:
@@ -45,9 +44,9 @@ optionally, standalone Home Manager. Packages that don't run on a system are
 left out of `packages.<system>`; the package table and each package's README
 say which systems it supports.
 
-Add it as an input. Its `nix-darwin` and `home-manager` inputs are only used
-by its own checks (they are never fetched otherwise); point them at yours
-with `follows` if you have them, so your lock file holds one copy:
+Add it as an input. Its `nix-darwin` and `home-manager` inputs are used only
+by its own checks and are never fetched otherwise; pointing them at existing
+inputs with `follows` keeps a single copy of each in the lock file:
 
 ```nix
 inputs = {
@@ -61,10 +60,10 @@ inputs = {
 };
 ```
 
-Take packages straight from the flake (built against its pinned nixpkgs,
-with its unfree packages allowed), or build them against your own nixpkgs
-through the overlay, as `pkgs.xr3t.<name>`; unfree ones then need your
-nixpkgs config to allow them (`nixpkgs.config.allowUnfreePredicate`).
+Packages come straight from the flake (built against its pinned nixpkgs,
+with its unfree packages allowed) or from the overlay, as `pkgs.xr3t.<name>`,
+built against the configuration's own nixpkgs; unfree ones then need that
+nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 
 ### nix-darwin
 
@@ -109,7 +108,7 @@ this flake's.
 
 ### Ubuntu and other Linux distributions
 
-Install Nix with flakes enabled, then either add packages to your profile:
+Install Nix with flakes enabled, then either add packages to a profile:
 
 ```bash
 nix profile add github:xr3t/flakes#codex
@@ -136,25 +135,25 @@ homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
 };
 ```
 
-What is different from NixOS:
+Differences from NixOS:
 
-- `nixosModules` don't apply: nothing sets up the system services (`rayfish`,
-  `cloudflare-warp`, `littlesnitch`, `1mcp`, `tailscale`) for you. The
-  binaries run, but a system unit has to come from elsewhere, such as
+- `nixosModules` don't apply, so the system services (`rayfish`,
+  `cloudflare-warp`, `littlesnitch`, `1mcp`, `tailscale`) aren't set up. Their
+  binaries run, but the system units have to come from elsewhere, such as
   upstream's own package or installer. User services from Home Manager
   modules (`services.nullclaw`) run under the systemd user manager as on
   NixOS.
 - Programs from Nix don't see the distribution's OpenGL and Vulkan drivers.
   With `targets.genericLinux.enable`, Home Manager links Nix's drivers into
-  `/run/opengl-driver`; run the `sudo` command it prints when it activates
-  (see Home Manager's manual, "GPU on non-NixOS systems"). This matters to
-  the GUI apps and to `llama`'s Vulkan backend.
+  `/run/opengl-driver` once the `sudo` command it prints on activation has
+  run (see Home Manager's manual, "GPU on non-NixOS systems"). The GUI apps
+  and `llama`'s Vulkan backend need this.
 - Ubuntu 23.10 and later restrict unprivileged user namespaces through
   AppArmor, which sandboxes from the Nix store rely on (there are no setuid
   helpers in it): see [helium](pkgs/helium/README.md#ubuntu) and
   [claude-code](pkgs/claude-code) for the profile each needs.
 
-Or run a package without installing it:
+A package also runs without being installed:
 `nix run github:xr3t/flakes#codex -- --version`.
 
 ## Outputs
