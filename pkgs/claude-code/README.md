@@ -40,15 +40,27 @@ The wrapper sets these, all documented in
 |---|---|---|
 | `DISABLE_UPDATES=1` | No background update; `claude update` and `claude install` refuse ("disabled by your administrator"), so no second copy lands in `~/.local`. Always set. | Update the flake input. |
 | `FORCE_AUTOUPDATE_PLUGINS=1` | `DISABLE_UPDATES` would also stop plugin auto-updates; this keeps them on, as upstream has them. | Set it to an empty value. |
-| `DISABLE_TELEMETRY=1` | No usage metrics. Like upstream's own switch, this also turns off feature-flag fetching, so Remote Control and other flag-gated features are unavailable. | Set it to an empty value. |
 | `DISABLE_ERROR_REPORTING=1` | No error reports. | Set it to an empty value. |
 | `DISABLE_INSTALLATION_CHECKS=1` | No warning that `claude` isn't in `~/.local/bin`. | Set it to an empty value. |
 
 Except for `DISABLE_UPDATES`, each one is only a default: a value already in
 the environment wins, and so does one in the `env` block of
 `~/.claude/settings.json`, which Claude Code applies over its environment.
-An empty value (`""`) undoes any of them. Don't use `0` for the two
-telemetry variables: upstream counts any non-empty value as opting out.
+An empty value (`""`) undoes any of them. Don't use `0` for
+`DISABLE_ERROR_REPORTING`: upstream counts any non-empty value as opting out.
+
+Usage metrics stay on, unlike other packages here: upstream ties its feature
+flags to them, so `DISABLE_TELEMETRY` (or `DO_NOT_TRACK`) also turns off
+[the features that need them](https://code.claude.com/docs/en/env-vars#features-that-need-feature-flag-fetching):
+Remote Control, syncing the skills and plugins enabled for your claude.ai
+account, `claude import`, the advisor tool, MCP tasks, Code Mode, artifact
+comments and others. To turn metrics off anyway, at that cost:
+
+```nix
+inputs.xr3t.packages.${system}.claude-code.override { disableTelemetry = true; }
+```
+
+or set `DISABLE_TELEMETRY=1` yourself.
 
 ## Linux
 

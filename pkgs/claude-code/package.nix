@@ -12,6 +12,10 @@
   openssl,
   python3,
   rcodesign,
+  # Also turn off usage metrics (DISABLE_TELEMETRY). Upstream ties feature
+  # flags to it, so Remote Control and the other flag-gated features stop
+  # working; see README.md.
+  disableTelemetry ? false,
 }:
 
 let
@@ -47,10 +51,13 @@ let
   # redistributions: no background update, and `claude update` and `claude
   # install` refuse. It would also stop plugin auto-updates, which upstream
   # otherwise does, so FORCE_AUTOUPDATE_PLUGINS keeps those as upstream has
-  # them. Telemetry and error reports are off unless the environment, or an
-  # `env` block in Claude Code's settings, sets them (to an empty value, which
-  # turns them back on). Installation checks would warn that the binary isn't
-  # in ~/.local/bin.
+  # them. Error reports are off unless the environment, or an `env` block in
+  # Claude Code's settings, sets DISABLE_ERROR_REPORTING (to an empty value,
+  # which turns them back on); no feature depends on them. Usage metrics stay
+  # on unless disableTelemetry is set: turning them off also turns off the
+  # feature flags that Remote Control, skill and plugin sync, the advisor, MCP
+  # tasks and other features need. Installation checks would warn that the
+  # binary isn't in ~/.local/bin.
   wrapperArgs = [
     "--set"
     "DISABLE_UPDATES"
@@ -59,13 +66,15 @@ let
     "FORCE_AUTOUPDATE_PLUGINS"
     "1"
     "--set-default"
-    "DISABLE_TELEMETRY"
-    "1"
-    "--set-default"
     "DISABLE_ERROR_REPORTING"
     "1"
     "--set-default"
     "DISABLE_INSTALLATION_CHECKS"
+    "1"
+  ]
+  ++ lib.optionals disableTelemetry [
+    "--set-default"
+    "DISABLE_TELEMETRY"
     "1"
   ]
   ++ lib.optionals isLinux [
