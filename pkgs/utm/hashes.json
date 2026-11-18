@@ -1,6 +1,7 @@
 {
-  "version": "5.0.9",
+  "version": "5.0.9-2",
   "hashes": {
-    "UTM.dmg": "sha256-YHw7frSthWFjxDMjIjffoXpCvySS0ujUt5ca660uaxc="
-  }
+    "UTM.dmg": "sha256-Gnbdz2GrQkpa4dG2ihapsuhLdIcWr86QXud3QNjoYSc="
+  },
+  "appVersion": "5.0.9"
 }
