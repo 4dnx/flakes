@@ -22,6 +22,7 @@
       # Unfree packages this flake's own `packages` allow. Overlay users allow
       # them in their own nixpkgs config.
       allowedUnfree = [
+        "claude-code"
         "cloudflare-warp"
         "cloudflare-warp-headless"
         "google-chrome"

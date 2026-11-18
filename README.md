@@ -21,6 +21,7 @@ Nix packages by `Prompter`.
 | [anoa](pkgs/anoa) | Anoa headless browser (CDP, a command per action for agents) from upstream's Linux bundle, run unpatched in an FHS environment; Linux only, no compilation |
 | [bend](pkgs/bend) | Bend parallel functional language (runs `.bend` files directly or builds native binaries) from upstream's prebuilt release, with clang on Linux; update check off, no self-update; Apple Silicon macOS and Linux, no compilation |
 | [cloudflare-warp](pkgs/cloudflare-warp) | Cloudflare WARP client (`warp-cli`, the `warp-svc` daemon and tray app, or the macOS app) from upstream's deb and installer (unfree), with a nix-darwin/NixOS service module that keeps its update check off; Apple Silicon macOS and Linux, no compilation |
+| [claude-code](pkgs/claude-code) | Claude Code from upstream's native release (`latest` channel, unfree), checked against its GPG-signed manifest; self-update, telemetry and error reports off; Apple Silicon macOS and Linux, no compilation |
 | [codex](pkgs/codex) | OpenAI Codex CLI from upstream's prebuilt npm release; Apple Silicon macOS and Linux, no compilation |
 | [cua-driver](pkgs/cua-driver) | Desktop control driver for Hermes' computer_use; telemetry and update check off by default; Linux only, no compilation |
 | [muxin](pkgs/muxin) | One desktop app for all your machines and their AI agents (sessions, desktops, logs, files) over ssh, with its CLI and MCP server, from upstream's prebuilt release; Apple Silicon macOS and Linux, no compilation |

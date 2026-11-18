@@ -32,7 +32,8 @@ fixes; there are no release branches.
 - **Hashes pin, they don't vouch.** `hashes.json` proves a download is the one
   that was fetched when the update ran, not that it is safe. Where upstream
   publishes more, `update.sh` checks it as well: Node's `SHASUMS256.txt` must
-  carry a signature by a Node release key; downloads must match the checksums
+  carry a signature by a Node release key, and Claude Code's release manifest
+  one by the release key kept in `pkgs/claude-code`; downloads must match the checksums
   upstream lists beside them (checksum files, package indexes, update
   manifests, Chrome's update server); GitHub release assets must match the
   digest GitHub recorded at upload; and npm packages are pinned by the registry's integrity hash. Every upstream version goes through `check_version`
