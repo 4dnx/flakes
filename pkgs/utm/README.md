@@ -5,6 +5,9 @@
 is compiled: the derivation only unpacks the dmg and copies the signed,
 notarized bundle, left untouched (`dontFixup`). Unlike nixpkgs' `utm`, which
 lags upstream, `update.sh` bumps it to the latest upstream (non-pre-)release.
+Upstream re-releases a version as `vX.Y.Z-N` (`v5.0.9-2`); such a release is
+pinned as its version, and the install check compares the app's own version
+(`appVersion`, `5.0.9`).
 
 macOS only (universal binary, macOS 12+). Home Manager and nix-darwin link
 `Applications/*.app` into the usual app folders.
