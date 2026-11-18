@@ -1,0 +1,96 @@
+name: Heavy
+
+# Builds the heavy packages, which checks leave out (flake.nix `heavy`: each
+# Office app downloads a ~1.4 GB installer and takes ~3 GB built), on pull
+# requests to main that change them. A plan job on Linux compares their
+# derivations with the base branch, so only the apps whose derivation changed
+# are built (all of them when their shared builder changed), and a change to
+# the module or docs alone starts no macOS runner.
+#
+# Not a required check: with the paths filter it doesn't run on other pull
+# requests, which would then wait for it forever.
+#
+# Pull requests that update.yml opens (update/<name>) get no run: GitHub
+# holds pull_request runs of that token's pull requests for approval, and
+# lib/update-all.sh and check.yml delete them. update.yml's macOS job builds
+# each bump itself before proposing it.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "pkgs/microsoft-*/**"
+      - "lib/microsoft-office.nix"
+      - "lib/pkg-signature-check.py"
+      - "lib/check-app.py"
+      - "lib/apple-root-ca.pem"
+      - ".github/workflows/heavy.yml"
+
+concurrency:
+  group: heavy-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      packages: ${{ steps.plan.outputs.packages }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The base branch too, to compare against.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # Evaluation only: the derivations of the heavy packages here and on
+      # the base branch. A base without them (or that doesn't evaluate)
+      # builds them all.
+      - name: Plan heavy builds
+        id: plan
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          drvs() {
+            nix eval --json "$1#packages.aarch64-darwin" --apply '
+              ps: builtins.mapAttrs (n: p: p.drvPath) {
+                inherit (ps) microsoft-excel microsoft-powerpoint microsoft-word;
+              }'
+          }
+          head="$(drvs "git+file://$PWD")"
+          base="$(drvs "git+file://$PWD?shallow=1&rev=$(git rev-parse "$BASE")")" || base='{}'
+          packages="$(jq -rn --argjson h "$head" --argjson b "$base" \
+            '[$h | to_entries[] | select($b[.key] != .value) | .key] | join(" ")')"
+          echo "To build: ${packages:-nothing}"
+          echo "packages=$packages" >>"$GITHUB_OUTPUT"
+
+  # One package at a time, each deleted from the store before the next, so
+  # the runner needs room for one app (installer, app, Nix's copy of the
+  # download: ~5 GB), not all of them.
+  build:
+    name: build (macos-latest)
+    needs: plan
+    if: needs.plan.outputs.packages != ''
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - name: Build the changed heavy packages
+        env:
+          PACKAGES: ${{ needs.plan.outputs.packages }}
+        run: |
+          df -h /nix
+          for name in $PACKAGES; do
+            attr=".#packages.aarch64-darwin.$name"
+            nix build --no-link -L "$attr"
+            df -h /nix
+            # shellcheck disable=SC2046 # store paths, one per word
+            nix store delete $(nix eval --raw "$attr" \
+              --apply 'p: toString (map (o: builtins.getAttr o p) p.outputs ++ [ p.src ])')
+          done

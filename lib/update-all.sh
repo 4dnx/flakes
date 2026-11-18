@@ -92,6 +92,23 @@ proposed() {
 # Drops what a failed update left behind.
 discard() { git checkout -q -- "$(paths "$1")"; git clean -fdq -- "$(paths "$1")"; }
 
+# Deletes <name>'s build and download from the store again when checks leave
+# it out (flake.nix: rolling and heavy, such as the Office apps with ~4 GB
+# each), so the store the macOS job caches between runs (update.yml) keeps
+# what the checks need rather than these. A failure is only a warning.
+forget() {
+  local name=$1 attr=".#packages.$UPDATE_SYSTEM.\"$1\"" paths
+  [ "$name" != nixpkgs ] || return 0
+  [ "$(nix eval ".#checks.$UPDATE_SYSTEM" --apply "cs: cs ? \"$name\"")" = false ] || return 0
+  paths="$(nix eval --raw "$attr" \
+    --apply 'p: toString (map (o: builtins.getAttr o p) p.outputs ++ [ (p.src or "") ])' 2>/dev/null)" ||
+    return 0
+  local present=() path
+  for path in $paths; do [ ! -e "$path" ] || present+=("$path"); done
+  [ ${#present[@]} = 0 ] || nix store delete "${present[@]}" ||
+    echo "::warning::$name: could not delete its build from the store"
+}
+
 # Checks the flake with <name>'s update, then commits it to main, or proposes
 # it when it needs review. Sets failed=1 when it fails.
 land() {
@@ -108,8 +125,9 @@ land() {
       nix eval --quiet ".#packages.$UPDATE_SYSTEM.\"$name\".drvPath" >/dev/null 2>&1 &&
       ! nix build --no-link -L ".#packages.$UPDATE_SYSTEM.\"$name\""; }; then
     echo "::error::$name failed to build after update"
-    discard "$name"; failed=1; return 0
+    forget "$name"; discard "$name"; failed=1; return 0
   fi
+  forget "$name"
   if $review; then
     propose "$name" "$title"
   else

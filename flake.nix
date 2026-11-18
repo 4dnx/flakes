@@ -47,6 +47,10 @@
         "cloudflare-warp-headless"
         "google-chrome"
         "littlesnitch"
+        "microsoft-excel"
+        "microsoft-office"
+        "microsoft-powerpoint"
+        "microsoft-word"
         "whatsapp"
       ];
 
@@ -99,6 +103,17 @@
       rolling = [
         "ghostty-tip"
       ];
+      # Heavy builds: each Office app downloads a ~1.4 GB installer and takes
+      # ~3 GB built. Left out of checks, so check.yml's macOS job and
+      # update.yml's store cache stay small; .github/workflows/heavy.yml
+      # builds them on pull requests that change them, and update.yml when it
+      # bumps them.
+      heavy = [
+        "microsoft-excel"
+        "microsoft-office"
+        "microsoft-powerpoint"
+        "microsoft-word"
+      ];
 
       # The modules of one kind, but those that fetch another flake when
       # evaluated (hermes-agent: upstream's modules).
@@ -149,7 +164,14 @@
             nixpkgs.hostPlatform = "aarch64-darwin";
             system.stateVersion = 6;
             system.primaryUser = "alice";
-            programs.herdr.enable = true;
+            programs = {
+              herdr.enable = true;
+              # PowerPoint left off, so the selection is exercised too.
+              microsoft-office = {
+                word.enable = true;
+                excel.enable = true;
+              };
+            };
             services = {
               cloudflare-warp.enable = true;
               rayfish.enable = true;
@@ -204,15 +226,15 @@
       nixosModules = modulesFrom "module.nix" // modulesFrom "nixos-module.nix";
       homeManagerModules = modulesFrom "home-module.nix";
 
-      # Every package but the rolling ones, every .nix file formatted with
-      # `nix fmt`, and on Linux the scripts and workflows linted and the
-      # NixOS, nix-darwin and Home Manager modules evaluated.
+      # Every package but the rolling and heavy ones, every .nix file
+      # formatted with `nix fmt`, and on Linux the scripts and workflows
+      # linted and the NixOS, nix-darwin and Home Manager modules evaluated.
       checks = eachSystem (
         system:
         let
           pkgs = pkgsFor.${system};
         in
-        removeAttrs self.packages.${system} rolling
+        removeAttrs self.packages.${system} (rolling ++ heavy)
         // {
           formatting = pkgs.runCommand "formatting" { nativeBuildInputs = [ pkgs.nixfmt ]; } ''
             find ${self} -name '*.nix' -exec nixfmt --check {} +
