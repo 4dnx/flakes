@@ -1,10 +1,29 @@
 {
   description = "Nix packages by Prompter";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Only the module checks use these two (checks.<linux>.darwin-modules,
+    # home-modules, darwin-home-modules): the packages, the overlay and the
+    # modules themselves don't, so they are fetched only when checks are
+    # evaluated. Point them at your own with `follows` to keep one copy.
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      nix-darwin,
+      home-manager,
+    }:
     let
       inherit (nixpkgs) lib;
 
@@ -81,17 +100,18 @@
         "ghostty-tip"
       ];
 
-      # Used by checks.<system>.nixos-modules. hermes-agent is left out: it is
-      # upstream's module, and evaluating it fetches upstream's flake.
+      # The modules of one kind, but those that fetch another flake when
+      # evaluated (hermes-agent: upstream's modules).
+      modulesToTest =
+        modules: builtins.attrValues (removeAttrs modules (builtins.attrNames fixedPlatforms));
+      darwinHome = system: lib.hasSuffix "-darwin" system;
+
+      # Used by checks.<linux>.nixos-modules: a NixOS system with every NixOS
+      # module imported and enabled.
       nixosModulesTest =
         system:
         nixpkgs.lib.nixosSystem {
-          modules = [
-            self.nixosModules."1mcp"
-            self.nixosModules.cloudflare-warp
-            self.nixosModules.herdr
-            self.nixosModules.littlesnitch
-            self.nixosModules.rayfish
+          modules = modulesToTest self.nixosModules ++ [
             {
               nixpkgs.hostPlatform = system;
               boot.loader.grub.enable = false;
@@ -120,6 +140,58 @@
             }
           ];
         };
+
+      # Used by checks.<linux>.darwin-modules: a nix-darwin system (Apple
+      # Silicon) with every nix-darwin module imported and enabled.
+      darwinModulesTest = nix-darwin.lib.darwinSystem {
+        modules = modulesToTest self.darwinModules ++ [
+          {
+            nixpkgs.hostPlatform = "aarch64-darwin";
+            system.stateVersion = 6;
+            system.primaryUser = "alice";
+            programs.herdr.enable = true;
+            services = {
+              cloudflare-warp.enable = true;
+              rayfish.enable = true;
+            };
+          }
+        ];
+      };
+
+      # Used by checks.<linux>.home-modules (this Linux system: a standalone
+      # Home Manager, as on Ubuntu) and darwin-home-modules (macOS): every
+      # Home Manager module imported, and those for the system enabled.
+      homeModulesTest =
+        system:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = pkgsFor.${system};
+          modules = modulesToTest self.homeManagerModules ++ [
+            {
+              home = {
+                username = "alice";
+                homeDirectory = if darwinHome system then "/Users/alice" else "/home/alice";
+                stateVersion = "25.11";
+              };
+              programs = {
+                codex.enable = true;
+                helium.enable = true;
+                muxin.enable = true;
+              };
+              services.nullclaw.enable = true;
+            }
+            (lib.optionalAttrs (darwinHome system) {
+              programs = {
+                kiri.enable = true;
+                whatsapp.enable = true;
+              };
+            })
+          ];
+        };
+
+      # A configuration's drv path as a check: evaluated, not built.
+      evaluated =
+        pkgs: name: drv:
+        pkgs.writeText name (builtins.unsafeDiscardStringContext drv.drvPath);
     in
     {
       packages = eachSystem (
@@ -133,8 +205,8 @@
       homeManagerModules = modulesFrom "home-module.nix";
 
       # Every package but the rolling ones, every .nix file formatted with
-      # `nix fmt`, and on Linux the scripts and workflows linted and the NixOS
-      # modules evaluated.
+      # `nix fmt`, and on Linux the scripts and workflows linted and the
+      # NixOS, nix-darwin and Home Manager modules evaluated.
       checks = eachSystem (
         system:
         let
@@ -183,11 +255,18 @@
                 actionlint .github/workflows/*.yml
                 touch "$out"
               '';
-          # A NixOS system with every NixOS module here enabled, evaluated
-          # (not built): its drv path is the check's only content.
-          nixos-modules = pkgs.writeText "nixos-modules" (
-            builtins.unsafeDiscardStringContext (nixosModulesTest system).config.system.build.toplevel.drvPath
-          );
+          # The modules evaluated in a NixOS system, a nix-darwin system and
+          # Home Manager on Linux and macOS (not built): each drv path is its
+          # check's only content. The macOS ones are evaluated here, so CI
+          # checks them on every change without a macOS runner.
+          nixos-modules =
+            evaluated pkgs "nixos-modules"
+              (nixosModulesTest system).config.system.build.toplevel;
+          darwin-modules = evaluated pkgs "darwin-modules" darwinModulesTest.config.system.build.toplevel;
+          home-modules = evaluated pkgs "home-modules" (homeModulesTest system).activationPackage;
+          darwin-home-modules =
+            evaluated pkgs "darwin-home-modules"
+              (homeModulesTest "aarch64-darwin").activationPackage;
         }
       );
 

@@ -37,6 +37,33 @@ Or with the Home Manager module, which also keeps its update check off:
 | `programs.helium.package` | this flake's `helium` | |
 | `programs.helium.checkUpdates` | `false` | `false` sets `helium.services.browser_updates` to `false` in each profile's `Preferences` while the key is absent; after that Helium's own toggle decides. `true` leaves upstream's default (on). |
 
+## Ubuntu
+
+Ubuntu 23.10 and later restrict unprivileged user namespaces through
+AppArmor. Chromium's sandbox needs them when it has no setuid helper, and
+there is none in the Nix store, so Helium from Nix exits with "No usable
+sandbox" there until its binary has a profile that allows them, as
+[Chromium's notes on the restriction](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md)
+describe. Ubuntu ships such profiles for browsers in `/opt`; one for the Nix
+store path, in `/etc/apparmor.d/nix-helium`:
+
+```
+abi <abi/4.0>,
+include <tunables/global>
+
+profile nix-helium /nix/store/*/libexec/helium/helium flags=(unconfined) {
+  userns,
+
+  include if exists <local/nix-helium>
+}
+```
+
+Load it with `sudo apparmor_parser -r /etc/apparmor.d/nix-helium`; the glob
+keeps it valid across updates. Don't run Helium with `--no-sandbox` instead.
+
+For GPU acceleration on a distribution other than NixOS, see the Ubuntu
+section of the [flake README](../../README.md#ubuntu-and-other-linux-distributions).
+
 ## Updates
 
 On macOS, Helium updates itself with Sparkle, from updates.helium.computer,

@@ -50,24 +50,123 @@ Nix packages by `Prompter`.
 
 ## Usage
 
+The flake targets three setups: **nix-darwin** on Apple Silicon Macs,
+**NixOS**, and **Ubuntu** (or another Linux distribution) with Nix and,
+optionally, standalone Home Manager. Packages that don't run on a system are
+left out of `packages.<system>`; the package table and each package's README
+say which systems it supports.
+
+Add it as an input. Its `nix-darwin` and `home-manager` inputs are only used
+by its own checks (they are never fetched otherwise); point them at yours
+with `follows` if you have them, so your lock file holds one copy:
+
 ```nix
-{
-  inputs.xr3t.url = "github:xr3t/flakes";
-  inputs.xr3t.inputs.nixpkgs.follows = "nixpkgs";
-
-  # Either take packages straight from the flake (pinned nixpkgs) ...
-  environment.systemPackages = [ inputs.xr3t.packages.${system}.rayfish ];
-
-  # ... or build them against your own nixpkgs through the overlay.
-  nixpkgs.overlays = [ inputs.xr3t.overlays.default ];
-  environment.systemPackages = [ pkgs.xr3t.rayfish ];
-
-  # Packages with a service module:
-  modules = [ inputs.xr3t.darwinModules.rayfish ];  # or nixosModules
-}
+inputs = {
+  nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  xr3t = {
+    url = "github:xr3t/flakes";
+    inputs.nixpkgs.follows = "nixpkgs";
+    # inputs.nix-darwin.follows = "nix-darwin";
+    # inputs.home-manager.follows = "home-manager";
+  };
+};
 ```
 
-Or run one without installing: `nix run github:xr3t/flakes#rayfish -- --version`.
+Take packages straight from the flake (built against its pinned nixpkgs,
+with its unfree packages allowed), or build them against your own nixpkgs
+through the overlay, as `pkgs.xr3t.<name>`; unfree ones then need your
+nixpkgs config to allow them (`nixpkgs.config.allowUnfreePredicate`).
+
+### nix-darwin
+
+```nix
+darwinConfigurations.example = nix-darwin.lib.darwinSystem {
+  modules = [
+    xr3t.darwinModules.rayfish
+    {
+      nixpkgs.hostPlatform = "aarch64-darwin";
+      environment.systemPackages = [ xr3t.packages.aarch64-darwin.ghostty ];
+      services.rayfish.enable = true;
+    }
+  ];
+};
+```
+
+`darwinModules` hold the system services (launchd daemons). macOS apps such as
+`kiri` and `whatsapp` have Home Manager modules (`homeManagerModules`), for
+nix-darwin's Home Manager module or a standalone Home Manager.
+
+### NixOS
+
+```nix
+nixosConfigurations.example = nixpkgs.lib.nixosSystem {
+  modules = [
+    xr3t.nixosModules.rayfish
+    (
+      { pkgs, ... }:
+      {
+        nixpkgs.overlays = [ xr3t.overlays.default ];
+        environment.systemPackages = [ pkgs.xr3t.codex ];
+        services.rayfish.enable = true;
+      }
+    )
+  ];
+};
+```
+
+`nixosModules` hold the system services (systemd units). The NixOS service
+for `tailscale` is nixpkgs' own `services.tailscale`; set its `package` to
+this flake's.
+
+### Ubuntu and other Linux distributions
+
+Install Nix with flakes enabled, then either add packages to your profile:
+
+```bash
+nix profile add github:xr3t/flakes#codex
+```
+
+or use standalone Home Manager, with this flake's `homeManagerModules`:
+
+```nix
+homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
+  pkgs = nixpkgs.legacyPackages.x86_64-linux;
+  modules = [
+    xr3t.homeManagerModules.helium
+    {
+      home = {
+        username = "alice";
+        homeDirectory = "/home/alice";
+        stateVersion = "25.11";
+        packages = [ xr3t.packages.x86_64-linux.codex ];
+      };
+      targets.genericLinux.enable = true;
+      programs.helium.enable = true;
+    }
+  ];
+};
+```
+
+What is different from NixOS:
+
+- `nixosModules` don't apply: nothing sets up the system services (`rayfish`,
+  `cloudflare-warp`, `littlesnitch`, `1mcp`, `tailscale`) for you. The
+  binaries run, but a system unit has to come from elsewhere, such as
+  upstream's own package or installer. User services from Home Manager
+  modules (`services.nullclaw`) run under the systemd user manager as on
+  NixOS.
+- Programs from Nix don't see the distribution's OpenGL and Vulkan drivers.
+  With `targets.genericLinux.enable`, Home Manager links Nix's drivers into
+  `/run/opengl-driver`; run the `sudo` command it prints when it activates
+  (see Home Manager's manual, "GPU on non-NixOS systems"). This matters to
+  the GUI apps and to `llama`'s Vulkan backend.
+- Ubuntu 23.10 and later restrict unprivileged user namespaces through
+  AppArmor, which sandboxes from the Nix store rely on (there are no setuid
+  helpers in it): see [helium](pkgs/helium/README.md#ubuntu) and
+  [claude-code](pkgs/claude-code) for the profile each needs.
+
+Or run a package without installing it:
+`nix run github:xr3t/flakes#codex -- --version`.
 
 ## Outputs
 
@@ -78,8 +177,10 @@ Or run one without installing: `nix run github:xr3t/flakes#rayfish -- --version`
 - `homeManagerModules.<name>`: for packages that have a `home-module.nix`
 - `checks.<system>.<name>`: builds every package but the rolling
   `ghostty-tip`; `checks.<system>.formatting`
-  checks that every `.nix` file is formatted, `checks.<linux>.nixos-modules`
-  that the NixOS modules evaluate
+  checks that every `.nix` file is formatted; on Linux,
+  `nixos-modules`, `darwin-modules`, `home-modules` and `darwin-home-modules`
+  check that the NixOS, nix-darwin and Home Manager (Linux, macOS) modules
+  evaluate with every one of them enabled
 - `formatter`: `nixfmt`
 
 Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.

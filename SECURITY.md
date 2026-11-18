@@ -50,7 +50,9 @@ fixes; there are no release branches.
   `REVIEW` (root daemons, network filters, agents), whose updates go through
   a pull request that CI merges, also without review, once it builds on Linux
   x86_64, Linux aarch64 and macOS. The pinned nixpkgs, which every package's
-  libraries and tools come from, is bumped weekly the same way. See
+  libraries and tools come from, is bumped weekly the same way, with the
+  nix-darwin and Home Manager inputs; those two only evaluate the modules in
+  `checks` and are in no package or module. See
   [LAYOUT.md](LAYOUT.md) for how the workflow runs.
 - **macOS checks.** CI evaluates macOS package derivations (on a Linux
   runner: evaluating builds nothing) and rebuilds, on macOS, those

@@ -136,13 +136,14 @@ for script in pkgs/*/update.sh; do
   land "$name" "Update $name to v$version" "$review"
 done
 
-# nixpkgs, which every package's libraries and tools come from: weekly
+# nixpkgs, which every package's libraries and tools come from, with the
+# nix-darwin and Home Manager the module checks evaluate against it: weekly
 # (Monday's first run) or when asked for, always through a pull request, since
 # it touches every package. Linux only; check.yml builds the rest.
 if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
   { { [ -z "$PACKAGES" ] && [ "$(date -u +%u%H)" = 103 ]; } ||
     [[ " $PACKAGES " == *" nixpkgs "* ]]; }; then
-  if nix flake update nixpkgs; then
+  if nix flake update nixpkgs nix-darwin home-manager; then
     if [ -n "$(git status --porcelain -- flake.lock)" ]; then
       rev="$(jq -r .nodes.nixpkgs.locked.rev flake.lock)"
       land nixpkgs "Update nixpkgs to ${rev:0:12}" true
