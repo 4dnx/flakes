@@ -219,6 +219,11 @@
             touch "$out"
           '';
         }
+        // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+          kiri-shell-profiles = import ./pkgs/kiri/tests.nix {
+            inherit self home-manager pkgs;
+          };
+        }
         // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
           # The Apple code signatures of macOS downloads (passthru.codesign),
           # checked on Linux too, so an update is checked before it reaches a
