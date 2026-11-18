@@ -1,6 +1,6 @@
 # muxin
 
-[Muxin](https://muxin.dev): one desktop app for all your machines and the AI
+[Muxin](https://muxin.dev): one desktop app for many machines and the AI
 agents on them (sessions, desktops, logs, files and servers, over ssh), with
 the `muxin` command line and MCP server (`muxin mcp`). Upstream's prebuilt
 release, nothing compiled:
@@ -48,12 +48,12 @@ or with `check_updates = false` under `[settings]` in
 `~/.config/muxin/config.toml` (`$XDG_CONFIG_HOME/muxin`, or `$MUXIN_HOME`).
 New releases come through this flake.
 
-Muxin has no telemetry. Besides the machines you add, it contacts GitHub (the
-update check, and its GitHub features when you use them), and muxin.dev only
+Muxin has no telemetry. Besides the machines added to it, it contacts GitHub (the
+update check, and its GitHub features when used), and muxin.dev only
 for sharing and for alerts to Muxin for iPad.
 
 `update.sh` follows upstream's latest GitHub release. Muxin runs agents and
-reaches your machines with your ssh, so its updates come as a pull request.
+reaches machines with the user's ssh, so its updates come as a pull request.
 
 ## Maintenance
 

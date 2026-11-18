@@ -10,5 +10,5 @@ Apple Silicon only (the upstream arm64 dmg). The bundle is ad-hoc signed
 upstream and left untouched (`dontFixup`). Home Manager and nix-darwin link
 `Applications/*.app` into the usual app folders.
 
-Your own config (`init.lua`, extra plugins, colours) still goes in
+User config (`init.lua`, extra plugins, colours) still goes in
 `~/.config/lite-xl/`. `update.sh` bumps to the latest upstream release.

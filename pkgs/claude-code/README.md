@@ -52,7 +52,7 @@ An empty value (`""`) undoes any of them. Don't use `0` for
 Usage metrics stay on, unlike other packages here: upstream ties its feature
 flags to them, so `DISABLE_TELEMETRY` (or `DO_NOT_TRACK`) also turns off
 [the features that need them](https://code.claude.com/docs/en/env-vars#features-that-need-feature-flag-fetching):
-Remote Control, syncing the skills and plugins enabled for your claude.ai
+Remote Control, syncing the skills and plugins enabled for the claude.ai
 account, `claude import`, the advisor tool, MCP tasks, Code Mode, artifact
 comments and others. To turn metrics off anyway, at that cost:
 
@@ -60,7 +60,7 @@ comments and others. To turn metrics off anyway, at that cost:
 inputs.xr3t.packages.${system}.claude-code.override { disableTelemetry = true; }
 ```
 
-or set `DISABLE_TELEMETRY=1` yourself.
+or `DISABLE_TELEMETRY=1` in the environment.
 
 ## Linux
 
@@ -70,7 +70,7 @@ or set `DISABLE_TELEMETRY=1` yourself.
   wrapper appends `lib/claude-code`, a directory holding only Nix's
   `libasound.so.2`, to `LD_LIBRARY_PATH`. Commands Claude Code runs inherit
   that variable, so they find Nix's ALSA library before their own RUNPATH; a
-  `LD_LIBRARY_PATH` you set comes first. Nix's ALSA reads `/etc/asound.conf`
+  `LD_LIBRARY_PATH` already set comes first. Nix's ALSA reads `/etc/asound.conf`
   and `~/.asoundrc`; on a distribution whose sound server reaches ALSA through
   a plugin configured elsewhere, check that voice input records.
 - **Sandbox.** `bubblewrap` and `socat` from Nix are appended to `PATH`.

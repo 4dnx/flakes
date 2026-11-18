@@ -37,12 +37,12 @@ Configuration lives in `~/.nullclaw`, as upstream documents; start with
 ## Service
 
 `homeManagerModules.nullclaw` runs the gateway the way upstream's
-`nullclaw service install` does, as your user service, but always from the
+`nullclaw service install` does, as a user service, but always from the
 installed package (`service install` writes the store path of whatever binary
 ran it, which goes stale on update and disappears on GC):
 
 - **Linux:** the systemd user unit `nullclaw.service` (`Restart=always`,
-  `WantedBy=default.target`, `stateDir`/.env loaded), logging to your journal:
+  `WantedBy=default.target`, `stateDir`/.env loaded), logging to the user's journal:
   `journalctl --user -u nullclaw`. Restart with
   `systemctl --user restart nullclaw`.
 - **macOS:** the LaunchAgent `com.nullclaw.daemon` (`KeepAlive`), logging to
@@ -66,7 +66,7 @@ ran it, which goes stale on update and disappears on GC):
 }
 ```
 
-The gateway runs an autonomous agent that can execute commands as you,
+The gateway runs an autonomous agent that can execute commands as the user,
 reachable from every configured channel. Review `autonomy` and each channel's
 `allow_from` before enabling it, and set them through `settings`: the agent
 can write to `stateDir`, `config.json` included, so it could widen what it
@@ -156,7 +156,7 @@ no sandbox; leave it off if the agent has to administer the machine (with
 ## Updates
 
 `update.sh` bumps to the latest upstream release, run by the repo's update
-workflow. NullClaw runs as an agent with your access, so the workflow opens a
+workflow. NullClaw runs as an agent with the user's access, so the workflow opens a
 pull request for its updates instead of committing to `main`. Consumers pick them up
 with `nix flake update xr3t`.
 

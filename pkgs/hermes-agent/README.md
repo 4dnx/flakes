@@ -36,7 +36,7 @@ and `nix/nixosModules.nix` in the pinned source.
 
 | Module | Runs as | `HERMES_HOME` |
 |---|---|---|
-| `homeManagerModules.hermes-agent` | your user, systemd user services, config editable from the CLI | `~/.hermes` (like upstream's `install.sh`) |
+| `homeManagerModules.hermes-agent` | the user, systemd user services, config editable from the CLI | `~/.hermes` (like upstream's `install.sh`) |
 | `nixosModules.hermes-agent` | system user `hermes`, hardened system service | `/var/lib/hermes/.hermes` |
 
 Either way, use the input without `inputs.nixpkgs.follows`; Hermes is built
@@ -51,7 +51,7 @@ nix.settings = {
 };
 ```
 
-### As your user, like install.sh (Home Manager)
+### As the user, like install.sh (Home Manager)
 
 ```nix
 {
@@ -73,12 +73,12 @@ nix.settings = {
 Then set it up as after install.sh: `hermes setup`, `hermes model`, keys in
 `~/.hermes/.env`. What matches a normal Linux install:
 
-- Runs as your user, `HERMES_HOME=~/.hermes`, working directory `~`.
+- Runs as the user, `HERMES_HOME=~/.hermes`, working directory `~`.
 - The CLI may change the config (`nixManagesConfig = false`, the default):
   this module deletes the `.managed` marker that upstream's activation writes
   and runs the services with `HERMES_MANAGED=false`.
 - The gateway (and the backend, if `backend.mode` is set) runs as a systemd
-  user service with your PATH (`~/.local/bin`, your Nix profiles,
+  user service with the user's PATH (`~/.local/bin`, their Nix profiles,
   `/run/current-system/sw/bin`) after Hermes' own tools, like the unit
   `hermes gateway install` writes.
 - The gateway unit also has the rest of that unit (in both modes):
@@ -105,7 +105,7 @@ What differs:
     lib.getExe inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.helium;
   ```
 - Each switch merges `settings` (and `terminal.cwd` from `workingDirectory`)
-  into `config.yaml`; other keys you set with the CLI stay. `.env` is only
+  into `config.yaml`; other keys set with the CLI stay. `.env` is only
   touched when `environment` or `environmentFiles` is set.
 
 Hermes' update check compares with the latest stable release, like Tier 1:
@@ -120,7 +120,7 @@ mode instead: the CLI refuses config changes, and the services see only
 Hermes, bash, coreutils, git and `extraPackages`.
 
 For a gateway reachable from chat, prefer managed mode. Unmanaged, the agent
-runs as you and can edit `~/.hermes/config.yaml`, its allowlists included, and
+runs as the user and can edit `~/.hermes/config.yaml`, its allowlists included, and
 Nix only merges `settings` back in at the next switch. Managed, its config is
 what `settings` says.
 

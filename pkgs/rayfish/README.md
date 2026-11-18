@@ -86,7 +86,7 @@ Everything else passes through to the real binary at `libexec/rayfish/ray`.
 Upgrade by updating the flake input (`nix flake update xr3t`), not with
 `ray update`.
 
-If you previously ran `sudo ray up`, remove the service it installed before
+After an earlier `sudo ray up`, remove the service it installed before
 switching (on macOS, `sudo rm /Library/LaunchDaemons/com.rayfish.vpn.plist`),
 since `ray uninstall` is blocked.
 

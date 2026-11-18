@@ -70,7 +70,7 @@ fixes; there are no release branches.
   the package allows it: through upstream's own switch where there is one,
   else an undocumented one (which may stop working on a bump), else a guard
   that refuses the update command. Update checks
-  and telemetry are only defaults, which your own config can set back; each
+  and telemetry are only defaults, which the user's own config can set back; each
   package's README says what is off and how. An updater built into a signed
   app bundle can only be turned off in the app.
 - **Binary cache.** CI pushes only the closures of `hermes-agent` and `llama`, built from
