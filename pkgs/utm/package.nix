@@ -9,7 +9,10 @@
 let
   # Version and hash live in hashes.json so update.sh can rewrite them.
   sources = lib.importJSON ./hashes.json;
+  # version is upstream's release (5.0.9-2 for a re-release), appVersion the
+  # app's own (5.0.9); update.sh writes both.
   inherit (sources) version hashes;
+  appVersion = sources.appVersion or version;
 in
 stdenvNoCC.mkDerivation {
   pname = "utm";
@@ -48,7 +51,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/UTM.app" "$version"
+    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/UTM.app" "${appVersion}"
     runHook postInstallCheck
   '';
 

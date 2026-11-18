@@ -18,12 +18,13 @@ check_version() {
     { echo "$name: unexpected version '$version'" >&2; exit 1; }
 }
 
-# gh_latest NAME REPO: the version of REPO's latest release (never a draft or
-# prerelease), without the tag's "v", checked with check_version.
+# gh_latest NAME REPO [REGEX]: the version of REPO's latest release (never a
+# draft or prerelease), without the tag's "v", checked with check_version
+# (against REGEX when given).
 gh_latest() {
   local tag
   tag="$(gh release view -R "$2" --json tagName -q .tagName)"
-  check_version "$1" "${tag#v}"
+  check_version "$1" "${tag#v}" "${3:-}"
   printf '%s\n' "${tag#v}"
 }
 
