@@ -1,10 +1,9 @@
 # Packages
 
-One directory per package: `<name>/package.nix`, with `hashes.json` and
-`update.sh` when it follows upstream releases, any modules, and a `README.md`
-with its usage, options and maintenance notes. See [LAYOUT.md](../LAYOUT.md)
-for what each file does and [the top-level README](../README.md) for how to use
-the flake.
+Every package in this flake, what it brings and the systems it runs on. Each
+name links to the package's own README, with its options, what it turns off
+(self-update, telemetry) and how to turn that back on. For installing them,
+see [the top-level README](../README.md).
 
 | Package | Description |
 |---|---|

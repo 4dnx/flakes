@@ -1,23 +1,41 @@
 # Flakes
 
-Nix packages by `Prompter`.
+Desktop apps, command-line tools and services for **nix-darwin**, **NixOS**
+and **Linux with Nix**, packaged from each project's own official releases.
+Think of it as Homebrew's casks and formulae, but declarative: you list what
+you want in your Nix configuration, and the same versions land on every
+machine. By `Prompter`.
+
+- **Upstream's own builds.** Most packages are the vendor's signed bundles
+  and binaries, installed unchanged and native on Apple Silicon and Linux:
+  no web wrappers, no emulation. The few built from source here say so.
+- **Checked downloads.** Every download is pinned by hash and, where the
+  vendor publishes more, checked against it: signed release manifests,
+  checksum lists, and for some macOS apps their whole Apple code signature.
+- **Updates through Nix.** New upstream releases arrive here twice a day;
+  apps' own self-updaters are turned off wherever they can be, so updating is
+  `nix flake update xr3t`.
+- **Telemetry off by default** wherever that doesn't break a feature; each
+  package's README says what is off, how to turn it back on, and what
+  couldn't be turned off.
 
 > [!WARNING]
 > **DYOR (Do Your Own Research).** These packages are written largely with AI
-> agents and provided as-is, without warranty. Upstream binaries are fetched
-> from their official release pages and pinned by hash, but that only proves
-> the download is unchanged, not that the program is safe. Read the package
+> agents and provided as-is, without warranty. Pinned hashes only prove a
+> download is unchanged, not that the program is safe. Read the package
 > definition and the upstream project before installing, especially anything
-> that runs as a system service or with root privileges.
->
-> See [SECURITY.md](SECURITY.md) for what the pins and checks cover, and to
-> report a vulnerability.
+> that runs as a system service or with root privileges. See
+> [SECURITY.md](SECURITY.md) for what the checks cover, and to report a
+> vulnerability.
 
 ## Packages
 
-The packages, what each brings and which systems it runs on are listed in
-[pkgs/README.md](pkgs/README.md); each package's own README has its usage and
-options.
+Among them: Claude Code and Claude Desktop, Codex, OpenCode and other coding
+agents; Ghostty, Google Chrome and Helium; WhatsApp and Telegram; UTM and
+Kiri; Tailscale, Cloudflare WARP and Little Snitch. The full list, with what
+each package brings and the systems it runs on, is in
+**[pkgs/README.md](pkgs/README.md)**; each package's own README covers its
+options and notes.
 
 ## Usage
 
@@ -143,24 +161,15 @@ Or run a package without installing it:
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
 - `overlays.default`: adds `pkgs.xr3t.<name>`
-- `darwinModules.<name>`, `nixosModules.<name>`: for packages that have a
-  `module.nix` (both), `darwin-module.nix` or `nixos-module.nix` (one only)
-- `homeManagerModules.<name>`: for packages that have a `home-module.nix`
-- `checks.<system>.<name>`: builds every package but the rolling
-  `ghostty-tip`; `checks.<system>.formatting`
-  checks that every `.nix` file is formatted; on Linux,
-  `nixos-modules`, `darwin-modules`, `home-modules` and `darwin-home-modules`
-  check that the NixOS, nix-darwin and Home Manager (Linux, macOS) modules
-  evaluate with every one of them enabled
+- `darwinModules.<name>`, `nixosModules.<name>`: system services (launchd
+  daemons, systemd units), for the packages that have one
+- `homeManagerModules.<name>`: per-user settings and services, for the
+  packages that have them
+- `checks.<system>`: the flake's own tests: every package built, every
+  `.nix` file formatted, and the modules evaluated
 - `formatter`: `nixfmt`
 
 Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
-
-CI builds every Linux check. On macOS it evaluates the package checks and builds
-those whose derivations changed since a successful ancestor Check on the PR base
-branch or `main` (including checks of merged PRs). Without a usable baseline, or when check scripts or the Check
-workflow change, it builds all macOS package checks. Its store cache follows the
-macOS package derivations, so Linux-only updates do not replace it.
 
 ## Updates
 
