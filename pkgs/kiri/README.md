@@ -14,7 +14,8 @@ programs.kiri.enable = true;
 ```
 
 or just the package, in `environment.systemPackages` (nix-darwin) or
-`home.packages`.
+`home.packages`. Home Manager-managed shells require the module for the
+first-launch integration described below.
 
 ## Setup
 
@@ -24,6 +25,14 @@ in `~/.kiri/bin` (appended to `PATH` in the shell profiles), a `kiri` docker
 context, a buildx builder, and, given an administrator password once,
 `*.kiri.local` names and `/var/run/docker.sock`. `kiri setup --uninstall`
 takes them back.
+
+Kiri 0.2.1 writes shell profiles before opening its window. Home Manager's
+profiles are read-only, so this fails with `Permission denied (os error 13)`.
+The module adds Kiri's PATH entry and exact setup marker to the profiles of
+enabled Home Manager-managed zsh and bash, and to `fish/conf.d/kiri.fish`
+for fish. Kiri recognizes the marker and skips writing those files. Shells
+are not enabled by the module; unmanaged profiles remain upstream's to edit.
+The PATH entry appends `~/.kiri/bin`, preserving existing command priority.
 
 The LaunchAgent and the links name the binary's resolved store path. A newly
 opened copy of Kiri replaces those of the one before, so after an update open
@@ -67,4 +76,5 @@ Settings, and the code sends nothing else to an analytics service.
 
 The feed's layout and URL pattern, the bundle identifier and minimum macOS
 version, the signing team, the `updateAuto` key and the settings file's
-location, and what `kiri setup` installs.
+location, the shell-profile marker and PATH entry in `setup.rs`, and what
+`kiri setup` installs.
