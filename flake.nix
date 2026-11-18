@@ -22,6 +22,7 @@
       # Unfree packages this flake's own `packages` allow. Overlay users allow
       # them in their own nixpkgs config.
       allowedUnfree = [
+        "claude-desktop"
         "cloudflare-warp"
         "cloudflare-warp-headless"
         "google-chrome"
@@ -145,6 +146,16 @@
             touch "$out"
           '';
         }
+        // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
+          # The Apple code signatures of macOS downloads (passthru.codesign),
+          # checked on Linux too, so an update is checked before it reaches a
+          # Mac, macOS-only packages included; on macOS each package's install
+          # check does it. Packages that fetch another flake when evaluated
+          # are skipped.
+          lib.concatMapAttrs (
+            name: pkg: lib.optionalAttrs (pkg ? codesign) { "${name}-codesign" = pkg.codesign; }
+          ) (removeAttrs (mkPackagesFor pkgs) (builtins.attrNames fixedPlatforms))
+        )
         // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           # shellcheck over every shell script, and actionlint (which runs
           # shellcheck on the `run` scripts too) over the workflows. Its
