@@ -100,8 +100,11 @@ merged once it builds on every system; see [SECURITY.md](SECURITY.md) for what i
 
 ## References
 
-This flake grew out of two projects:
+This flake grew out of three projects:
 
+- [nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs): its package
+  tree, one directory per package with a `package.nix` (`pkgs/by-name`),
+  `meta.platforms` and an update script beside it, which `pkgs/` here follows.
 - [Homebrew](https://brew.sh): its formulae and casks, which install
   upstream's own app bundles and binaries; this flake installs them
   declaratively through Nix instead, with their self-update turned off.
