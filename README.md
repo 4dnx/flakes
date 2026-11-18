@@ -98,6 +98,18 @@ weekly. Pick them up with `nix flake update xr3t`. Updates of root daemons,
 network filters and agents, and of nixpkgs, go through a pull request that is
 merged once it builds on every system; see [SECURITY.md](SECURITY.md) for what is checked.
 
+## References
+
+This flake grew out of two projects:
+
+- [Homebrew](https://brew.sh): its formulae and casks, which install
+  upstream's own app bundles and binaries; this flake installs them
+  declaratively through Nix instead, with their self-update turned off.
+- [numtide/llm-agents.nix](https://github.com/numtide/llm-agents.nix): Nix
+  packages for AI coding agents and their tools. `lib/codesign-check.py`
+  builds on its `codesignCheckHook`, which checks macOS code signatures
+  without macOS.
+
 ## License
 
 Each packaged program keeps its own license, set by its authors. All product
