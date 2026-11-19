@@ -110,7 +110,8 @@
       # Heavy builds: each Office app downloads a ~1.4 GB installer and takes
       # ~3 GB built. Left out of checks, so check.yml's macOS job and
       # update.yml's store cache stay small;
-      # .github/workflows/microsoft-office.yml builds them on pull requests
+      # .github/workflows/microsoft-office.yml builds them on request (a
+      # `build-office` label or Run workflow) on pull requests
       # that change them, and update.yml when it bumps them.
       heavy = [
         "microsoft-excel"

@@ -75,8 +75,10 @@ fixes; there are no release branches.
   package checks; a change to a helper in `verify/`, `lib/` or `scripts/` changes the
   derivations of the packages that read it, so their checks run. Linux
   continues to run the full flake checks, including formatting. The heavy
-  Office apps are not in the checks: `microsoft-office.yml` builds those a pull request
-  changes, and the update workflow builds each bump before it lands.
+  Office apps are not in the checks: `microsoft-office.yml` builds those a
+  pull request changes when it is labeled `build-office` (or on Run
+  workflow), and the update workflow builds each bump before it lands. A
+  pull request that changes them without the label merges unbuilt on macOS.
 - **Dependencies follow upstream's lock.** A package assembled from
   upstream's own lockfile installs exactly what that lock names, advisories
   included; they close when upstream ships a new lock and the next update

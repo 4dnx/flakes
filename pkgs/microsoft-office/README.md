@@ -186,7 +186,9 @@ the pinned build; Microsoft AutoUpdate stays off as described above.
 
 The apps are left out of `checks` (`heavy` in `flake.nix`): each downloads
 ~1.4 GB and takes ~3 GB built. `.github/workflows/microsoft-office.yml` builds those
-whose derivation a pull request changes; `update.yml` builds each bump
+whose derivation a pull request changes, only on request: label the pull
+request `build-office`, or start it from Actions → Microsoft Office → Run
+workflow on the branch. `update.yml` builds each bump
 before proposing it, and deletes it from the store again so its cache stays
 small.
 
