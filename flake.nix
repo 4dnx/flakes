@@ -337,6 +337,29 @@
                 actionlint .github/workflows/*.yml
                 touch "$out"
               '';
+          # The Office apps' installer signature check is their own copy, so a
+          # change for another package doesn't rebuild them; the part that
+          # decides whether a package is trusted must stay the same in both.
+          pkg-signature-sync =
+            pkgs.runCommand "pkg-signature-sync"
+              {
+                a = ./verify/pkg-signature-check.py;
+                b = ./verify/office-pkg-signature-check.py;
+              }
+              ''
+                region() { sed -n '/^ *# BEGIN shared verification/,/^ *# END shared verification/p' "$1"; }
+                region "$a" >a
+                region "$b" >b
+                if [ "$(grep -c 'shared verification' a)" != 2 ]; then
+                  echo "pkg-signature-check.py: no BEGIN/END shared verification markers" >&2
+                  exit 1
+                fi
+                diff -u a b || {
+                  echo "verify/pkg-signature-check.py and verify/office-pkg-signature-check.py differ in their shared verification" >&2
+                  exit 1
+                }
+                touch "$out"
+              '';
           # The modules evaluated in a NixOS system, a nix-darwin system and
           # Home Manager on Linux and macOS (not built): each drv path is its
           # check's only content. The macOS ones are evaluated here, so CI

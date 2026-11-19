@@ -10,12 +10,15 @@ if [ "${GITHUB_REF:-}" = refs/heads/main ]; then
   target=HEAD
 fi
 base=""
-# A successful merged PR or update branch can validate the same package
-# derivations as main. Reuse it only when its commit is an ancestor.
-# PRs also require a successful baseline, rather than assuming that every
-# commit on their base branch passed. Failed/cancelled runs do not qualify.
+# A successful run of a commit that is an ancestor validated that commit's
+# derivations: a push to main, or a dispatch (main, or an update branch that
+# was merged). Not a pull_request run: it built a merge commit with the base
+# of that moment, not the head_sha it reports, so the head's derivations may
+# never have been built. PRs also require a successful baseline, rather than
+# assuming that every commit on their base branch passed. Failed/cancelled
+# runs do not qualify.
 candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?status=success&per_page=100" \
-  --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch" or .event == "pull_request") | .head_sha') || candidates=""
+  --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch") | .head_sha') || candidates=""
 for rev in $candidates; do
   if git merge-base --is-ancestor "$rev" "$target"; then
     base=$rev

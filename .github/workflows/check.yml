@@ -17,8 +17,9 @@ permissions:
 jobs:
   # Which macOS checks to build, worked out on Linux: a macOS runner takes
   # longer to get and to set up, and a change that leaves the macOS
-  # derivations alone needs none. Compares main with a successful ancestor,
-  # including merged PRs; PRs use a successful ancestor of their base branch.
+  # derivations alone needs none. Compares with a successful push or
+  # dispatch run of an ancestor (of main, or of a PR's base branch); not a
+  # pull_request run, which built a merge commit rather than its head.
   # No trustworthy baseline means building all macOS checks.
   plan:
     runs-on: ubuntu-latest

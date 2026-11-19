@@ -67,26 +67,34 @@ propose() {
   fi
   gh workflow run check.yml --ref "$branch" ||
     { echo "::error::$name: could not start check.yml on $branch"; failed=1; }
-  drop_approval_runs "$branch" "$commit_sha"
+  proposals+=("$branch $commit_sha")
 }
 
-# Deletes the pull_request runs of check.yml that this token's push or pull
-# request left waiting for approval at <sha>: GitHub starts those only when
-# someone approves them, and fails them once the pull request merges, which
-# mails a failure for every proposed update. The dispatched run above checks
-# and merges instead. They can take a moment to appear; a failure here is
-# only a warning.
+# Deletes the pull_request runs that this token's pushes or pull requests
+# left waiting for approval at the proposed commits ("<branch> <sha>" in
+# $proposals): GitHub starts those only when someone approves them, and fails
+# them once the pull request merges, which mails a failure for every
+# proposed update. The dispatched check.yml runs check and merge instead
+# (and their merge job deletes any left). They can take a moment to appear,
+# so the run waits once, up to a minute, for all proposals together rather
+# than for each. A failure here is only a warning.
+proposals=()
 drop_approval_runs() {
-  local branch=$1 sha=$2 ids="" _
-  for _ in 1 2 3 4 5 6; do
-    ids="$(gh api "repos/{owner}/{repo}/actions/runs?event=pull_request&head_sha=$sha&status=action_required" \
-      -q '.workflow_runs[].id' 2>/dev/null)" || ids=""
-    [ -z "$ids" ] || break
-    sleep 10
-  done
-  for id in $ids; do
-    gh api -X DELETE "repos/{owner}/{repo}/actions/runs/$id" >/dev/null ||
-      echo "::warning::$branch: could not delete run $id, which waits for approval"
+  local pending=("${proposals[@]}") left entry ids id try
+  for try in 1 2 3 4 5 6; do
+    [ ${#pending[@]} -gt 0 ] || return 0
+    left=()
+    for entry in "${pending[@]}"; do
+      ids="$(gh api "repos/{owner}/{repo}/actions/runs?event=pull_request&head_sha=${entry#* }&status=action_required" \
+        -q '.workflow_runs[].id' 2>/dev/null)" || ids=""
+      if [ -z "$ids" ]; then left+=("$entry"); continue; fi
+      for id in $ids; do
+        gh api -X DELETE "repos/{owner}/{repo}/actions/runs/$id" >/dev/null ||
+          echo "::warning::${entry% *}: could not delete run $id, which waits for approval"
+      done
+    done
+    pending=("${left[@]}")
+    [ ${#pending[@]} = 0 ] || [ "$try" = 6 ] || sleep 10
   done
 }
 
@@ -184,6 +192,7 @@ if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
   fi
 fi
 
+drop_approval_runs
 git_auth pull -q --rebase origin main
 git_auth push -q origin HEAD:main
 exit "$failed"

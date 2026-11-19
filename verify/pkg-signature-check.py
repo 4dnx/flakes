@@ -16,7 +16,8 @@
 #                Payload is a gzip-compressed cpio archive.
 #
 # The Office apps use office-pkg-signature-check.py beside it, so a change
-# here doesn't rebuild them. A security fix goes into both.
+# here doesn't rebuild them. The verification itself is the same in both
+# (between the BEGIN and END shared verification markers).
 import argparse
 import hashlib
 import os
@@ -39,6 +40,10 @@ PKG = args.pkg
 if not re.fullmatch(r"[A-Z0-9]{10}", args.team):
     sys.exit(f"pkg-signature-check: bad team ID {args.team!r}")
 
+# BEGIN shared verification: everything that decides whether the package
+# is trusted, identical in verify/pkg-signature-check.py and
+# verify/office-pkg-signature-check.py (checks.<linux>.pkg-signature-sync
+# compares the two). Package-specific changes go outside it.
 HASHES = {"sha1": hashlib.sha1, "sha256": hashlib.sha256, "sha512": hashlib.sha512}
 
 # Apple's certificate extension for a Developer ID Installer certificate.
@@ -214,6 +219,7 @@ with open(PKG, "rb") as f:
             fail(f"{name}: does not match its checksum")
 
     print(f"{PKG}: signature by {signer_name} verified", file=sys.stderr)
+    # END shared verification
 
     def data_of(name):
         entry = entries.get(name)

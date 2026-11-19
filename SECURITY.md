@@ -69,7 +69,8 @@ fixes; there are no release branches.
 - **macOS checks.** CI evaluates macOS package derivations (on a Linux
   runner: evaluating builds nothing) and rebuilds, on macOS, those
   that differ from a successful ancestor Check of the PR base branch or `main`
-  (including checks of merged PRs).
+  (a push or dispatch run: a `pull_request` run built a merge commit, not
+  the head it reports).
   Unchanged derivations reuse that baseline's validation. Missing baselines
   and changes to check machinery (`check.yml` and `ci/`) trigger all macOS
   package checks; a change to a helper in `verify/`, `lib/` or `scripts/` changes the

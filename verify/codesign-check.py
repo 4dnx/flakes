@@ -29,7 +29,11 @@ if not re.fullmatch(r"[A-Z0-9]{10}", TEAM):
     sys.exit(f"codesign-check: bad team ID {TEAM!r}")
 
 CD_MAGIC = 0xFADE0C02
-HASHES = {1: hashlib.sha1, 2: hashlib.sha256}
+# Only SHA-256 code directories: a SHA-1 one (type 1) hashes the code pages
+# with a hash that collisions are known for. Apple's tools sign with
+# SHA-256 since macOS 10.11; an older signature also carries a SHA-1 one
+# beside it, which the single code directory required below refuses anyway.
+HASHES = {2: hashlib.sha256}
 # Code directory special slots.
 INFO_SLOT, RESOURCES_SLOT = 1, 3
 
@@ -83,6 +87,8 @@ def code_directory(path, index):
     cd = cds[0][1]
     if cd != run("rcodesign", "extract", *flag, "code-directory-raw", path):
         raise Bad(f"{path}: code directory mismatch")
+    if len(cd) < 40 or cd[37] not in HASHES:
+        raise Bad(f"{path}: code directory hash type {cd[37] if len(cd) > 37 else None}, expected SHA-256 (2)")
     return cd
 
 
