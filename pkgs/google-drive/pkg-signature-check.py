@@ -1,6 +1,6 @@
-# Google Drive's own copy of lib/pkg-signature-check.py, which only the Office
-# apps use: kept apart so that a change for one doesn't rebuild the other (the
-# Office apps are a ~1.4 GB download each).
+# Google Drive's own copy of pkgs/microsoft-office/pkg-signature-check.py, the
+# Office apps' own: kept apart so that a change for one doesn't rebuild the
+# other (the Office apps are a ~1.4 GB download each).
 # Checks the signature of a macOS flat installer package (.pkg, a xar
 # archive) without macOS. Needs openssl on PATH; standard library only.
 #   python3 pkg-signature-check.py APPLE_ROOT_CA TEAM_ID PKG [--bundle ID] [--cat PATH]
