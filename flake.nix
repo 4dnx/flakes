@@ -35,8 +35,11 @@
       ];
       eachSystem = lib.genAttrs systems;
 
-      # Every directory under pkgs/ is a package: pkgs/<name>/package.nix.
-      pkgDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./pkgs);
+      # Every directory under pkgs/ is a package (pkgs/<name>/package.nix) but
+      # pkgs/build-support, the helpers packages share.
+      pkgDirs = lib.filterAttrs (name: type: type == "directory" && name != "build-support") (
+        builtins.readDir ./pkgs
+      );
       packageNames = builtins.attrNames pkgDirs;
 
       # Unfree packages this flake's own `packages` allow. Overlay users allow

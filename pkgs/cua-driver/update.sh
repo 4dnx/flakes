@@ -4,8 +4,8 @@
 # Needs curl, gh, git, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
+. ../build-support/update-lib.sh
 
 # The repository makes so many releases that the last cua-driver one can
 # fall outside any page of `gh release list`: take the tags from git instead,

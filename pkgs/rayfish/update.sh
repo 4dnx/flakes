@@ -2,8 +2,8 @@
 # Bump hashes.json to the latest upstream release. Needs curl, gh, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
+. ../build-support/update-lib.sh
 
 version="$(gh_latest rayfish rayfish/rayfish)"
 skip_if_current rayfish "$version"

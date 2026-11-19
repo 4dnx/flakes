@@ -39,8 +39,8 @@ let
   team = "UBF8T346G9";
   helper = "com.microsoft.office.licensingV3.helper";
   # Checks the installer's signature and every file in it before anything
-  # is read from it (lib/pkg-signature-check.py).
-  pkgCheck = ''${python3.interpreter} -I ${../../lib/pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} "$src"'';
+  # is read from it (pkgs/build-support/pkg-signature-check.py).
+  pkgCheck = ''${python3.interpreter} -I ${../build-support/pkg-signature-check.py} ${../build-support/apple-root-ca.pem} ${team} "$src"'';
 in
 stdenvNoCC.mkDerivation {
   inherit pname version;
@@ -96,7 +96,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/${app}.app" \
+    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/${app}.app" \
       "$version" "${build}" arm64
     # The helper is the one from this release: its embedded Info.plist
     # carries the same build.

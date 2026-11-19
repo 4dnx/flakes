@@ -7,8 +7,8 @@
 # the same version, so all three systems stay on one version.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
+. ../build-support/update-lib.sh
 
 repo=https://pkg.cloudflareclient.com
 download=https://downloads.cloudflareclient.com/v1/download

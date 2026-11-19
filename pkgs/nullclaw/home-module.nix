@@ -178,7 +178,7 @@ in
           # network, other processes and block devices from the agent.
           # Recheck nullclaw/nullclaw#882 (Landlock) when bumping nullclaw.
           // optionalAttrs cfg.hardening.enable (
-            import ../../lib/hardening.nix
+            import ../build-support/hardening.nix
             // {
               ProtectSystem = "strict";
               ProtectHome = "read-only";

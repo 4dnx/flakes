@@ -62,7 +62,7 @@ let
   # Mozilla's Apple Developer team, which signs Firefox.app.
   team = "43AQ936H96";
   codesignCheck = app: ''
-    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${team} ${app}
+    ${python3.interpreter} -I ${../build-support/codesign-check.py} ${../build-support/apple-root-ca.pem} ${team} ${app}
   '';
   dmg = fetchurl {
     url = "${base}/mac/en-US/Firefox%20${version}.dmg";
@@ -132,7 +132,7 @@ let
     ];
     installCheckPhase = ''
       runHook preInstallCheck
-      ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Firefox.app" "$version" "" arm64
+      ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Firefox.app" "$version" "" arm64
       "$out/bin/firefox" --version | grep -F "Mozilla Firefox $version"
     ''
     + codesignCheck ''"$out/Applications/Firefox.app"''

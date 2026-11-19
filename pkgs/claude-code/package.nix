@@ -44,7 +44,7 @@ let
   # Anthropic's Apple Developer ID team, which signs the macOS binary.
   teamId = "Q6L2SF6YDW";
   codesignCheck = file: ''
-    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${teamId} ${file}
+    ${python3.interpreter} -I ${../build-support/codesign-check.py} ${../build-support/apple-root-ca.pem} ${teamId} ${file}
   '';
 
   # Updates come through this flake. DISABLE_UPDATES is upstream's switch for

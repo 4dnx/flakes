@@ -5,8 +5,8 @@
 # install check and checks.<linux>.claude-desktop-codesign verify.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
+. ../build-support/update-lib.sh
 
 feed="$(curl -fsSL https://downloads.claude.ai/releases/darwin/universal/RELEASES.json)"
 version="$(jq -er .currentRelease <<<"$feed")"

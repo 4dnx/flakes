@@ -23,7 +23,7 @@ let
   # The Developer ID team of Kiri's maintainer, who signs its release tags.
   teamId = "Z44N5GDT9Q";
   codesignCheck = app: ''
-    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${teamId} ${app}
+    ${python3.interpreter} -I ${../build-support/codesign-check.py} ${../build-support/apple-root-ca.pem} ${teamId} ${app}
   '';
 
   # The archive was made on a Mac: it holds AppleDouble files (._*) for
@@ -68,7 +68,7 @@ stdenvNoCC.mkDerivation {
   # to it.
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Kiri.app" \
+    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Kiri.app" \
       "$version" "$version" arm64
   ''
   + codesignCheck "$out/Applications/Kiri.app"

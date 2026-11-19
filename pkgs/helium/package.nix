@@ -127,7 +127,7 @@ let
     doInstallCheck = true;
     installCheckPhase = ''
       runHook preInstallCheck
-      ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Helium.app" "$version"
+      ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Helium.app" "$version"
       runHook postInstallCheck
     '';
 

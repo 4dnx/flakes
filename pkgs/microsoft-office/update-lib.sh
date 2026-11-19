@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # The update of an Office app (pkgs/microsoft-{excel,powerpoint,word}/
-# update.sh). Source it after lib/update.sh, then:
+# update.sh). Source it after pkgs/build-support/update-lib.sh, then:
 #   office_update NAME FWLINK_ID MAU_APP_ID BUNDLE_ID
 # Needs curl, jq, nix and python3 (standard library); openssl comes from
 # nixpkgs (macOS' own LibreSSL has no `cms`).
@@ -11,7 +11,7 @@
 # the installers) offers the same build, and never as a downgrade. Microsoft
 # publishes no checksum of the installer (the catalogs beside the manifests
 # list only the MAU update packages), so the download is pinned by its hash,
-# after lib/pkg-signature-check.py has checked its signature (Microsoft's
+# after pkgs/build-support/pkg-signature-check.py has checked its signature (Microsoft's
 # Developer ID Installer certificate, chaining to Apple's root CA) and every
 # file in it; the version comes from the signed Distribution. Downloads the
 # installer (~1.4 GB) on a bump.
@@ -46,7 +46,7 @@ office_update() {
   hash="$(prefetch "$url")"
   path="$(nix store prefetch-file --json --expected-hash "$hash" "$url" | jq -er .storePath)"
   versions="$(nix shell --inputs-from ../.. nixpkgs#openssl --command \
-    python3 -I ../../lib/pkg-signature-check.py ../../lib/apple-root-ca.pem "$office_team" "$path" \
+    python3 -I ../build-support/pkg-signature-check.py ../build-support/apple-root-ca.pem "$office_team" "$path" \
     --bundle "$bundle")"
   read -r version bundle_build <<<"$versions"
   check_version "$name" "$version"

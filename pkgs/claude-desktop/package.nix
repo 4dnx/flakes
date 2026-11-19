@@ -28,7 +28,7 @@ let
   # The whole bundle: every Mach-O signed by that team, and every file
   # matching the seal, app.asar (the app's code) included.
   codesignCheck = app: ''
-    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${teamId} ${app}
+    ${python3.interpreter} -I ${../build-support/codesign-check.py} ${../build-support/apple-root-ca.pem} ${teamId} ${app}
   '';
 
   # Upstream's documented switch for installs whose versions something else
@@ -71,7 +71,7 @@ stdenvNoCC.mkDerivation {
   # bundle runs unchanged.
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Claude.app" \
+    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Claude.app" \
       "$version" "$version" arm64
   ''
   + codesignCheck "$out/Applications/Claude.app"

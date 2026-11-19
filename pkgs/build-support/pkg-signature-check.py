@@ -64,8 +64,8 @@ def check_signer(cert):
     of the team: Apple's extension for one, and exactly one OU and one CN in
     its subject, the OU the team and the CN "Developer ID Installer: <name>
     (<team>)". Fields are compared whole, not searched for in the subject's
-    text. lib/codesign-check.py checks Developer ID Application signers the
-    same way."""
+    text. codesign-check.py beside it checks Developer ID Application
+    signers the same way."""
     # One attribute per line, control characters escaped, so a value can't
     # pass for another field.
     lines = run("openssl", "x509", "-in", cert, "-noout", "-subject",

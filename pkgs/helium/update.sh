@@ -6,8 +6,8 @@
 # tarballs (~120 MB each) on a bump to hash them. Needs gh, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
+. ../build-support/update-lib.sh
 
 # gh_latest skips pre-releases. Helium's tags have no "v". Until the other
 # repository catches up, the older of the two latest releases is the newest
