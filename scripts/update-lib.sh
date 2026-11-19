@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 # Shared helpers for pkgs/*/update.sh. Source it after `cd "$(dirname "$0")"`:
-#   . ../../lib/update.sh
+#   . ../../scripts/update-lib.sh
 # Needs jq and nix, gh for gh_latest and GitHub release downloads, curl for
 # $sums.
 

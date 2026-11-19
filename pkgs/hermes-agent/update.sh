@@ -2,8 +2,8 @@
 # Pin hashes.json to the latest stable Hermes release. Needs gh, jq, git and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 repo=NousResearch/hermes-agent
 # Same rule as Tier 1's stable channel: the release GitHub marks latest

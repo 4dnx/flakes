@@ -70,8 +70,9 @@ Both run the binary straight from the Nix store.
 
 The `ray` on `PATH` is a wrapper that refuses commands that would install,
 replace, or install the service outside Nix: `install`, `uninstall`,
-`auto-update`, `config set auto-update on`, `update` (except
-`--check`/`--list`), and `sudo ray up`. Automatic updates are off by default
+`auto-update`, `config set auto-update on`, `update` and its alias `upgrade`
+(except `--check`/`--list`), and `sudo ray up`. The install check runs the
+guard against each of them. Automatic updates are off by default
 upstream; keep them off in the web UI too, as the daemon runs as root and
 would replace its binary in the store.
 

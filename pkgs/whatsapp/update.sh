@@ -2,10 +2,10 @@
 # Follow the official stable appcast, including rebuilds of the same version.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
-release="$(curl -fsSL 'https://web.whatsapp.com/desktop/mac_native/updates/?branch=master&configuration=Release' | python3 ../../lib/macos-app-release.py whatsapp)"
+release="$(curl -fsSL 'https://web.whatsapp.com/desktop/mac_native/updates/?branch=master&configuration=Release' | python3 ../../scripts/macos-app-release.py whatsapp)"
 version="$(jq -er .version <<<"$release")"
 build="$(jq -er .build <<<"$release")"
 url="$(jq -er .url <<<"$release")"

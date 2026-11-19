@@ -1,6 +1,3 @@
-# Google Drive's own copy of pkgs/microsoft-office/pkg-signature-check.py, the
-# Office apps' own: kept apart so that a change for one doesn't rebuild the
-# other (the Office apps are a ~1.4 GB download each).
 # Checks the signature of a macOS flat installer package (.pkg, a xar
 # archive) without macOS. Needs openssl on PATH; standard library only.
 #   python3 pkg-signature-check.py APPLE_ROOT_CA TEAM_ID PKG [--bundle ID] [--cat PATH]
@@ -17,6 +14,10 @@
 #   --cat PATH   writes the archived file at PATH (such as
 #                Component.pkg/Payload) to stdout, as stored: a component's
 #                Payload is a gzip-compressed cpio archive.
+#
+# The Office apps use office-pkg-signature-check.py beside it, so a change
+# here doesn't rebuild them. The verification itself is the same in both
+# (between the BEGIN and END shared verification markers).
 import argparse
 import hashlib
 import os
@@ -39,7 +40,14 @@ PKG = args.pkg
 if not re.fullmatch(r"[A-Z0-9]{10}", args.team):
     sys.exit(f"pkg-signature-check: bad team ID {args.team!r}")
 
+# BEGIN shared verification: everything that decides whether the package
+# is trusted, identical in verify/pkg-signature-check.py and
+# verify/office-pkg-signature-check.py (checks.<linux>.pkg-signature-sync
+# compares the two). Package-specific changes go outside it.
 HASHES = {"sha1": hashlib.sha1, "sha256": hashlib.sha256, "sha512": hashlib.sha512}
+
+# Apple's certificate extension for a Developer ID Installer certificate.
+DEVELOPER_ID_INSTALLER = "1.2.840.113635.100.6.1.14"
 
 
 def fail(message):
@@ -57,6 +65,36 @@ def pem(b64):
     body = "".join(b64.split())
     lines = [body[i : i + 64] for i in range(0, len(body), 64)]
     return "-----BEGIN CERTIFICATE-----\n" + "\n".join(lines) + "\n-----END CERTIFICATE-----\n"
+
+
+def check_signer(cert):
+    """Its CN, once the certificate is a Developer ID Installer certificate
+    of the team: Apple's extension for one, and exactly one OU and one CN in
+    its subject, the OU the team and the CN "Developer ID Installer: <name>
+    (<team>)". Fields are compared whole, not searched for in the subject's
+    text. codesign-check.py beside it checks Developer ID Application
+    signers the same way."""
+    # One attribute per line, control characters escaped, so a value can't
+    # pass for another field.
+    lines = run("openssl", "x509", "-in", cert, "-noout", "-subject",
+                "-nameopt", "sep_multiline,esc_2253,esc_ctrl,utf8,sname").decode().splitlines()
+    fields = {}
+    for line in lines[1:]:
+        key, _, value = line.strip().partition("=")
+        fields.setdefault(key, []).append(value)
+    ou, cn = fields.get("OU", []), fields.get("CN", [])
+    if ou != [args.team] or len(cn) != 1 or not (
+        cn[0].startswith("Developer ID Installer: ") and cn[0].endswith(f" ({args.team})")
+    ):
+        subject = " / ".join(line.strip() for line in lines[1:])
+        fail(f"signed by {subject!r}, expected a Developer ID Installer of team {args.team}")
+    # Only the extension headers: each at the same indent, alone on its line.
+    text = run("openssl", "x509", "-in", cert, "-noout", "-text", "-certopt",
+               "no_header,no_version,no_serial,no_signame,no_validity,no_subject,"
+               "no_issuer,no_pubkey,no_sigdump,no_aux").decode()
+    if not re.search(rf"^ {{12}}{re.escape(DEVELOPER_ID_INSTALLER)}:( critical)?$", text, re.M):
+        fail("signer has no Developer ID Installer extension")
+    return cn[0]
 
 
 def certificates(element):
@@ -147,10 +185,7 @@ with open(PKG, "rb") as f:
             "-content", path("hash"), "-CAfile", args.root_ca, "-purpose", "any",
             "-ignore_critical", "-no_check_time", "-out", os.devnull, "-signer", path("signer.pem"))
         signer = run("openssl", "x509", "-in", path("signer.pem"), "-outform", "DER")
-        subject = run("openssl", "x509", "-in", path("signer.pem"), "-noout", "-subject",
-                      "-nameopt", "RFC2253").decode()
-        if "CN=Developer ID Installer:" not in subject or f"OU={args.team}," not in subject:
-            fail(f"signed by {subject.strip()!r}, expected a Developer ID Installer of team {args.team}")
+        signer_name = check_signer(path("signer.pem"))
 
         # The RSA signature, by the same certificate.
         leaf = certificates(rsa)
@@ -183,8 +218,8 @@ with open(PKG, "rb") as f:
         if h.hexdigest() != (archived.text or "").strip().lower():
             fail(f"{name}: does not match its checksum")
 
-    signer_name = re.search(r"CN=([^,]+)", subject).group(1)
     print(f"{PKG}: signature by {signer_name} verified", file=sys.stderr)
+    # END shared verification
 
     def data_of(name):
         entry = entries.get(name)

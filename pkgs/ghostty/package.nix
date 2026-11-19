@@ -73,7 +73,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Ghostty.app" ${
+    ${python3.interpreter} ${../../verify/check-app.py} "$out/Applications/Ghostty.app" ${
       lib.optionalString (!tip) "\"$version\""
     }
     runHook postInstallCheck

@@ -166,19 +166,29 @@ for the app (`0409MSWD2019-chk.xml`, `0409XCEL2019-chk.xml`,
 `0409PPT32019-chk.xml`) offers the same one. Microsoft publishes no checksum
 of the installers (the signed catalogs beside the manifests list only the
 MAU update packages, and the release history page lists none), so the
-download is pinned by its hash, after `pkg-signature-check.py` (here) has
+download is pinned by its hash, after `verify/office-pkg-signature-check.py` has
 checked the package's signature on Linux or macOS: its table of contents
 signed (RSA and CMS) by Microsoft's Developer ID Installer certificate
 (team `UBF8T346G9`) chaining to Apple's root CA, and every file in it
 matching the checksum recorded there. The version comes from the signed
 `Distribution`. The build checks the signature again before extracting
-anything, and the install check (`lib/check-app.py`) the app's version,
+anything, and the install check (`verify/check-app.py`) the app's version,
 build and arm64 slice, and the helper's build. Updates go through a pull
 request (`REVIEW` in `update.yml`): the helper runs as root.
 
+The apps update only on request (`ON_REQUEST` in `update.yml`), not on the
+schedule: each bump is a new ~1.4 GB download per app. To update them, run
+the Update workflow with the apps named in its `packages` input (Actions →
+Update → Run workflow, or
+`gh workflow run update.yml -f packages="microsoft-excel microsoft-powerpoint microsoft-word"`),
+or run an app's `update.sh` in a checkout. Between updates the flake keeps
+the pinned build; Microsoft AutoUpdate stays off as described above.
+
 The apps are left out of `checks` (`heavy` in `flake.nix`): each downloads
 ~1.4 GB and takes ~3 GB built. `.github/workflows/microsoft-office.yml` builds those
-whose derivation a pull request changes; `update.yml` builds each bump
+whose derivation a pull request changes, only on request: label the pull
+request `build-office`, or start it from Actions → Microsoft Office → Run
+workflow on the branch. `update.yml` builds each bump
 before proposing it, and deletes it from the store again so its cache stays
 small.
 

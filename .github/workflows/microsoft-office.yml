@@ -1,35 +1,41 @@
 name: Microsoft Office
 
 # Builds the Office apps (microsoft-excel, microsoft-powerpoint,
-# microsoft-word) for aarch64-darwin, their only system, on pull requests to
-# main that change them, and on nothing else. checks leave them out
-# (flake.nix `heavy`: each downloads a ~1.4 GB installer and takes ~3 GB
-# built). A plan job on Linux compares their derivations with the base
-# branch, so only the apps whose derivation changed are built (all of them
-# when their shared builder changed), and a change to the module or docs
-# alone starts no macOS runner.
+# microsoft-word) for aarch64-darwin, their only system, only when asked:
+# on a pull request to main that changes them and carries the
+# `build-office` label, or from Run workflow on a branch. checks leave them
+# out (flake.nix `heavy`: each downloads a ~1.4 GB installer and takes ~3 GB
+# built), so a pull request doesn't wait for that download unless it asks.
+# A plan job on Linux compares their derivations with main (a pull
+# request's base), so only the apps whose derivation changed are built (all
+# of them when their shared builder changed), and a change to the module or
+# docs alone starts no macOS runner.
 #
-# Not a required check: with the paths filter it doesn't run on other pull
-# requests, which would then wait for it forever.
+# Not a required check: it doesn't run on most pull requests, which would
+# then wait for it forever.
 #
 # Pull requests that update.yml opens (update/<name>) get no run: GitHub
 # holds pull_request runs of that token's pull requests for approval, and
-# lib/update-all.sh and check.yml delete them. update.yml's macOS job builds
+# ci/update-all.sh and check.yml delete them. update.yml's macOS job builds
 # each bump itself before proposing it.
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
+    # labeled: adding `build-office` starts the build.
+    types: [opened, synchronize, reopened, labeled]
     paths:
-      # The apps, and pkgs/microsoft-office: their builder, update script
-      # and installer signature check, which only they use.
+      # The apps, pkgs/microsoft-office (their builder and update script,
+      # which only they use) and the shared files their builds read.
       - "pkgs/microsoft-*/**"
-      - "lib/check-app.py"
-      - "lib/apple-root-ca.pem"
+      - "verify/check-app.py"
+      - "verify/apple-root-ca.pem"
+      - "verify/office-pkg-signature-check.py"
       - ".github/workflows/microsoft-office.yml"
 
 concurrency:
-  group: microsoft-office-${{ github.head_ref }}
+  group: microsoft-office-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -37,6 +43,12 @@ permissions:
 
 jobs:
   plan:
+    # A dispatch, or a pull request labeled `build-office` (on a labeled
+    # event, only when that label is the one added).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (contains(github.event.pull_request.labels.*.name, 'build-office') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'build-office'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -54,7 +66,7 @@ jobs:
       - name: Plan the Office builds
         id: plan
         env:
-          BASE: origin/${{ github.base_ref }}
+          BASE: origin/${{ github.base_ref || 'main' }}
         run: |
           drvs() {
             nix eval --json "$1#packages.aarch64-darwin" --apply '

@@ -4,7 +4,7 @@
 # needs built on that system, the packages it takes as arguments included.
 # formatting is left out: it takes the whole source, so it always differs, and
 # the Linux jobs build it. Evaluation only: any system can run it for any
-# other (lib/macos-check-plan.sh does, on Linux). Needs git, jq and nix.
+# other (ci/macos-check-plan.sh does, on Linux). Needs git, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 system=$1 rev=$2

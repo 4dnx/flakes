@@ -9,8 +9,8 @@
 # nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 releases="https://versionhistory.googleapis.com/v1/chrome/platforms/mac/channels/stable/versions/all/releases"
 version="$(curl -fsS "$releases?filter=endtime=none,fraction%3E=0.5&order_by=version%20desc" \

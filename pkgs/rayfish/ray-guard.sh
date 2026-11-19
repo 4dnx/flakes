@@ -13,7 +13,8 @@ for arg in "$@"; do
 done
 
 case "$subcommand" in
-  update)
+  # `upgrade` is upstream's alias for `update`.
+  update|upgrade)
     case " ${*:-} " in
       *' --check '*|*' --list '*|*' --help '*|*' -h '*) ;;
       *) echo "rayfish: self-update is disabled; update the Nix flake instead" >&2; exit 1 ;;

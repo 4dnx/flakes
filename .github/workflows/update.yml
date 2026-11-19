@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: "Packages to update (space-separated, empty for all; nixpkgs for the nixpkgs, nix-darwin and home-manager inputs)"
+        description: "Packages to update (space-separated; empty for all but ON_REQUEST; nixpkgs for the nixpkgs, nix-darwin and home-manager inputs)"
         required: false
         default: ""
 
@@ -27,11 +27,15 @@ env:
   # through a pull request (branch update/<name>), which check.yml merges
   # once every system builds it, instead of straight to main from this
   # Linux-only run.
+  # Updated only when named in the `packages` input (Run workflow), never on
+  # the schedule: each Office app is a ~1.4 GB download, built anew for
+  # every bump.
+  ON_REQUEST: "microsoft-excel microsoft-powerpoint microsoft-word"
   REVIEW: "1mcp claude-code claude-desktop cloudflare-warp codex cua-driver google-drive hermes-agent kiri littlesnitch microsoft-excel microsoft-powerpoint microsoft-word muxin nullclaw opencode pi rayfish santa tailscale telegram whatsapp zed"
 
 jobs:
   # Every package that builds on Linux, and nixpkgs weekly. See
-  # lib/update-all.sh.
+  # ci/update-all.sh.
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -49,6 +53,9 @@ jobs:
         with:
           # Full history, so the rebase before the push always finds its base.
           fetch-depth: 0
+          # The update step pushes with GH_TOKEN (ci/update-all.sh), so the
+          # token isn't left in .git/config for the later steps.
+          persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
       # Pull from ret.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
@@ -58,11 +65,11 @@ jobs:
 
       - name: Update packages
         env:
-          # For gh; git pushes with the credentials the checkout kept.
+          # For gh, and for git through gh's credential helper.
           GH_TOKEN: ${{ github.token }}
           PACKAGES: ${{ github.event.inputs.packages }}
           UPDATE_SYSTEM: x86_64-linux
-        run: lib/update-all.sh
+        run: ci/update-all.sh
 
       # Only hermes-agent's and llama's runtime closures, as main now has them;
       # paths already on cache.nixos.org are skipped. Runs after a failed update
@@ -91,15 +98,16 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
       - name: Compute macOS cache key
         id: macos-cache
         run: |
-          key="$(lib/macos-cache-key.sh)"
+          key="$(ci/macos-cache-key.sh)"
           echo "key=$key" >>"$GITHUB_OUTPUT"
-      # Share the package-derived key with check.yml. Heavy packages (the
-      # Office apps) are deleted from the store once built
-      # (lib/update-all.sh), so they never fill this cache.
+      # Keyed on the macOS derivations, so Linux-only changes keep the
+      # cache. Heavy packages (the Office apps) are deleted from the store
+      # once built (ci/update-all.sh), so they never fill it.
       - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
         with:
           primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v2-${{ steps.macos-cache.outputs.key }}
@@ -113,10 +121,10 @@ jobs:
       # nixpkgs' bash and GNU tools, as on Linux.
       - name: Update packages
         env:
-          # For gh; git pushes with the credentials the checkout kept.
+          # For gh, and for git through gh's credential helper.
           GH_TOKEN: ${{ github.token }}
           PACKAGES: ${{ github.event.inputs.packages }}
           UPDATE_SYSTEM: aarch64-darwin
         run: >-
           nix shell --inputs-from . nixpkgs#bash nixpkgs#coreutils
-          nixpkgs#gnugrep nixpkgs#gnused --command lib/update-all.sh
+          nixpkgs#gnugrep nixpkgs#gnused --command ci/update-all.sh

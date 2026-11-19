@@ -31,7 +31,7 @@ let
   # helpers and its system extensions.
   team = "ZMCG7MLDV9";
   codesignCheck = app: ''
-    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${team} ${app}
+    ${python3.interpreter} -I ${../../verify/codesign-check.py} ${../../verify/apple-root-ca.pem} ${team} ${app}
   '';
   # The installer's payload, extracted into the current directory.
   extract = ''
@@ -74,7 +74,7 @@ stdenvNoCC.mkDerivation {
   # system extension needs the user's or an MDM's approval.
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Santa.app" \
+    ${python3.interpreter} ${../../verify/check-app.py} "$out/Applications/Santa.app" \
       "${version}" "${build}" arm64
   ''
   + codesignCheck ''"$out/Applications/Santa.app"''

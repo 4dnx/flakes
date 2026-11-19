@@ -40,7 +40,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/WhatsApp.app" \
+    ${python3.interpreter} ${../../verify/check-app.py} "$out/Applications/WhatsApp.app" \
       "$version" "${sources.build}" arm64
     runHook postInstallCheck
   '';

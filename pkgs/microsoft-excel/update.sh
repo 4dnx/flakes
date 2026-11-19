@@ -3,8 +3,8 @@
 # pkgs/microsoft-office/update-lib.sh.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 # shellcheck source-path=SCRIPTDIR source=../microsoft-office/update-lib.sh
 . ../microsoft-office/update-lib.sh
 

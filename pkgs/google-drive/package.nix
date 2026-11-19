@@ -46,14 +46,12 @@ let
     rm -- *.apfs
   '';
   # Checks the installer's signature and every file in it before anything
-  # is read from it (pkg-signature-check.py, this package's own copy of the
-  # Office apps' pkgs/microsoft-office/pkg-signature-check.py, so neither
-  # rebuilds with the other).
-  pkgCheck = "${python3.interpreter} -I ${./pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} GoogleDrive.pkg";
+  # is read from it (verify/pkg-signature-check.py).
+  pkgCheck = "${python3.interpreter} -I ${../../verify/pkg-signature-check.py} ${../../verify/apple-root-ca.pem} ${team} GoogleDrive.pkg";
   # The whole bundle: every Mach-O signed by Google's team, every file
   # matching the seal.
   codesignCheck = app: ''
-    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${team} ${app}
+    ${python3.interpreter} -I ${../../verify/codesign-check.py} ${../../verify/apple-root-ca.pem} ${team} ${app}
   '';
 in
 stdenvNoCC.mkDerivation {
@@ -96,7 +94,7 @@ stdenvNoCC.mkDerivation {
   # Doesn't start the app: it needs a window server and a Google account.
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/Google Drive.app" \
+    ${python3.interpreter} ${../../verify/check-app.py} "$out/Applications/Google Drive.app" \
       "${shortVersion}" "${build}" arm64
   ''
   + codesignCheck ''"$out/Applications/Google Drive.app"''

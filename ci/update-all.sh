@@ -5,16 +5,24 @@
 #   x86_64-linux    every package that builds there, and nixpkgs weekly
 #   aarch64-darwin  the packages that build only on macOS
 # so every update is built before it lands. $PACKAGES limits the run to the
-# named packages (nixpkgs for the nixpkgs input). Needs gh, git, jq and nix.
+# named packages (nixpkgs for the nixpkgs input); without it, the packages in
+# $ON_REQUEST are skipped, so they update only when named. Needs gh, git, jq
+# and nix.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 : "${UPDATE_SYSTEM:?}"
 REVIEW="${REVIEW:-}"
+ON_REQUEST="${ON_REQUEST:-}"
 PACKAGES="${PACKAGES:-}"
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+# git with gh's credential helper, which hands git $GH_TOKEN (or gh's own
+# login): update.yml's checkout keeps no token, so later steps and actions'
+# post steps can't read one from .git/config.
+git_auth() { git -c credential.helper= -c 'credential.helper=!gh auth git-credential' "$@"; }
 
 attrs() { nix eval --json ".#packages.$1" --apply builtins.attrNames | jq -r '.[]'; }
 linux="$(attrs x86_64-linux)"
@@ -48,7 +56,7 @@ propose() {
   git switch -q --detach origin/main
   git cherry-pick "$commit" >/dev/null
   commit_sha="$(git rev-parse HEAD)"
-  git push -qf origin "HEAD:refs/heads/$branch"
+  git_auth push -qf origin "HEAD:refs/heads/$branch"
   git switch -q main
   if [ "$(gh pr view "$branch" --json state -q .state 2>/dev/null)" = OPEN ]; then
     gh pr edit "$branch" --title "$title" >/dev/null
@@ -59,32 +67,40 @@ propose() {
   fi
   gh workflow run check.yml --ref "$branch" ||
     { echo "::error::$name: could not start check.yml on $branch"; failed=1; }
-  drop_approval_runs "$branch" "$commit_sha"
+  proposals+=("$branch $commit_sha")
 }
 
-# Deletes the pull_request runs of check.yml that this token's push or pull
-# request left waiting for approval at <sha>: GitHub starts those only when
-# someone approves them, and fails them once the pull request merges, which
-# mails a failure for every proposed update. The dispatched run above checks
-# and merges instead. They can take a moment to appear; a failure here is
-# only a warning.
+# Deletes the pull_request runs that this token's pushes or pull requests
+# left waiting for approval at the proposed commits ("<branch> <sha>" in
+# $proposals): GitHub starts those only when someone approves them, and fails
+# them once the pull request merges, which mails a failure for every
+# proposed update. The dispatched check.yml runs check and merge instead
+# (and their merge job deletes any left). They can take a moment to appear,
+# so the run waits once, up to a minute, for all proposals together rather
+# than for each. A failure here is only a warning.
+proposals=()
 drop_approval_runs() {
-  local branch=$1 sha=$2 ids="" _
-  for _ in 1 2 3 4 5 6; do
-    ids="$(gh api "repos/{owner}/{repo}/actions/runs?event=pull_request&head_sha=$sha&status=action_required" \
-      -q '.workflow_runs[].id' 2>/dev/null)" || ids=""
-    [ -z "$ids" ] || break
-    sleep 10
-  done
-  for id in $ids; do
-    gh api -X DELETE "repos/{owner}/{repo}/actions/runs/$id" >/dev/null ||
-      echo "::warning::$branch: could not delete run $id, which waits for approval"
+  local pending=("${proposals[@]}") left entry ids id try
+  for try in 1 2 3 4 5 6; do
+    [ ${#pending[@]} -gt 0 ] || return 0
+    left=()
+    for entry in "${pending[@]}"; do
+      ids="$(gh api "repos/{owner}/{repo}/actions/runs?event=pull_request&head_sha=${entry#* }&status=action_required" \
+        -q '.workflow_runs[].id' 2>/dev/null)" || ids=""
+      if [ -z "$ids" ]; then left+=("$entry"); continue; fi
+      for id in $ids; do
+        gh api -X DELETE "repos/{owner}/{repo}/actions/runs/$id" >/dev/null ||
+          echo "::warning::${entry% *}: could not delete run $id, which waits for approval"
+      done
+    done
+    pending=("${left[@]}")
+    [ ${#pending[@]} = 0 ] || [ "$try" = 6 ] || sleep 10
   done
 }
 
 # Whether update/<name> already holds exactly this update.
 proposed() {
-  git fetch -q origin "update/$1" 2>/dev/null || return 1
+  git_auth fetch -q origin "update/$1" 2>/dev/null || return 1
   git diff --quiet FETCH_HEAD -- "$(paths "$1")" &&
     [ -z "$(git ls-files --others --exclude-standard -- "$(paths "$1")")" ]
 }
@@ -139,7 +155,11 @@ land() {
 failed=0
 for script in pkgs/*/update.sh; do
   name="$(basename "$(dirname "$script")")"
-  if [ -n "$PACKAGES" ] && [[ " $PACKAGES " != *" $name "* ]]; then continue; fi
+  if [ -n "$PACKAGES" ]; then
+    [[ " $PACKAGES " == *" $name "* ]] || continue
+  elif [[ " $ON_REQUEST " == *" $name "* ]]; then
+    echo "$name: updated on request only (ON_REQUEST)"; continue
+  fi
   ours "$name" || continue
   # A failing script (upstream down, unexpected data) skips only its own
   # package.
@@ -172,6 +192,7 @@ if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
   fi
 fi
 
-git pull -q --rebase origin main
-git push -q origin HEAD:main
+drop_approval_runs
+git_auth pull -q --rebase origin main
+git_auth push -q origin HEAD:main
 exit "$failed"

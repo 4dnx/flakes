@@ -6,7 +6,8 @@
     # Only the module checks use these two (checks.<linux>.darwin-modules,
     # home-modules, darwin-home-modules): the packages, the overlay and the
     # modules themselves don't, so they are fetched only when checks are
-    # evaluated. Point them at your own with `follows` to keep one copy.
+    # evaluated. A consumer can point them at its own with `follows` to keep
+    # one copy.
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -109,7 +110,8 @@
       # Heavy builds: each Office app downloads a ~1.4 GB installer and takes
       # ~3 GB built. Left out of checks, so check.yml's macOS job and
       # update.yml's store cache stay small;
-      # .github/workflows/microsoft-office.yml builds them on pull requests
+      # .github/workflows/microsoft-office.yml builds them on request (a
+      # `build-office` label or Run workflow) on pull requests
       # that change them, and update.yml when it bumps them.
       heavy = [
         "microsoft-excel"
@@ -323,15 +325,39 @@
                   root = ./.;
                   fileset = lib.fileset.unions [
                     ./.github/workflows
-                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./lib)
+                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./ci)
+                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./scripts)
                     (lib.fileset.fileFilter (file: file.hasExt "sh") ./pkgs)
                   ];
                 };
               }
               ''
                 cd "$src"
-                find lib pkgs -name '*.sh' -exec shellcheck -x {} +
+                find ci scripts pkgs -name '*.sh' -exec shellcheck -x {} +
                 actionlint .github/workflows/*.yml
+                touch "$out"
+              '';
+          # The Office apps' installer signature check is their own copy, so a
+          # change for another package doesn't rebuild them; the part that
+          # decides whether a package is trusted must stay the same in both.
+          pkg-signature-sync =
+            pkgs.runCommand "pkg-signature-sync"
+              {
+                a = ./verify/pkg-signature-check.py;
+                b = ./verify/office-pkg-signature-check.py;
+              }
+              ''
+                region() { sed -n '/^ *# BEGIN shared verification/,/^ *# END shared verification/p' "$1"; }
+                region "$a" >a
+                region "$b" >b
+                if [ "$(grep -c 'shared verification' a)" != 2 ]; then
+                  echo "pkg-signature-check.py: no BEGIN/END shared verification markers" >&2
+                  exit 1
+                fi
+                diff -u a b || {
+                  echo "verify/pkg-signature-check.py and verify/office-pkg-signature-check.py differ in their shared verification" >&2
+                  exit 1
+                }
                 touch "$out"
               '';
           # The modules evaluated in a NixOS system, a nix-darwin system and

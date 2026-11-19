@@ -10,8 +10,8 @@
 # them. Needs curl, jq and nix (gnupg comes from the flake's nixpkgs).
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../lib/update.sh
-. ../../lib/update.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 # Mozilla Software Releases <release@mozilla.com>, as Mozilla's KEY file and
 # its docs ("Verifying Firefox downloads") list it.
