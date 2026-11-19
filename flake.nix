@@ -179,6 +179,7 @@
             services = {
               cloudflare-warp.enable = true;
               rayfish.enable = true;
+              santa.enable = true;
             };
           }
         ];

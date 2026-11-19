@@ -59,8 +59,9 @@ darwinConfigurations.example = nix-darwin.lib.darwinSystem {
 
 `darwinModules` hold the system services (launchd daemons),
 `microsoft-office`, which installs the selected Office apps with the root
-licensing helper they share, and `google-drive`, which installs Google Drive
-into `/Applications` with its setuid mount helper. Other macOS apps such as
+licensing helper they share, `google-drive`, which installs Google Drive into
+`/Applications` with its setuid mount helper, and `santa`, which installs
+Santa into `/Applications` for its system extension. Other macOS apps such as
 `firefox`, `kiri` and `whatsapp` have Home Manager modules
 (`homeManagerModules`), for nix-darwin's Home Manager module or a standalone
 Home Manager.
