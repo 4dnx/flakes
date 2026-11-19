@@ -2,8 +2,8 @@
 # Bump hashes.json to the latest upstream release. Needs gh, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
-. ../build-support/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
+. ../../helpers/update-lib.sh
 
 version="$(gh_latest 1mcp 1mcp-app/agent)"
 skip_if_current 1mcp "$version"

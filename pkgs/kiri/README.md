@@ -44,7 +44,7 @@ the old one was garbage-collected).
 `update.sh` follows the release feed the app's updater reads
 (`download.runkiri.com/latest-mac-arm64.json`) and checks the tar.gz against
 the SHA-256 it lists. The bundle's Apple code signature is checked too,
-without macOS (`pkgs/build-support/codesign-check.py`): every file matches the seal, and the
+without macOS (`helpers/codesign-check.py`): every file matches the seal, and the
 app is signed by the Developer ID of team `Z44N5GDT9Q`, the maintainer who
 signs Kiri's release tags, chaining to Apple's root CA. The macOS install
 check runs it on the installed bundle and `checks.<linux>.kiri-codesign` on

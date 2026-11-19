@@ -159,7 +159,7 @@ stdenv.mkDerivation {
   + (
     if isDarwin then
       ''
-        ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Herdr.app" "${sources.app}"
+        ${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/Herdr.app" "${sources.app}"
       ''
     else
       ''

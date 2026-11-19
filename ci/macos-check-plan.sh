@@ -24,14 +24,13 @@ for rev in $candidates; do
 done
 # Changes to the check machinery must exercise the builds too, even when
 # package derivations are unchanged (for example a new Nix installer): that
-# is check.yml and lib/, which holds only CI machinery. The helpers package
-# builds read (pkgs/build-support) change their derivations instead, so only
-# the checks that read them run.
-if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml lib/; then
+# is check.yml and ci/. The helpers package builds read (helpers/) change
+# their derivations instead, so only the checks that read them run.
+if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml ci/; then
   base=""
 fi
 if [ -n "$base" ]; then
-  checks=$(lib/changed-checks.sh "$system" "$base")
+  checks=$(ci/changed-checks.sh "$system" "$base")
 else
   checks=$(nix eval --json ".#checks.$system" \
     --apply 'cs: builtins.attrNames (removeAttrs cs [ "formatting" ])' | jq -r '.[]')

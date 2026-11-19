@@ -47,7 +47,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Google Chrome.app" "$version"
+    ${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/Google Chrome.app" "$version"
     runHook postInstallCheck
   '';
 

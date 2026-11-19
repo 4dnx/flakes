@@ -6,8 +6,8 @@
 # nix (gnupg comes from the flake's nixpkgs).
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
-. ../build-support/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
+. ../../helpers/update-lib.sh
 
 base=https://downloads.claude.ai/claude-code-releases
 # Anthropic Claude Code Release Signing <security@anthropic.com>, as

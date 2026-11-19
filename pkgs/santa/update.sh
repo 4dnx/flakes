@@ -5,8 +5,8 @@
 # jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
-. ../build-support/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
+. ../../helpers/update-lib.sh
 
 # Calendar versions without a "v": 2026.9.
 version="$(gh_latest santa northpolesec/santa '^[0-9]{4}\.[0-9]+$')"

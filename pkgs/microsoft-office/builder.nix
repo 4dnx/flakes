@@ -8,7 +8,7 @@
 # helper and its LaunchDaemon plist under the paths the installer gives them
 # ($licensing/Library/PrivilegedHelperTools/..., .../LaunchDaemons/...),
 # which the microsoft-office nix-darwin module copies into place. Nothing is
-# compiled or patched. It lives here rather than in lib/ because only the
+# compiled or patched. It lives here rather than in helpers/ because only the
 # Office apps use it; pkgs/microsoft-office is a package of its own (the
 # three apps together), so this file is not one.
 {
@@ -39,8 +39,8 @@ let
   team = "UBF8T346G9";
   helper = "com.microsoft.office.licensingV3.helper";
   # Checks the installer's signature and every file in it before anything
-  # is read from it (pkgs/build-support/pkg-signature-check.py).
-  pkgCheck = ''${python3.interpreter} -I ${../build-support/pkg-signature-check.py} ${../build-support/apple-root-ca.pem} ${team} "$src"'';
+  # is read from it (helpers/pkg-signature-check.py).
+  pkgCheck = ''${python3.interpreter} -I ${../../helpers/pkg-signature-check.py} ${../../helpers/apple-root-ca.pem} ${team} "$src"'';
 in
 stdenvNoCC.mkDerivation {
   inherit pname version;
@@ -96,7 +96,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/${app}.app" \
+    ${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/${app}.app" \
       "$version" "${build}" arm64
     # The helper is the one from this release: its embedded Info.plist
     # carries the same build.

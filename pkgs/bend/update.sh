@@ -4,8 +4,8 @@
 # each download is checked against it (and against GitHub's digest).
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
-. ../build-support/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
+. ../../helpers/update-lib.sh
 
 script="$(curl -fsSL https://bend-lang.com/install.sh)"
 # field NAME: the value of NAME="..." in install.sh.

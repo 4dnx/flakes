@@ -5,8 +5,8 @@
 # Needs gh, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
-. ../build-support/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
+. ../../helpers/update-lib.sh
 
 repo=ghostty-org/ghostty
 

@@ -42,7 +42,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           BASE: origin/${{ github.base_ref || 'main' }}
-        run: lib/macos-check-plan.sh
+        run: ci/macos-check-plan.sh
 
   linux:
     name: check (${{ matrix.os }})
@@ -141,7 +141,7 @@ jobs:
         # The branch is deleted through the API: gh pr merge --delete-branch
         # also looks for a local checkout, which this job has none of.
         # pull_request runs still waiting for approval at this commit are
-        # deleted first (lib/update-all.sh deletes those it sees): merging
+        # deleted first (ci/update-all.sh deletes those it sees): merging
         # would fail them as expired, and GitHub would mail the failure.
         run: |
           if [ "$(gh pr view "$BRANCH" --json state -q .state)" != OPEN ]; then

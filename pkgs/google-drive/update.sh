@@ -9,8 +9,8 @@
 # and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../build-support/update-lib.sh
-. ../build-support/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
+. ../../helpers/update-lib.sh
 
 response=""
 for _ in $(seq 1 5); do
@@ -55,7 +55,7 @@ apfs=("$tmp"/*.apfs)
 nix shell --impure --expr "with (builtins.getFlake \"git+file://$flake\").inputs.nixpkgs.legacyPackages.\${builtins.currentSystem}; python3.withPackages (p: [ p.dissect-apfs ])" \
   --command python3 -I apfs-cat.py "${apfs[0]}" /GoogleDrive.pkg "$tmp/GoogleDrive.pkg"
 nix_run nixpkgs#python3 nixpkgs#openssl --command python3 -I \
-  ../build-support/pkg-signature-check.py ../build-support/apple-root-ca.pem EQHXZ8M8AV "$tmp/GoogleDrive.pkg" \
+  ../../helpers/pkg-signature-check.py ../../helpers/apple-root-ca.pem EQHXZ8M8AV "$tmp/GoogleDrive.pkg" \
   --cat GoogleDrive_arm64.pkg/Payload 2>/dev/null |
   nix_run nixpkgs#pbzx --command pbzx - |
   (cd "$tmp" && nix_run nixpkgs#cpio --command cpio -id --quiet "./Google Drive.app/Contents/Info.plist")

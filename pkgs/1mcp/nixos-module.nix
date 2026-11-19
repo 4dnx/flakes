@@ -174,7 +174,7 @@ in
         RestartSec = 3;
       }
       // optionalAttrs cfg.hardening.enable (
-        import ../build-support/hardening.nix
+        import ../../helpers/hardening.nix
         // {
           PrivateTmp = true;
           ProtectSystem = "full";

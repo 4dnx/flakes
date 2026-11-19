@@ -31,7 +31,7 @@ env:
 
 jobs:
   # Every package that builds on Linux, and nixpkgs weekly. See
-  # lib/update-all.sh.
+  # ci/update-all.sh.
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -49,7 +49,7 @@ jobs:
         with:
           # Full history, so the rebase before the push always finds its base.
           fetch-depth: 0
-          # The update step pushes with GH_TOKEN (lib/update-all.sh), so the
+          # The update step pushes with GH_TOKEN (ci/update-all.sh), so the
           # token isn't left in .git/config for the later steps.
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
@@ -65,7 +65,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PACKAGES: ${{ github.event.inputs.packages }}
           UPDATE_SYSTEM: x86_64-linux
-        run: lib/update-all.sh
+        run: ci/update-all.sh
 
       # Only hermes-agent's and llama's runtime closures, as main now has them;
       # paths already on cache.nixos.org are skipped. Runs after a failed update
@@ -99,11 +99,11 @@ jobs:
       - name: Compute macOS cache key
         id: macos-cache
         run: |
-          key="$(lib/macos-cache-key.sh)"
+          key="$(ci/macos-cache-key.sh)"
           echo "key=$key" >>"$GITHUB_OUTPUT"
       # Keyed on the macOS derivations, so Linux-only changes keep the
       # cache. Heavy packages (the Office apps) are deleted from the store
-      # once built (lib/update-all.sh), so they never fill it.
+      # once built (ci/update-all.sh), so they never fill it.
       - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
         with:
           primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v2-${{ steps.macos-cache.outputs.key }}
@@ -123,4 +123,4 @@ jobs:
           UPDATE_SYSTEM: aarch64-darwin
         run: >-
           nix shell --inputs-from . nixpkgs#bash nixpkgs#coreutils
-          nixpkgs#gnugrep nixpkgs#gnused --command lib/update-all.sh
+          nixpkgs#gnugrep nixpkgs#gnused --command ci/update-all.sh

@@ -84,9 +84,9 @@ removes it). No other telemetry setting was found.
 for the release it serves a new Apple Silicon install, and checks the
 download against the sha256 the server lists. The package checks the
 installer's signature by Google's Developer ID Installer certificate (team
-`EQHXZ8M8AV`) and every file in it (`pkgs/build-support/pkg-signature-check.py`, which
+`EQHXZ8M8AV`) and every file in it (`helpers/pkg-signature-check.py`, which
 the Office apps use too), and the
-installed app's whole Developer ID seal (`pkgs/build-support/codesign-check.py`);
+installed app's whole Developer ID seal (`helpers/codesign-check.py`);
 `checks.<linux>.google-drive-codesign` runs the same on Linux, so an update
 is checked before it reaches a Mac. Updates pass through a pull request, as
 the module installs a setuid-root helper.
