@@ -50,7 +50,7 @@ fixes; there are no release branches.
   CA, and every file in it matching the checksum recorded there
   (`pkgs/microsoft-office/pkg-signature-check.py`). The app bundles inside are not checked on
   Linux (a ~1.4 GB download each). Google Drive's installer is checked the
-  same way (Google's team), and the app inside, like Firefox's macOS app,
+  same way (Google's team), and the app inside, like Firefox's and Anoa's macOS apps,
   must carry an intact Developer ID seal of its vendor's team, on Linux
   before an update lands and in the macOS install check.
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
