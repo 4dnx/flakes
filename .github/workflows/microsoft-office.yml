@@ -21,9 +21,9 @@ on:
   pull_request:
     branches: [main]
     paths:
+      # The apps, and pkgs/microsoft-office: their builder, update script
+      # and installer signature check, which only they use.
       - "pkgs/microsoft-*/**"
-      - "lib/microsoft-office.nix"
-      - "lib/pkg-signature-check.py"
       - "lib/check-app.py"
       - "lib/apple-root-ca.pem"
       - ".github/workflows/microsoft-office.yml"

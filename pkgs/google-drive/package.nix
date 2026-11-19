@@ -46,8 +46,10 @@ let
     rm -- *.apfs
   '';
   # Checks the installer's signature and every file in it before anything
-  # is read from it (lib/pkg-signature-check.py).
-  pkgCheck = "${python3.interpreter} -I ${../../lib/pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} GoogleDrive.pkg";
+  # is read from it (pkg-signature-check.py, this package's own copy of the
+  # Office apps' pkgs/microsoft-office/pkg-signature-check.py, so neither
+  # rebuilds with the other).
+  pkgCheck = "${python3.interpreter} -I ${./pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} GoogleDrive.pkg";
   # The whole bundle: every Mach-O signed by Google's team, every file
   # matching the seal.
   codesignCheck = app: ''

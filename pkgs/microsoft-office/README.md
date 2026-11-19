@@ -5,7 +5,7 @@ installer packages, with a nix-darwin module that installs any selection of
 them and the licensing helper they need. The apps are separate packages,
 [microsoft-word](../microsoft-word), [microsoft-excel](../microsoft-excel)
 and [microsoft-powerpoint](../microsoft-powerpoint), built by
-`lib/microsoft-office.nix`; this package is the three together (each app
+`builder.nix` here; this package is the three together (each app
 bundle linked whole), and the directory holds the module.
 
 All four are unfree (this flake's own `packages` allow them; through the
@@ -158,7 +158,7 @@ optimization; Gatekeeper scans the app at its first launch instead).
 
 ## Packages and updates
 
-Each app's `update.sh` (`lib/microsoft-office-update.sh`) follows
+Each app's `update.sh` (`update-lib.sh` here) follows
 Microsoft's download link (`go.microsoft.com/fwlink/?linkid=525134` for
 Word, `525135` Excel, `525136` PowerPoint), which redirects to the current
 installer on Microsoft's CDN, and takes its build once MAU's own manifest
@@ -166,7 +166,7 @@ for the app (`0409MSWD2019-chk.xml`, `0409XCEL2019-chk.xml`,
 `0409PPT32019-chk.xml`) offers the same one. Microsoft publishes no checksum
 of the installers (the signed catalogs beside the manifests list only the
 MAU update packages, and the release history page lists none), so the
-download is pinned by its hash, after `lib/pkg-signature-check.py` has
+download is pinned by its hash, after `pkg-signature-check.py` (here) has
 checked the package's signature on Linux or macOS: its table of contents
 signed (RSA and CMS) by Microsoft's Developer ID Installer certificate
 (team `UBF8T346G9`) chaining to Apple's root CA, and every file in it

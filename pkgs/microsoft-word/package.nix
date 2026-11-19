@@ -1,8 +1,8 @@
 { lib, callPackage }:
 
 # Microsoft Word for macOS from Microsoft's signed installer; see
-# lib/microsoft-office.nix and pkgs/microsoft-office/README.md.
-callPackage ../../lib/microsoft-office.nix { } {
+# pkgs/microsoft-office/builder.nix and README.md there.
+callPackage ../microsoft-office/builder.nix { } {
   pname = "microsoft-word";
   app = "Microsoft Word";
   bundleId = "com.microsoft.Word";

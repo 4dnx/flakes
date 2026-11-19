@@ -2,14 +2,15 @@
 # pkgs/microsoft-powerpoint, pkgs/microsoft-word): one app from Microsoft's
 # signed installer package, installed untouched.
 #
-# The installer holds three component packages (see
-# pkgs/microsoft-office/README.md): the app, Microsoft AutoUpdate (left out:
+# The installer holds three component packages (see README.md here): the app, Microsoft AutoUpdate (left out:
 # updates come from Nix) and the licensing helper shared by every Office app.
 # `out` gets the app as $out/Applications/<app>.app; `licensing` gets the
 # helper and its LaunchDaemon plist under the paths the installer gives them
 # ($licensing/Library/PrivilegedHelperTools/..., .../LaunchDaemons/...),
 # which the microsoft-office nix-darwin module copies into place. Nothing is
-# compiled or patched.
+# compiled or patched. It lives here rather than in lib/ because only the
+# Office apps use it; pkgs/microsoft-office is a package of its own (the
+# three apps together), so this file is not one.
 {
   lib,
   stdenvNoCC,
@@ -38,8 +39,8 @@ let
   team = "UBF8T346G9";
   helper = "com.microsoft.office.licensingV3.helper";
   # Checks the installer's signature and every file in it before anything
-  # is read from it (lib/pkg-signature-check.py).
-  pkgCheck = ''${python3.interpreter} -I ${./pkg-signature-check.py} ${./apple-root-ca.pem} ${team} "$src"'';
+  # is read from it (pkg-signature-check.py here).
+  pkgCheck = ''${python3.interpreter} -I ${./pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} "$src"'';
 in
 stdenvNoCC.mkDerivation {
   inherit pname version;
@@ -95,7 +96,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${./check-app.py} "$out/Applications/${app}.app" \
+    ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/${app}.app" \
       "$version" "${build}" arm64
     # The helper is the one from this release: its embedded Info.plist
     # carries the same build.
