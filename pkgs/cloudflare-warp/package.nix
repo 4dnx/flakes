@@ -195,7 +195,7 @@ stdenv.mkDerivation {
     runHook preInstallCheck
     ${
       if isDarwin then
-        ''${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/Cloudflare WARP.app" "$version"''
+        ''${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Cloudflare WARP.app" "$version"''
       else
         # Not warp-svc: it ignores --version and starts the daemon.
         ''

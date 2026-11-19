@@ -10,8 +10,10 @@ in sync with behavior. Remote:
 See `LAYOUT.md`; keep it in sync when adding a kind of file or workflow.
 Packages go under `pkgs/`: one package's files in `pkgs/<name>/`, a
 family's shared files in one of its packages. What packages of different
-families share goes in `helpers/`; `ci/` holds only the CI and update
-machinery the workflows run.
+families share goes by kind: build and install checks in
+`pkgs/build-support/`, Nix functions in `lib/`, the tools `update.sh`
+scripts use in `scripts/`. `ci/` holds the CI and update machinery the
+workflows run.
 
 ## Adding a package
 
@@ -22,14 +24,14 @@ upstream native release is missing; leave that system unsupported and say so.
 
 
 1. `pkgs/<name>/package.nix` (+ `hashes.json` and `update.sh` if it tracks upstream releases).
-   `update.sh` sources `helpers/update-lib.sh` and passes every
+   `update.sh` sources `scripts/update-lib.sh` and passes every
    upstream version through `check_version`. Where upstream publishes checksums (a sums file,
    `.sha256` files, a manifest), check downloads against them (`sums`, or
    `prefetch URL SHA256`); GitHub release assets are checked against GitHub's
    digest by `prefetch` itself. If the package runs as root or acts with the
    user's access, add it to `REVIEW` in `.github/workflows/update.yml`.
    Give the package an install check that runs it (`--version`, or
-   `helpers/check-app.py` for a macOS app bundle): building is
+   `pkgs/build-support/check-app.py` for a macOS app bundle): building is
    not starting.
 2. Set `meta.platforms` to the systems it really supports; that's what filters `packages.<system>`.
    If evaluating it fetches another flake, also list it in `fixedPlatforms` in

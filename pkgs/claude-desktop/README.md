@@ -20,7 +20,7 @@ home.packages = [ inputs.xr3t.packages.aarch64-darwin.claude-desktop ];
 
 Upstream's release feed (`RELEASES.json`, what the app's own updater reads)
 publishes no checksum, so the pinned zip is checked through the bundle's own
-Apple code signature, without macOS (`helpers/codesign-check.py`, with
+Apple code signature, without macOS (`pkgs/build-support/codesign-check.py`, with
 `rcodesign` and `openssl`):
 
 - every Mach-O in the bundle (the app, its helpers, frameworks and tools)

@@ -4,8 +4,8 @@
 # beside it (the bare hash, with no file name, so `sums` does not apply).
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
-. ../../helpers/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 base=https://pkgs.tailscale.com/stable
 # The stable track's current tarball version.

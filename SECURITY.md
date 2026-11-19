@@ -12,7 +12,7 @@ this repository. Don't open a public issue for it.
 Report here:
 
 - the Nix code, modules and scripts in this repository (`flake.nix`,
-  `pkgs/*/package.nix`, `*module.nix`, `update.sh`, `helpers/`,
+  `pkgs/*/package.nix`, `*module.nix`, `update.sh`, `pkgs/build-support/`, `lib/`, `scripts/`,
   `ci/`);
 - the workflows in `.github/workflows/`;
 - a pinned hash or URL that downloads something other than upstream's
@@ -39,17 +39,17 @@ fixes; there are no release branches.
   manifests, Google's update server for Chrome and Google Drive, Firefox's
   `SHA256SUMS` once its signature by Mozilla's release key checks out); GitHub release assets must match the
   digest GitHub recorded at upload; and npm packages are pinned by the registry's integrity hash. Every upstream version goes through `check_version`
-  (`helpers/update-lib.sh`) before it reaches a URL, `hashes.json` or a commit
+  (`scripts/update-lib.sh`) before it reaches a URL, `hashes.json` or a commit
   message. Claude Code's macOS binary and Claude Desktop's whole app bundle
   must also carry intact Developer ID signatures of Anthropic's team chaining
   to Apple's root CA, Claude Desktop's seal covering every file in the bundle
-  (`helpers/codesign-check.py`); this is checked on Linux before an update lands
+  (`pkgs/build-support/codesign-check.py`); this is checked on Linux before an update lands
   and in the macOS install check. Microsoft publishes no checksum of its
   Office installers; their signature is checked instead, before an update
   lands and again in every build: the package's table of contents signed by
   Microsoft's Developer ID Installer certificate chaining to Apple's root
   CA, and every file in it matching the checksum recorded there
-  (`helpers/pkg-signature-check.py`). The app bundles inside are not checked on
+  (`pkgs/build-support/pkg-signature-check.py`). The app bundles inside are not checked on
   Linux (a ~1.4 GB download each). Google Drive's installer is checked the
   same way (Google's team), and the app inside, like Firefox's, Anoa's and Santa's macOS apps,
   must carry an intact Developer ID seal of its vendor's team, on Linux
@@ -71,7 +71,7 @@ fixes; there are no release branches.
   (including checks of merged PRs).
   Unchanged derivations reuse that baseline's validation. Missing baselines
   and changes to check machinery (`check.yml` and `ci/`) trigger all macOS
-  package checks; a change to a helper in `helpers/` changes the
+  package checks; a change to a helper in `pkgs/build-support/`, `lib/` or `scripts/` changes the
   derivations of the packages that read it, so their checks run. Linux
   continues to run the full flake checks, including formatting. The heavy
   Office apps are not in the checks: `microsoft-office.yml` builds those a pull request

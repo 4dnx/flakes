@@ -69,7 +69,7 @@ let
   # compiled.
   team = "TVFQAT4MZP";
   codesignCheck = app: ''
-    ${python3.interpreter} -I ${../../helpers/codesign-check.py} ${../../helpers/apple-root-ca.pem} ${team} ${app}
+    ${python3.interpreter} -I ${../build-support/codesign-check.py} ${../build-support/apple-root-ca.pem} ${team} ${app}
   '';
   # The macOS bundle's seal, checked on any system: checks.<linux> runs it,
   # so an update is checked before it reaches a Mac.
@@ -123,7 +123,7 @@ let
     # platform, without a window server.
     installCheckPhase = ''
       runHook preInstallCheck
-      ${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/anoa.app" "" "" arm64
+      ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/anoa.app" "" "" arm64
       "$out/bin/anoa" --version | grep -Fx "anoa ${version}"
     ''
     + codesignCheck ''"$out/Applications/anoa.app"''

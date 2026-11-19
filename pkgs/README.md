@@ -3,7 +3,8 @@
 Every package in this flake, what it brings and the systems it runs on. Each
 name links to the package's own README, with its options, what it turns off
 (self-update, telemetry) and how to turn that back on. For installing them,
-see [the top-level README](../README.md).
+see [the top-level README](../README.md). `build-support/` is not a
+package: it holds the build and install checks packages share.
 
 | Package | Description |
 |---|---|

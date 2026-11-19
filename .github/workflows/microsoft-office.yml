@@ -22,11 +22,11 @@ on:
     branches: [main]
     paths:
       # The apps, pkgs/microsoft-office (their builder and update script,
-      # which only they use) and the helpers/ files their builds read.
+      # which only they use) and the shared files their builds read.
       - "pkgs/microsoft-*/**"
-      - "helpers/check-app.py"
-      - "helpers/apple-root-ca.pem"
-      - "helpers/pkg-signature-check.py"
+      - "pkgs/build-support/check-app.py"
+      - "pkgs/build-support/apple-root-ca.pem"
+      - "pkgs/build-support/pkg-signature-check.py"
       - ".github/workflows/microsoft-office.yml"
 
 concurrency:

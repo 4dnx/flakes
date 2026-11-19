@@ -3,8 +3,8 @@
 # nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
-. ../../helpers/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 version="$(gh_latest llama ggml-org/llama.cpp)"
 skip_if_current llama "$version"

@@ -4,8 +4,8 @@
 # curl and jq.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
-. ../../helpers/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 registry=https://registry.npmjs.org/@openai/codex
 version="$(curl -fsS "$registry/latest" | jq -r '.version // empty')"

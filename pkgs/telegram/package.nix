@@ -40,7 +40,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/Telegram.app" \
+    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Telegram.app" \
       "$version" "${sources.build}" arm64
     runHook postInstallCheck
   '';

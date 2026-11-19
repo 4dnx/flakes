@@ -101,7 +101,7 @@ stdenvNoCC.mkDerivation {
   + (
     if isDarwin then
       ''
-        ${python3.interpreter} ${../../helpers/check-app.py} "$out/Applications/Zed.app" "$version" "" arm64
+        ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/Zed.app" "$version" "" arm64
         /usr/bin/codesign --verify --deep --strict "$out/Applications/Zed.app"
       ''
     else

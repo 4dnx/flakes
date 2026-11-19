@@ -35,8 +35,11 @@
       ];
       eachSystem = lib.genAttrs systems;
 
-      # Every directory under pkgs/ is a package: pkgs/<name>/package.nix.
-      pkgDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./pkgs);
+      # Every directory under pkgs/ is a package (pkgs/<name>/package.nix) but
+      # pkgs/build-support, the checks packages share.
+      pkgDirs = lib.filterAttrs (name: type: type == "directory" && name != "build-support") (
+        builtins.readDir ./pkgs
+      );
       packageNames = builtins.attrNames pkgDirs;
 
       # Unfree packages this flake's own `packages` allow. Overlay users allow
@@ -325,14 +328,14 @@
                   fileset = lib.fileset.unions [
                     ./.github/workflows
                     (lib.fileset.fileFilter (file: file.hasExt "sh") ./ci)
-                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./helpers)
+                    (lib.fileset.fileFilter (file: file.hasExt "sh") ./scripts)
                     (lib.fileset.fileFilter (file: file.hasExt "sh") ./pkgs)
                   ];
                 };
               }
               ''
                 cd "$src"
-                find ci helpers pkgs -name '*.sh' -exec shellcheck -x {} +
+                find ci scripts pkgs -name '*.sh' -exec shellcheck -x {} +
                 actionlint .github/workflows/*.yml
                 touch "$out"
               '';

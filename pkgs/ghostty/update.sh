@@ -5,8 +5,8 @@
 # the dmg (~35 MB) on a bump to hash it. Needs curl, jq and nix.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
-. ../../helpers/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
 base=https://release.files.ghostty.org
 

@@ -2,10 +2,10 @@
 # Follow the official stable appcast, including rebuilds of the same version.
 set -euo pipefail
 cd "$(dirname "$0")"
-# shellcheck source-path=SCRIPTDIR source=../../helpers/update-lib.sh
-. ../../helpers/update-lib.sh
+# shellcheck source-path=SCRIPTDIR source=../../scripts/update-lib.sh
+. ../../scripts/update-lib.sh
 
-release="$(curl -fsSL 'https://osx.telegram.org/updates/versions.xml' | python3 ../../helpers/macos-app-release.py telegram)"
+release="$(curl -fsSL 'https://osx.telegram.org/updates/versions.xml' | python3 ../../scripts/macos-app-release.py telegram)"
 version="$(jq -er .version <<<"$release")"
 build="$(jq -er .build <<<"$release")"
 url="$(jq -er .url <<<"$release")"
