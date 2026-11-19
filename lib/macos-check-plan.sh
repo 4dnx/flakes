@@ -23,8 +23,16 @@ for rev in $candidates; do
   fi
 done
 # Changes to the check machinery must exercise the builds too, even when
-# package derivations are unchanged (for example a new Nix installer).
-if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml lib/; then
+# package derivations are unchanged (for example a new Nix installer). The
+# Office apps' builder, update script and installer signature check are not
+# check machinery: only the Office apps use them, checks leave those out, and
+# microsoft-office.yml builds them.
+office=(
+  ':(exclude)lib/microsoft-office.nix'
+  ':(exclude)lib/microsoft-office-update.sh'
+  ':(exclude)lib/pkg-signature-check.py'
+)
+if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml lib/ "${office[@]}"; then
   base=""
 fi
 if [ -n "$base" ]; then
