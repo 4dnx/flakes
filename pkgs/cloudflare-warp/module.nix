@@ -171,7 +171,9 @@ in
             ''
               while [ ! -x "${daemon}" ]; do sleep 1; done
               ${lib.optionalString hasExclusions ''
-                ${applyConfiguredExclusions} &
+                (
+                  ${applyConfiguredExclusions}
+                ) &
               ''}
               exec "${daemon}"
             ''

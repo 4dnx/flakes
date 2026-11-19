@@ -236,6 +236,32 @@
         in
         removeAttrs self.packages.${system} (rolling ++ heavy)
         // {
+          warp-launchd-syntax =
+            let
+              variants = [
+                { }
+                { excludeRayfish = true; }
+                { excludeHosts = [ "example.com" ]; }
+                {
+                  excludeRayfish = true;
+                  excludeHosts = [ "example.com" ];
+                }
+              ];
+              scripts = map (
+                settings:
+                let
+                  test = darwinModulesTest.extendModules {
+                    modules = [ { services.cloudflare-warp = settings; } ];
+                  };
+                  command = lib.last test.config.launchd.daemons.cloudflare-warp.serviceConfig.ProgramArguments;
+                in
+                pkgs.writeText "warp-launchd-script" (builtins.unsafeDiscardStringContext command)
+              ) variants;
+            in
+            pkgs.runCommand "warp-launchd-syntax" { nativeBuildInputs = [ pkgs.bash ]; } ''
+              ${lib.concatMapStringsSep "\n" (script: "bash --posix -n ${script}") scripts}
+              touch "$out"
+            '';
           warp-exclusions =
             pkgs.runCommand "warp-exclusions"
               {
