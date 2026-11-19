@@ -51,7 +51,8 @@ in place.
 ## Checks and maintenance
 
 CI runs the CLI version check on every system. macOS additionally checks
-the bundle version, executable and native ARM64 Mach-O slice. Linux checks
+the bundle version, executable, native ARM64 Mach-O slice and the app's code
+signature with `codesign --verify --deep --strict`. Linux checks
 the editor's `--help` path to load its libraries and verifies its ELF CPU
 architecture. These headless checks do not test rendering or GPU drivers.
 
