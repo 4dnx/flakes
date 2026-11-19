@@ -51,7 +51,7 @@ stdenvNoCC.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     runHook preInstallCheck
-    ${python3.interpreter} ${../build-support/check-app.py} "$out/Applications/UTM.app" "${appVersion}"
+    ${python3.interpreter} ${../../verify/check-app.py} "$out/Applications/UTM.app" "${appVersion}"
     runHook postInstallCheck
   '';
 

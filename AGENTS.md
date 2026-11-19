@@ -10,9 +10,9 @@ in sync with behavior. Remote:
 See `LAYOUT.md`; keep it in sync when adding a kind of file or workflow.
 Packages go under `pkgs/`: one package's files in `pkgs/<name>/`, a
 family's shared files in one of its packages. What packages of different
-families share goes by kind: build and install checks in
-`pkgs/build-support/`, Nix functions in `lib/`, the tools `update.sh`
-scripts use in `scripts/`. `ci/` holds the CI and update machinery the
+families share goes in a top-level folder named after what it holds, never
+under `pkgs/`: signature and install checks in `verify/`, Nix functions in
+`lib/`, the tools `update.sh` scripts use in `scripts/`. `ci/` holds the CI and update machinery the
 workflows run.
 
 ## Adding a package
@@ -31,7 +31,7 @@ upstream native release is missing; leave that system unsupported and say so.
    digest by `prefetch` itself. If the package runs as root or acts with the
    user's access, add it to `REVIEW` in `.github/workflows/update.yml`.
    Give the package an install check that runs it (`--version`, or
-   `pkgs/build-support/check-app.py` for a macOS app bundle): building is
+   `verify/check-app.py` for a macOS app bundle): building is
    not starting.
 2. Set `meta.platforms` to the systems it really supports; that's what filters `packages.<system>`.
    If evaluating it fetches another flake, also list it in `fixedPlatforms` in

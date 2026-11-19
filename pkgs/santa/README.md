@@ -75,7 +75,7 @@ endpoint (`MetricURL`); neither is set by default.
 against GitHub's digest. The install check and `checks.<linux>.santa-codesign`
 check `Santa.app`'s whole Developer ID seal (North Pole Security's team
 `ZMCG7MLDV9`), its system extensions and helpers included.
-`pkgs/build-support/codesign-check.py` checks each code page against its signed hash itself
+`verify/codesign-check.py` checks each code page against its signed hash itself
 for `sleigh`, a Go binary whose layout `rcodesign verify` rejects. Updates
 pass through a pull request: the module installs a root system extension.
 

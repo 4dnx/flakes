@@ -1,27 +1,31 @@
 # Layout
 
-What goes where, by what a file is for:
+What goes where, by what a file is for. `pkgs/` holds only packages: a
+file that packages of different families share goes in a top-level folder
+named after what it holds, and a new kind gets a folder of its own (or a
+better name for the old one).
 
 - `pkgs/<name>/` holds everything of one package; the files a family of
   packages shares sit in one of them (`pkgs/microsoft-office` for the
   Office apps).
-- `pkgs/build-support/` holds the build and install checks packages of
-  different families share, as nixpkgs' does. It is not a package.
+- `verify/` holds the checks packages of different families share: that a
+  download is upstream's (Apple code and installer signatures, against the
+  pinned Apple root CA) and that an installed app is the pinned one.
 - `lib/` holds Nix functions and values the packages and modules share.
 - `scripts/` holds the tools the packages' `update.sh` scripts use.
 - `ci/` holds the CI and update machinery the workflows run, which no
   package reads.
 
 Nix rebuilds a derivation when a file it references changes, wherever the
-file lives, so a change in `pkgs/build-support/`, `lib/` or `scripts/`
-rebuilds only the packages that read that file. A change in `ci/` or `check.yml` makes CI build every macOS check
-(`ci/macos-check-plan.sh`).
+file lives, so a change in `verify/`, `lib/` or `scripts/` rebuilds only the
+packages that read that file. A change in `ci/` or `check.yml` makes CI
+build every macOS check (`ci/macos-check-plan.sh`).
 
 | Path | Role |
 |---|---|
 | `AGENTS.md`, `CLAUDE.md` | Guidance for coding agents. `CLAUDE.md` only imports `AGENTS.md` for Claude Code, so the guidance stays in one file. |
-| `SECURITY.md` | How to report a vulnerability, and the trust model: what pins, checks and sandboxes do and don't cover. Keep it in sync with the workflows, `ci/`, `pkgs/build-support/`, `lib/`, `scripts/` and the modules. |
-| `flake.nix` | Discovers `pkgs/*/package.nix` (every directory under `pkgs/` but `build-support`) and the module files; builds all packages in one `makeScope` so they can depend on each other by argument name; filters `packages.<system>` with `lib.meta.availableOn`, except for the packages in `fixedPlatforms` (they fetch Hermes' flake when evaluated). `checks` builds every package but the `rolling` ones (`ghostty-tip`, whose pin expires with each upstream build) and the `heavy` ones (the Office apps, a ~1.4 GB download and ~3 GB built each, which `microsoft-office.yml` builds instead, and `microsoft-office`, which joins them) and adds `warp-exclusions` (mock-CLI split-tunnel reconciliation tests), `warp-launchd-syntax` (generated launchd shell scripts with exclusions disabled, enabled individually, and combined), `formatting` (`nixfmt --check`) and, on Linux, `lint` (shellcheck over the shell scripts, actionlint over the workflows) and the module checks, each a configuration with every module of its kind imported and enabled, evaluated: `nixos-modules` (NixOS), `darwin-modules` (nix-darwin, Apple Silicon), `home-modules` (standalone Home Manager on that Linux system, as on Ubuntu) and `darwin-home-modules` (Home Manager on macOS). The `nix-darwin` and `home-manager` inputs exist only for these checks and follow `nixpkgs`. |
+| `SECURITY.md` | How to report a vulnerability, and the trust model: what pins, checks and sandboxes do and don't cover. Keep it in sync with the workflows, `ci/`, `verify/`, `lib/`, `scripts/` and the modules. |
+| `flake.nix` | Discovers `pkgs/*/package.nix` and the module files; builds all packages in one `makeScope` so they can depend on each other by argument name; filters `packages.<system>` with `lib.meta.availableOn`, except for the packages in `fixedPlatforms` (they fetch Hermes' flake when evaluated). `checks` builds every package but the `rolling` ones (`ghostty-tip`, whose pin expires with each upstream build) and the `heavy` ones (the Office apps, a ~1.4 GB download and ~3 GB built each, which `microsoft-office.yml` builds instead, and `microsoft-office`, which joins them) and adds `warp-exclusions` (mock-CLI split-tunnel reconciliation tests), `warp-launchd-syntax` (generated launchd shell scripts with exclusions disabled, enabled individually, and combined), `formatting` (`nixfmt --check`) and, on Linux, `lint` (shellcheck over the shell scripts, actionlint over the workflows) and the module checks, each a configuration with every module of its kind imported and enabled, evaluated: `nixos-modules` (NixOS), `darwin-modules` (nix-darwin, Apple Silicon), `home-modules` (standalone Home Manager on that Linux system, as on Ubuntu) and `darwin-home-modules` (Home Manager on macOS). The `nix-darwin` and `home-manager` inputs exist only for these checks and follow `nixpkgs`. |
 | `overlays/default.nix` | `pkgs.xr3t.<name>`, built against the consumer's nixpkgs. |
 | `pkgs/<name>/package.nix` | The derivation. Read `version`/hashes from `hashes.json` for prebuilt binaries. |
 | `pkgs/<name>/hashes.json` | `{ "version": ..., "hashes": { "<key>": "sha256-..." } }`, written by `update.sh`. Keys are whatever the package looks up (usually the system). Exception: `hermes-agent` pins an upstream flake as `{ version, rev, narHash }`. |
@@ -33,14 +37,14 @@ rebuilds only the packages that read that file. A change in `ci/` or `check.yml`
 | `pkgs/<name>/*.mobileconfig` | Optional. A macOS configuration profile the package ships for the user to approve, for a setting the app reads only from managed preferences (`claude-desktop`). |
 | `pkgs/<name>/README.md` | Optional. The package's usage, options and maintenance notes. |
 | `pkgs/README.md` | The package table: each package, what it brings and the systems it runs on, in alphabetical order. The top-level README links to it. |
-| `pkgs/build-support/check-app.py` | Install check for a macOS app bundle: its executable exists, and its version is the pinned one; optional build-number and native Mach-O architecture checks. |
-| `pkgs/build-support/codesign-check.py`, `pkgs/build-support/apple-root-ca.pem` | Checks Apple code signatures without macOS (`rcodesign`, `openssl`): a Mach-O file's every slice intact (each code page against its signed hash; `rcodesign verify` too, but for its complaint about Go binaries' `__LINKEDIT` placement) and signed by a Developer ID Application certificate of the given team chaining to Apple's root CA (pinned by fingerprint in the PEM): Apple's Developer ID Application extension, and the team as the subject's only OU and in its only CN, each field compared whole; for an `.app` or `.framework`, also its whole seal (`Info.plist`, `CodeResources`, every listed file, nested code by cdhash, nothing unsealed). A package that exposes it as `passthru.codesign` on its Linux package too gets `checks.<linux>.<name>-codesign`, macOS-only packages included (`anoa`, `claude-code`, `claude-desktop`, `firefox`, `google-drive`, `kiri`, `santa`). |
-| `pkgs/build-support/pkg-signature-check.py` | Checks a macOS installer package (`.pkg`, xar) without macOS (`openssl`): its table of contents signed (RSA and CMS) by a Developer ID Installer certificate of the given team chaining to Apple's root CA (`pkgs/build-support/apple-root-ca.pem`), matched by field as `pkgs/build-support/codesign-check.py` does (Apple's Developer ID Installer extension, the team as the only OU and in the only CN), and every file matching the checksum recorded there; then prints a bundle's version from the `Distribution` or writes one file (a component's `Payload`) to stdout. Used by the Office apps and `google-drive`. |
-| `pkgs/microsoft-office/builder.nix` | The builder the Office app packages (`microsoft-excel`, `microsoft-powerpoint`, `microsoft-word`) share: checks the installer with `pkgs/build-support/pkg-signature-check.py`, extracts the app component into `out` and the licensing helper into `licensing`. In the `microsoft-office` package directory, not `ci/`: only the Office apps use it. |
+| `pkgs/microsoft-office/builder.nix` | The builder the Office app packages (`microsoft-excel`, `microsoft-powerpoint`, `microsoft-word`) share: checks the installer with `verify/pkg-signature-check.py`, extracts the app component into `out` and the licensing helper into `licensing`. In the `microsoft-office` package directory, not `ci/`: only the Office apps use it. |
 | `pkgs/microsoft-office/update-lib.sh` | Sourced by those packages' `update.sh`: follows Microsoft's download link, waits for MAU's manifest to offer the same build, checks the installer's signature and takes its version from the signed `Distribution`. |
 | `pkgs/google-drive/apfs-cat.py` | Copies a file out of an APFS volume image with `dissect.apfs`: Google Drive's dmg is APFS, which `undmg` and 7-Zip can't read. |
 | `pkgs/cloudflare-warp/apply-exclusions.sh` | Consumer WARP exclusion reconciliation used by the service module and `warp-apply-exclusions`. |
 | `pkgs/cloudflare-warp/tests.py` | Offline mock-CLI tests run by `checks.<system>.warp-exclusions`. |
+| `verify/check-app.py` | Install check for a macOS app bundle: its executable exists, and its version is the pinned one; optional build-number and native Mach-O architecture checks. |
+| `verify/codesign-check.py`, `verify/apple-root-ca.pem` | Checks Apple code signatures without macOS (`rcodesign`, `openssl`): a Mach-O file's every slice intact (each code page against its signed hash; `rcodesign verify` too, but for its complaint about Go binaries' `__LINKEDIT` placement) and signed by a Developer ID Application certificate of the given team chaining to Apple's root CA (pinned by fingerprint in the PEM): Apple's Developer ID Application extension, and the team as the subject's only OU and in its only CN, each field compared whole; for an `.app` or `.framework`, also its whole seal (`Info.plist`, `CodeResources`, every listed file, nested code by cdhash, nothing unsealed). A package that exposes it as `passthru.codesign` on its Linux package too gets `checks.<linux>.<name>-codesign`, macOS-only packages included (`anoa`, `claude-code`, `claude-desktop`, `firefox`, `google-drive`, `kiri`, `santa`). |
+| `verify/pkg-signature-check.py` | Checks a macOS installer package (`.pkg`, xar) without macOS (`openssl`): its table of contents signed (RSA and CMS) by a Developer ID Installer certificate of the given team chaining to Apple's root CA (`verify/apple-root-ca.pem`), matched by field as `verify/codesign-check.py` does (Apple's Developer ID Installer extension, the team as the only OU and in the only CN), and every file matching the checksum recorded there; then prints a bundle's version from the `Distribution` or writes one file (a component's `Payload`) to stdout. Used by the Office apps and `google-drive`. |
 | `lib/hardening.nix` | The systemd sandboxing the opt-in `hardening.enable` options share (`serviceConfig`); each module adds what its service can live without. Modules otherwise run services as upstream's installer does. |
 | `scripts/macos-app-release.py` | Selects the newest stable WhatsApp or native Telegram version/build from the official Sparkle feed; validates the download URL against each vendor's release endpoint. |
 | `scripts/update-lib.sh` | Helpers for `update.sh`: `check_version` (rejects unexpected upstream versions), `gh_latest`, `skip_if_current`, `prefetch` (checks a download against upstream's sha256 when given one, and a GitHub release asset against GitHub's digest), `write_hashes` (with `sums` set, against upstream's checksum list or per-file `.sha256`). |

@@ -176,7 +176,7 @@ This flake grew out of three projects:
   upstream's own app bundles and binaries; this flake installs them
   declaratively through Nix instead, with their self-update turned off.
 - [numtide/llm-agents.nix](https://github.com/numtide/llm-agents.nix): Nix
-  packages for AI coding agents and their tools. `pkgs/build-support/codesign-check.py`
+  packages for AI coding agents and their tools. `verify/codesign-check.py`
   builds on its `codesignCheckHook`, which checks macOS code signatures
   without macOS.
 

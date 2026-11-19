@@ -25,7 +25,7 @@ done
 # Changes to the check machinery must exercise the builds too, even when
 # package derivations are unchanged (for example a new Nix installer): that
 # is check.yml and ci/. The shared files package builds read
-# (pkgs/build-support, lib) change their derivations instead, so only the
+# (verify/, lib) change their derivations instead, so only the
 # checks that read them run.
 if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml ci/; then
   base=""

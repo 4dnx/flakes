@@ -24,9 +24,9 @@ on:
       # The apps, pkgs/microsoft-office (their builder and update script,
       # which only they use) and the shared files their builds read.
       - "pkgs/microsoft-*/**"
-      - "pkgs/build-support/check-app.py"
-      - "pkgs/build-support/apple-root-ca.pem"
-      - "pkgs/build-support/pkg-signature-check.py"
+      - "verify/check-app.py"
+      - "verify/apple-root-ca.pem"
+      - "verify/pkg-signature-check.py"
       - ".github/workflows/microsoft-office.yml"
 
 concurrency:

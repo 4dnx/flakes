@@ -166,13 +166,13 @@ for the app (`0409MSWD2019-chk.xml`, `0409XCEL2019-chk.xml`,
 `0409PPT32019-chk.xml`) offers the same one. Microsoft publishes no checksum
 of the installers (the signed catalogs beside the manifests list only the
 MAU update packages, and the release history page lists none), so the
-download is pinned by its hash, after `pkgs/build-support/pkg-signature-check.py` has
+download is pinned by its hash, after `verify/pkg-signature-check.py` has
 checked the package's signature on Linux or macOS: its table of contents
 signed (RSA and CMS) by Microsoft's Developer ID Installer certificate
 (team `UBF8T346G9`) chaining to Apple's root CA, and every file in it
 matching the checksum recorded there. The version comes from the signed
 `Distribution`. The build checks the signature again before extracting
-anything, and the install check (`pkgs/build-support/check-app.py`) the app's version,
+anything, and the install check (`verify/check-app.py`) the app's version,
 build and arm64 slice, and the helper's build. Updates go through a pull
 request (`REVIEW` in `update.yml`): the helper runs as root.
 

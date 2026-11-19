@@ -27,7 +27,7 @@ each platform's download against the manifest's SHA-256. Updates pass
 through a pull request.
 
 The macOS binary's Apple code signature is checked too, without macOS
-(`pkgs/build-support/codesign-check.py`, with `rcodesign` and `openssl`): it must be intact
+(`verify/codesign-check.py`, with `rcodesign` and `openssl`): it must be intact
 and signed with a Developer ID Application certificate of Anthropic's team
 `Q6L2SF6YDW` that chains to Apple's root CA. The macOS install check runs it
 on the installed binary, and `checks.<linux>.claude-code-codesign` on the
