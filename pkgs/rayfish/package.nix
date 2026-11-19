@@ -55,6 +55,18 @@ stdenvNoCC.mkDerivation {
   installCheckPhase = ''
     runHook preInstallCheck
     "$out/libexec/rayfish/ray" --version | grep -q "^ray $version "
+    # The guard refuses these before the real binary runs, so they touch
+    # nothing here. Its own message is checked, not just the exit status: the
+    # real binary fails here too, without network. Recheck upstream's aliases
+    # (`ray --help`) on a bump.
+    for cmd in update upgrade "update --force" install uninstall "auto-update on" \
+      "config set auto-update on"; do
+      # shellcheck disable=SC2086 # one command per word list
+      if "$out/bin/ray" $cmd 2>err || ! grep -q '^rayfish: ' err; then
+        echo "ray $cmd was not refused by the guard" >&2
+        exit 1
+      fi
+    done
     runHook postInstallCheck
   '';
 

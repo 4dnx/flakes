@@ -94,7 +94,9 @@ fixes; there are no release branches.
 - Workflows default to a read-only `GITHUB_TOKEN`; only the update
   workflow's jobs can write, to commit updates and open their pull requests,
   and the check workflow's `merge` job, to merge an `update/<name>` pull
-  request it built. The check jobs don't keep the token in their checkout.
+  request it built. No job keeps the token in its checkout: the update
+  script pushes through `gh`'s credential helper with the token its step
+  gets.
 - Secrets and the token reach only the step that uses them (the Cachix push,
   the update script, the merge), never a whole job.
 - Every job has a time limit.

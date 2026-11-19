@@ -16,6 +16,11 @@ PACKAGES="${PACKAGES:-}"
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+# git with gh's credential helper, which hands git $GH_TOKEN (or gh's own
+# login): update.yml's checkout keeps no token, so later steps and actions'
+# post steps can't read one from .git/config.
+git_auth() { git -c credential.helper= -c 'credential.helper=!gh auth git-credential' "$@"; }
+
 attrs() { nix eval --json ".#packages.$1" --apply builtins.attrNames | jq -r '.[]'; }
 linux="$(attrs x86_64-linux)"
 darwin="$(attrs aarch64-darwin)"
@@ -48,7 +53,7 @@ propose() {
   git switch -q --detach origin/main
   git cherry-pick "$commit" >/dev/null
   commit_sha="$(git rev-parse HEAD)"
-  git push -qf origin "HEAD:refs/heads/$branch"
+  git_auth push -qf origin "HEAD:refs/heads/$branch"
   git switch -q main
   if [ "$(gh pr view "$branch" --json state -q .state 2>/dev/null)" = OPEN ]; then
     gh pr edit "$branch" --title "$title" >/dev/null
@@ -84,7 +89,7 @@ drop_approval_runs() {
 
 # Whether update/<name> already holds exactly this update.
 proposed() {
-  git fetch -q origin "update/$1" 2>/dev/null || return 1
+  git_auth fetch -q origin "update/$1" 2>/dev/null || return 1
   git diff --quiet FETCH_HEAD -- "$(paths "$1")" &&
     [ -z "$(git ls-files --others --exclude-standard -- "$(paths "$1")")" ]
 }
@@ -172,6 +177,6 @@ if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
   fi
 fi
 
-git pull -q --rebase origin main
-git push -q origin HEAD:main
+git_auth pull -q --rebase origin main
+git_auth push -q origin HEAD:main
 exit "$failed"

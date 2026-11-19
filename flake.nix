@@ -6,7 +6,8 @@
     # Only the module checks use these two (checks.<linux>.darwin-modules,
     # home-modules, darwin-home-modules): the packages, the overlay and the
     # modules themselves don't, so they are fetched only when checks are
-    # evaluated. Point them at your own with `follows` to keep one copy.
+    # evaluated. A consumer can point them at its own with `follows` to keep
+    # one copy.
     nix-darwin = {
       url = "github:nix-darwin/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
