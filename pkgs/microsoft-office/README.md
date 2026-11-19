@@ -176,6 +176,14 @@ anything, and the install check (`verify/check-app.py`) the app's version,
 build and arm64 slice, and the helper's build. Updates go through a pull
 request (`REVIEW` in `update.yml`): the helper runs as root.
 
+The apps update only on request (`ON_REQUEST` in `update.yml`), not on the
+schedule: each bump is a new ~1.4 GB download per app. To update them, run
+the Update workflow with the apps named in its `packages` input (Actions →
+Update → Run workflow, or
+`gh workflow run update.yml -f packages="microsoft-excel microsoft-powerpoint microsoft-word"`),
+or run an app's `update.sh` in a checkout. Between updates the flake keeps
+the pinned build; Microsoft AutoUpdate stays off as described above.
+
 The apps are left out of `checks` (`heavy` in `flake.nix`): each downloads
 ~1.4 GB and takes ~3 GB built. `.github/workflows/microsoft-office.yml` builds those
 whose derivation a pull request changes; `update.yml` builds each bump

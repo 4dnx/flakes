@@ -5,12 +5,15 @@
 #   x86_64-linux    every package that builds there, and nixpkgs weekly
 #   aarch64-darwin  the packages that build only on macOS
 # so every update is built before it lands. $PACKAGES limits the run to the
-# named packages (nixpkgs for the nixpkgs input). Needs gh, git, jq and nix.
+# named packages (nixpkgs for the nixpkgs input); without it, the packages in
+# $ON_REQUEST are skipped, so they update only when named. Needs gh, git, jq
+# and nix.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 : "${UPDATE_SYSTEM:?}"
 REVIEW="${REVIEW:-}"
+ON_REQUEST="${ON_REQUEST:-}"
 PACKAGES="${PACKAGES:-}"
 
 git config user.name "github-actions[bot]"
@@ -144,7 +147,11 @@ land() {
 failed=0
 for script in pkgs/*/update.sh; do
   name="$(basename "$(dirname "$script")")"
-  if [ -n "$PACKAGES" ] && [[ " $PACKAGES " != *" $name "* ]]; then continue; fi
+  if [ -n "$PACKAGES" ]; then
+    [[ " $PACKAGES " == *" $name "* ]] || continue
+  elif [[ " $ON_REQUEST " == *" $name "* ]]; then
+    echo "$name: updated on request only (ON_REQUEST)"; continue
+  fi
   ours "$name" || continue
   # A failing script (upstream down, unexpected data) skips only its own
   # package.

@@ -60,7 +60,8 @@ fixes; there are no release branches.
   `nix flake check` passes, without review, except for the packages in
   `REVIEW` (root daemons, network filters, agents), whose updates go through
   a pull request that CI merges, also without review, once it builds on Linux
-  x86_64, Linux aarch64 and macOS. The pinned nixpkgs, which every package's
+  x86_64, Linux aarch64 and macOS. The packages in `ON_REQUEST` (the Office
+  apps, a ~1.4 GB download each) update only when a run names them. The pinned nixpkgs, which every package's
   libraries and tools come from, is bumped weekly the same way, with the
   nix-darwin and Home Manager inputs; those two only evaluate the modules in
   `checks` and are in no package or module. See
