@@ -67,7 +67,7 @@ fixes; there are no release branches.
   Unchanged derivations reuse that baseline's validation. Missing baselines
   and changes to check machinery trigger all macOS package checks. Linux
   continues to run the full flake checks, including formatting. The heavy
-  Office apps are not in the checks: `heavy.yml` builds those a pull request
+  Office apps are not in the checks: `microsoft-office.yml` builds those a pull request
   changes, and the update workflow builds each bump before it lands.
 - **Dependencies follow upstream's lock.** A package assembled from
   upstream's own lockfile installs exactly what that lock names, advisories

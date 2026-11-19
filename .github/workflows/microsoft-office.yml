@@ -1,11 +1,13 @@
-name: Heavy
+name: Microsoft Office
 
-# Builds the heavy packages, which checks leave out (flake.nix `heavy`: each
-# Office app downloads a ~1.4 GB installer and takes ~3 GB built), on pull
-# requests to main that change them. A plan job on Linux compares their
-# derivations with the base branch, so only the apps whose derivation changed
-# are built (all of them when their shared builder changed), and a change to
-# the module or docs alone starts no macOS runner.
+# Builds the Office apps (microsoft-excel, microsoft-powerpoint,
+# microsoft-word) for aarch64-darwin, their only system, on pull requests to
+# main that change them, and on nothing else. checks leave them out
+# (flake.nix `heavy`: each downloads a ~1.4 GB installer and takes ~3 GB
+# built). A plan job on Linux compares their derivations with the base
+# branch, so only the apps whose derivation changed are built (all of them
+# when their shared builder changed), and a change to the module or docs
+# alone starts no macOS runner.
 #
 # Not a required check: with the paths filter it doesn't run on other pull
 # requests, which would then wait for it forever.
@@ -24,10 +26,10 @@ on:
       - "lib/pkg-signature-check.py"
       - "lib/check-app.py"
       - "lib/apple-root-ca.pem"
-      - ".github/workflows/heavy.yml"
+      - ".github/workflows/microsoft-office.yml"
 
 concurrency:
-  group: heavy-${{ github.head_ref }}
+  group: microsoft-office-${{ github.head_ref }}
   cancel-in-progress: true
 
 permissions:
@@ -46,10 +48,10 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # Evaluation only: the derivations of the heavy packages here and on
+      # Evaluation only: the apps' aarch64-darwin derivations here and on
       # the base branch. A base without them (or that doesn't evaluate)
       # builds them all.
-      - name: Plan heavy builds
+      - name: Plan the Office builds
         id: plan
         env:
           BASE: origin/${{ github.base_ref }}
@@ -71,7 +73,7 @@ jobs:
   # the runner needs room for one app (installer, app, Nix's copy of the
   # download: ~5 GB), not all of them.
   build:
-    name: build (macos-latest)
+    name: build (aarch64-darwin)
     needs: plan
     if: needs.plan.outputs.packages != ''
     runs-on: macos-latest
@@ -81,7 +83,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      - name: Build the changed heavy packages
+      - name: Build the changed Office apps
         env:
           PACKAGES: ${{ needs.plan.outputs.packages }}
         run: |

@@ -177,7 +177,7 @@ build and arm64 slice, and the helper's build. Updates go through a pull
 request (`REVIEW` in `update.yml`): the helper runs as root.
 
 The apps are left out of `checks` (`heavy` in `flake.nix`): each downloads
-~1.4 GB and takes ~3 GB built. `.github/workflows/heavy.yml` builds those
+~1.4 GB and takes ~3 GB built. `.github/workflows/microsoft-office.yml` builds those
 whose derivation a pull request changes; `update.yml` builds each bump
 before proposing it, and deletes it from the store again so its cache stays
 small.
