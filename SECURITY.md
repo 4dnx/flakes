@@ -49,7 +49,7 @@ fixes; there are no release branches.
   lands and again in every build: the package's table of contents signed by
   Microsoft's Developer ID Installer certificate chaining to Apple's root
   CA, and every file in it matching the checksum recorded there
-  (`verify/pkg-signature-check.py`). The app bundles inside are not checked on
+  (`verify/office-pkg-signature-check.py`). The app bundles inside are not checked on
   Linux (a ~1.4 GB download each). Google Drive's installer is checked the
   same way (Google's team), and the app inside, like Firefox's, Anoa's and Santa's macOS apps,
   must carry an intact Developer ID seal of its vendor's team, on Linux

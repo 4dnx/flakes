@@ -14,6 +14,9 @@
 #   --cat PATH   writes the archived file at PATH (such as
 #                Component.pkg/Payload) to stdout, as stored: a component's
 #                Payload is a gzip-compressed cpio archive.
+#
+# The Office apps use office-pkg-signature-check.py beside it, so a change
+# here doesn't rebuild them. A security fix goes into both.
 import argparse
 import hashlib
 import os

@@ -26,7 +26,7 @@ on:
       - "pkgs/microsoft-*/**"
       - "verify/check-app.py"
       - "verify/apple-root-ca.pem"
-      - "verify/pkg-signature-check.py"
+      - "verify/office-pkg-signature-check.py"
       - ".github/workflows/microsoft-office.yml"
 
 concurrency:
