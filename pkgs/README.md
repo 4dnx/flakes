@@ -25,6 +25,10 @@ see [the top-level README](../README.md).
 | [lite-xl](lite-xl) | Lite XL editor from upstream's addons release (language plugins, colour schemes) as Lite XL.app, Apple Silicon only |
 | [littlesnitch](littlesnitch) | Little Snitch for Linux network monitor (unfree freeware binary), with a NixOS service module |
 | [llama](llama) | Llama (llama.app) command line from the llama.cpp team: local models with an OpenAI-compatible API and chat UI; built from source with Vulkan, self-update off; Linux only |
+| [microsoft-excel](microsoft-excel) | Microsoft Excel from Microsoft's signed installer (unfree), its signature checked; installed with its licensing helper by the [microsoft-office](microsoft-office) nix-darwin module; macOS only, no compilation |
+| [microsoft-office](microsoft-office) | Microsoft Word, Excel and PowerPoint together, with a nix-darwin module that installs any selection of them and the licensing helper they share, keeps Microsoft AutoUpdate out and turns diagnostic data and update checks off; macOS only, no compilation |
+| [microsoft-powerpoint](microsoft-powerpoint) | Microsoft PowerPoint from Microsoft's signed installer (unfree), its signature checked; installed with its licensing helper by the [microsoft-office](microsoft-office) nix-darwin module; macOS only, no compilation |
+| [microsoft-word](microsoft-word) | Microsoft Word from Microsoft's signed installer (unfree), its signature checked; installed with its licensing helper by the [microsoft-office](microsoft-office) nix-darwin module; macOS only, no compilation |
 | [muxin](muxin) | One desktop app for many machines and their AI agents (sessions, desktops, logs, files) over ssh, with its CLI and MCP server, from upstream's prebuilt release; Apple Silicon macOS and Linux, no compilation |
 | [nh](nh) | Nix CLI helper from prebuilt upstream binaries, without Rust compilation |
 | [nodejs-24-lts](nodejs-24-lts) | Official prebuilt Node.js 24 LTS with independently pinned npm latest; no source compilation |

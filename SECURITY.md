@@ -42,7 +42,13 @@ fixes; there are no release branches.
   must also carry intact Developer ID signatures of Anthropic's team chaining
   to Apple's root CA, Claude Desktop's seal covering every file in the bundle
   (`lib/codesign-check.py`); this is checked on Linux before an update lands
-  and in the macOS install check.
+  and in the macOS install check. Microsoft publishes no checksum of its
+  Office installers; their signature is checked instead, before an update
+  lands and again in every build: the package's table of contents signed by
+  Microsoft's Developer ID Installer certificate chaining to Apple's root
+  CA, and every file in it matching the checksum recorded there
+  (`lib/pkg-signature-check.py`). The app bundles inside are not checked on
+  Linux (a ~1.4 GB download each).
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
   replaced in place. Its pin only downloads until the next build.
 - **Updates.** New releases are committed to `main` automatically once
@@ -60,7 +66,9 @@ fixes; there are no release branches.
   (including checks of merged PRs).
   Unchanged derivations reuse that baseline's validation. Missing baselines
   and changes to check machinery trigger all macOS package checks. Linux
-  continues to run the full flake checks, including formatting.
+  continues to run the full flake checks, including formatting. The heavy
+  Office apps are not in the checks: `microsoft-office.yml` builds those a pull request
+  changes, and the update workflow builds each bump before it lands.
 - **Dependencies follow upstream's lock.** A package assembled from
   upstream's own lockfile installs exactly what that lock names, advisories
   included; they close when upstream ships a new lock and the next update
@@ -105,6 +113,11 @@ one. On macOS (launchd) there is none.
 - `cloudflare-warp`: upstream's own `warp-svc.service` on NixOS, with its
   capability bounding set and no other sandbox, and the daemon's launchd job
   on macOS; root, for its tunnel, routes and DNS.
+- `microsoft-office` (nix-darwin): Microsoft's licensing helper
+  (`com.microsoft.office.licensingV3.helper`), installed as the Office
+  installer does, with upstream's plist; a root LaunchDaemon started on
+  demand by the apps over XPC, no sandbox. Its code signature is checked
+  against Microsoft's team before it is installed.
 - `tailscale`: no module here; the package ships upstream's unit for
   nixpkgs' `services.tailscale`, which runs `tailscaled` as root (for its TUN
   device, routes and firewall rules) with no sandbox.

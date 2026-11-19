@@ -57,9 +57,11 @@ darwinConfigurations.example = nix-darwin.lib.darwinSystem {
 };
 ```
 
-`darwinModules` hold the system services (launchd daemons). macOS apps such as
-`kiri` and `whatsapp` have Home Manager modules (`homeManagerModules`), for
-nix-darwin's Home Manager module or a standalone Home Manager.
+`darwinModules` hold the system services (launchd daemons), and
+`microsoft-office`, which installs the selected Office apps with the root
+licensing helper they share. Other macOS apps such as `kiri` and `whatsapp`
+have Home Manager modules (`homeManagerModules`), for nix-darwin's Home
+Manager module or a standalone Home Manager.
 
 ### NixOS
 
@@ -141,8 +143,9 @@ A package also runs without being installed:
   daemons, systemd units), for the packages that have one
 - `homeManagerModules.<name>`: per-user settings and services, for the
   packages that have them
-- `checks.<system>`: the flake's own tests: every package built, every
-  `.nix` file formatted, and the modules evaluated
+- `checks.<system>`: the flake's own tests: every package built (but the
+  rolling `ghostty-tip` and the heavy Office apps, which their own workflows
+  build), every `.nix` file formatted, and the modules evaluated
 - `formatter`: `nixfmt`
 
 Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
