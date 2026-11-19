@@ -198,6 +198,7 @@
                 codex.enable = true;
                 helium.enable = true;
                 muxin.enable = true;
+                zed-editor.enable = true;
               };
               services.nullclaw.enable = true;
             }

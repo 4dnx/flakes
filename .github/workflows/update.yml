@@ -27,7 +27,7 @@ env:
   # through a pull request (branch update/<name>), which check.yml merges
   # once every system builds it, instead of straight to main from this
   # Linux-only run.
-  REVIEW: "1mcp claude-code claude-desktop cloudflare-warp codex cua-driver hermes-agent kiri littlesnitch microsoft-excel microsoft-powerpoint microsoft-word muxin nullclaw opencode pi rayfish tailscale telegram whatsapp"
+  REVIEW: "1mcp claude-code claude-desktop cloudflare-warp codex cua-driver hermes-agent kiri littlesnitch microsoft-excel microsoft-powerpoint microsoft-word muxin nullclaw opencode pi rayfish tailscale telegram whatsapp zed"
 
 jobs:
   # Every package that builds on Linux, and nixpkgs weekly. See
