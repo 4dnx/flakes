@@ -160,6 +160,12 @@ def bundle_layout(root):
         content = os.path.join(root, "Versions", current)
         info = os.path.join(content, "Resources", "Info.plist")
         exe_dir = ""
+    elif root.endswith(".framework") and os.path.isfile(os.path.join(root, "Resources", "Info.plist")):
+        # A shallow framework, without Versions: everything sits at its top
+        # level (Firefox's ChannelPrefs.framework).
+        content = root
+        info = os.path.join(root, "Resources", "Info.plist")
+        exe_dir = ""
     else:
         raise Bad(f"{root}: not an app or framework bundle")
     with open(info, "rb") as f:

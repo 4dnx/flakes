@@ -45,7 +45,10 @@
         "claude-desktop"
         "cloudflare-warp"
         "cloudflare-warp-headless"
+        "firefox"
+        "firefox-unwrapped"
         "google-chrome"
+        "google-drive"
         "littlesnitch"
         "microsoft-excel"
         "microsoft-office"
@@ -165,6 +168,7 @@
             system.stateVersion = 6;
             system.primaryUser = "alice";
             programs = {
+              google-drive.enable = true;
               herdr.enable = true;
               # PowerPoint left off, so the selection is exercised too.
               microsoft-office = {
@@ -196,6 +200,9 @@
               };
               programs = {
                 codex.enable = true;
+                # Home Manager's own module, which homeManagerModules.firefox
+                # extends.
+                firefox.enable = true;
                 helium.enable = true;
                 muxin.enable = true;
                 zed-editor.enable = true;
