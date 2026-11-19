@@ -48,7 +48,7 @@ fixes; there are no release branches.
   lands and again in every build: the package's table of contents signed by
   Microsoft's Developer ID Installer certificate chaining to Apple's root
   CA, and every file in it matching the checksum recorded there
-  (`pkgs/microsoft-office/pkg-signature-check.py`). The app bundles inside are not checked on
+  (`lib/pkg-signature-check.py`). The app bundles inside are not checked on
   Linux (a ~1.4 GB download each). Google Drive's installer is checked the
   same way (Google's team), and the app inside, like Firefox's, Anoa's and Santa's macOS apps,
   must carry an intact Developer ID seal of its vendor's team, on Linux
@@ -69,7 +69,9 @@ fixes; there are no release branches.
   that differ from a successful ancestor Check of the PR base branch or `main`
   (including checks of merged PRs).
   Unchanged derivations reuse that baseline's validation. Missing baselines
-  and changes to check machinery trigger all macOS package checks. Linux
+  and changes to check machinery (`check.yml` and the planning scripts in
+  `lib/`) trigger all macOS package checks; another `lib/` file a package
+  build reads changes that package's derivation, so its checks run. Linux
   continues to run the full flake checks, including formatting. The heavy
   Office apps are not in the checks: `microsoft-office.yml` builds those a pull request
   changes, and the update workflow builds each bump before it lands.

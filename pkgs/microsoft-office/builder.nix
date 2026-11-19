@@ -39,8 +39,8 @@ let
   team = "UBF8T346G9";
   helper = "com.microsoft.office.licensingV3.helper";
   # Checks the installer's signature and every file in it before anything
-  # is read from it (pkg-signature-check.py here).
-  pkgCheck = ''${python3.interpreter} -I ${./pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} "$src"'';
+  # is read from it (lib/pkg-signature-check.py).
+  pkgCheck = ''${python3.interpreter} -I ${../../lib/pkg-signature-check.py} ${../../lib/apple-root-ca.pem} ${team} "$src"'';
 in
 stdenvNoCC.mkDerivation {
   inherit pname version;

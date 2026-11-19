@@ -23,8 +23,11 @@ for rev in $candidates; do
   fi
 done
 # Changes to the check machinery must exercise the builds too, even when
-# package derivations are unchanged (for example a new Nix installer).
-if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml lib/; then
+# package derivations are unchanged (for example a new Nix installer). That
+# is check.yml and the planning scripts; the other lib/ files a package
+# build reads change its derivation, so only the checks that read them run.
+if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml \
+  lib/macos-check-plan.sh lib/changed-checks.sh; then
   base=""
 fi
 if [ -n "$base" ]; then

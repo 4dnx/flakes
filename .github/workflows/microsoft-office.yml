@@ -21,11 +21,12 @@ on:
   pull_request:
     branches: [main]
     paths:
-      # The apps, and pkgs/microsoft-office: their builder, update script
-      # and installer signature check, which only they use.
+      # The apps, pkgs/microsoft-office (their builder and update script,
+      # which only they use) and the lib/ files their builds read.
       - "pkgs/microsoft-*/**"
       - "lib/check-app.py"
       - "lib/apple-root-ca.pem"
+      - "lib/pkg-signature-check.py"
       - ".github/workflows/microsoft-office.yml"
 
 concurrency:
