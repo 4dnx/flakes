@@ -121,13 +121,56 @@ def digest(cd, data):
     return HASHES[cd[37]](data).digest()
 
 
+def slice_ranges(path):
+    """(offset, size) of each slice, in the order slices() lists them."""
+    with open(path, "rb") as f:
+        data = f.read(8 + 16 * 32)
+    magic = data[:4].hex()
+    if magic not in ("cafebabe", "cafebabf"):
+        return [(0, os.path.getsize(path))]
+    count = struct.unpack_from(">I", data, 4)[0]
+    if magic == "cafebabe":
+        return [struct.unpack_from(">II", data, 8 + 20 * i + 8) for i in range(count)]
+    return [struct.unpack_from(">QQ", data, 8 + 32 * i + 8) for i in range(count)]
+
+
+def check_pages(path, offset, cd):
+    """Every code page of a slice matches the hash its code directory holds."""
+    version, hash_offset = struct.unpack_from(">I", cd, 8)[0], struct.unpack_from(">I", cd, 16)[0]
+    n_code, code_limit = struct.unpack_from(">II", cd, 28)
+    if version >= 0x20300 and len(cd) >= 72:
+        code_limit = struct.unpack_from(">Q", cd, 64)[0] or code_limit
+    size, page = cd[36], cd[39]
+    page_size = 1 << page if page else code_limit
+    if n_code != (code_limit + page_size - 1) // page_size:
+        raise Bad(f"{path}: code directory covers {n_code} pages, not {code_limit} bytes")
+    with open(path, "rb") as f:
+        for i in range(n_code):
+            f.seek(offset + i * page_size)
+            data = f.read(min(page_size, code_limit - i * page_size))
+            if digest(cd, data)[:size] != cd[hash_offset + i * size : hash_offset + (i + 1) * size]:
+                raise Bad(f"{path}: code page {i} doesn't match its signature")
+
+
+# What rcodesign verify reports, beyond a broken signature, about files
+# whose layout it doesn't expect though Apple's tools accept it: Go's linker
+# doesn't put __LINKEDIT last (Santa's sleigh). Their code pages are checked
+# here instead (check_pages).
+LAYOUT_ONLY = re.compile(r"(@\d+: __LINKEDIT isn't last Mach-O segment|Error: problems reported during verification|\(the verify command is known to be buggy.*\))")
+
+
 def check_macho(path):
     """Returns the slices' code directories, keyed by cdhash."""
-    run("rcodesign", "verify", path)
+    result = subprocess.run(["rcodesign", "verify", path], capture_output=True)
+    if result.returncode != 0:
+        lines = [l for l in result.stderr.decode(errors="replace").splitlines() if l.strip()]
+        if not lines or not all(LAYOUT_ONLY.fullmatch(l.strip()) for l in lines):
+            raise Bad(f"rcodesign verify {path}: {chr(10).join(lines)}")
     cds = {}
-    for index in slices(path):
+    for index, (offset, _) in zip(slices(path), slice_ranges(path)):
         check_cms(path, index)
         cd = code_directory(path, index)
+        check_pages(path, offset, cd)
         cds[digest(cd, cd)[:20]] = cd
     return cds
 

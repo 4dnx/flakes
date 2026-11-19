@@ -39,6 +39,7 @@ see [the top-level README](../README.md).
 | [opencode](opencode) | OpenCode 2 AI coding agent from upstream's prebuilt npm release, kept on Nix (no self-update); Apple Silicon macOS and Linux, no compilation |
 | [pi](pi) | Pi coding agent from published npm packages with Node.js 24 LTS; local assembly, no Pi source compilation |
 | [rayfish](rayfish) | P2P mesh VPN (iroh), with a nix-darwin/NixOS service module |
+| [santa](santa) | Santa, North Pole Security's binary and file access authorization system, from upstream's signed installer package, the app's seal checked, with a nix-darwin module that installs it into `/Applications` as the installer does; no update check or telemetry upstream; Apple Silicon macOS only, no compilation |
 | [tailscale](tailscale) | Tailscale CLI and node agent (`tailscale`, `tailscaled`, no GUI) from upstream's static build, for NixOS' `services.tailscale`; log upload off by default, no self-update; Linux only, no compilation |
 | [telegram](telegram) | Native Telegram for macOS from its official app bundle (not Telegram Desktop); Apple Silicon, no compilation |
 | [utm](utm) | UTM virtual machine host for macOS from the upstream release dmg, no compilation |

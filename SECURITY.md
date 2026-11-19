@@ -50,7 +50,7 @@ fixes; there are no release branches.
   CA, and every file in it matching the checksum recorded there
   (`pkgs/microsoft-office/pkg-signature-check.py`). The app bundles inside are not checked on
   Linux (a ~1.4 GB download each). Google Drive's installer is checked the
-  same way (Google's team), and the app inside, like Firefox's and Anoa's macOS apps,
+  same way (Google's team), and the app inside, like Firefox's, Anoa's and Santa's macOS apps,
   must carry an intact Developer ID seal of its vendor's team, on Linux
   before an update lands and in the macOS install check.
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
@@ -125,6 +125,11 @@ one. On macOS (launchd) there is none.
 - `google-drive` (nix-darwin): the app copied into `/Applications` with
   `Contents/MacOS/mount_helper` setuid root, as Google's installer does; no
   daemon. Google's updater is left out.
+- `santa` (nix-darwin): Santa.app copied into `/Applications` as its
+  installer's postinstall script does; Santa's system extension (root,
+  Endpoint Security) then installs and loads its own launch jobs, as
+  upstream's app does. Its tamper protection keeps the installed copy; an
+  update goes through `santactl install`, which checks it.
 - `tailscale`: no module here; the package ships upstream's unit for
   nixpkgs' `services.tailscale`, which runs `tailscaled` as root (for its TUN
   device, routes and firewall rules) with no sandbox.
