@@ -10,6 +10,7 @@ skip_if_current anoa "$version"
 
 base="https://github.com/porcupine-md/anoa-browser/releases/download/v$version"
 write_hashes "$version" \
+  aarch64-darwin="$base/anoa-macos-universal.tar.gz" \
   aarch64-linux="$base/anoa-linux-aarch64.tar.gz" \
   x86_64-linux="$base/anoa-linux-x86_64.tar.gz"
 echo "anoa: $current -> $version"

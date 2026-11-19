@@ -70,6 +70,31 @@ let
     hash = hashes.aarch64-darwin;
   };
 
+  # The macOS bundle's seal, checked on any system: checks.<linux> runs it,
+  # so an update is checked before it reaches a Mac. On every system's
+  # package, as the flake's checks look for it there.
+  passthru = {
+    inherit team;
+    codesign =
+      runCommand "firefox-codesign-${version}"
+        {
+          nativeBuildInputs = [
+            openssl
+            rcodesign
+            undmg
+          ];
+        }
+        (
+          ''
+            undmg ${dmg}
+          ''
+          + codesignCheck "Firefox.app"
+          + ''
+            touch "$out"
+          ''
+        );
+  };
+
   # Mozilla's signed, notarized Firefox.app, untouched. Nothing is compiled.
   # nixpkgs' wrapFirefox would write into the bundle and break its
   # signature, so on macOS there is none: policies come from the
@@ -115,31 +140,7 @@ let
       runHook postInstallCheck
     '';
 
-    passthru = {
-      inherit team;
-      # The seal checked on any system: checks.<linux> runs it, so an update
-      # is checked before it reaches a Mac.
-      codesign =
-        runCommand "firefox-codesign-${version}"
-          {
-            nativeBuildInputs = [
-              openssl
-              rcodesign
-              undmg
-            ];
-          }
-          (
-            ''
-              undmg ${dmg}
-            ''
-            + codesignCheck "Firefox.app"
-            + ''
-              touch "$out"
-            ''
-          );
-    };
-
-    inherit meta;
+    inherit passthru meta;
   };
 
   # Mozilla's Linux tarball, linked against the store's libraries as
@@ -231,6 +232,7 @@ let
           "$out/bin/firefox" --version | grep -F "Mozilla Firefox ${version}"
           runHook postInstallCheck
         '';
+        passthru = old.passthru // passthru;
         meta = old.meta // meta;
       });
 in

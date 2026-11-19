@@ -2,7 +2,11 @@
   lib,
   stdenvNoCC,
   fetchurl,
+  runCommand,
   buildFHSEnv,
+  openssl,
+  python3,
+  rcodesign,
 }:
 
 let
@@ -12,15 +16,24 @@ let
   inherit (versionData) version hashes;
 
   assets = {
+    "aarch64-darwin" = "macos-universal";
     "aarch64-linux" = "linux-aarch64";
     "x86_64-linux" = "linux-x86_64";
   };
 
   system = stdenvNoCC.hostPlatform.system;
-  asset = assets.${system} or (throw "anoa has no prebuilt Linux release for ${system}");
+  srcFor =
+    system:
+    fetchurl {
+      url = "https://github.com/porcupine-md/anoa-browser/releases/download/v${version}/anoa-${
+        assets.${system} or (throw "anoa has no prebuilt release for ${system}")
+      }.tar.gz";
+      hash = hashes.${system};
+    };
+  src = srcFor system;
 
   meta = {
-    description = "Headless browser with full CDP support and a command per action for agents, from the upstream Linux bundle";
+    description = "Headless browser with full CDP support and a command per action for agents, from upstream's prebuilt release";
     homepage = "https://github.com/porcupine-md/anoa-browser";
     license = lib.licenses.mit;
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
@@ -37,10 +50,7 @@ let
     pname = "anoa-bundle";
     inherit version meta;
 
-    src = fetchurl {
-      url = "https://github.com/porcupine-md/anoa-browser/releases/download/v${version}/anoa-${asset}.tar.gz";
-      hash = hashes.${system};
-    };
+    inherit src;
 
     sourceRoot = "anoa";
     dontConfigure = true;
@@ -53,24 +63,96 @@ let
       runHook postInstall
     '';
   };
+
+  # Upstream's universal anoa.app, signed with its Developer ID and
+  # notarized, untouched; the command is its main executable. Nothing is
+  # compiled.
+  team = "TVFQAT4MZP";
+  codesignCheck = app: ''
+    ${python3.interpreter} -I ${../../lib/codesign-check.py} ${../../lib/apple-root-ca.pem} ${team} ${app}
+  '';
+  # The macOS bundle's seal, checked on any system: checks.<linux> runs it,
+  # so an update is checked before it reaches a Mac.
+  passthru = {
+    inherit team;
+    codesign =
+      runCommand "anoa-codesign-${version}"
+        {
+          nativeBuildInputs = [
+            openssl
+            rcodesign
+          ];
+        }
+        (
+          ''
+            tar xzf ${srcFor "aarch64-darwin"} anoa.app
+          ''
+          + codesignCheck "anoa.app"
+          + ''
+            touch "$out"
+          ''
+        );
+  };
+
+  darwin = stdenvNoCC.mkDerivation {
+    pname = "anoa";
+    inherit version src;
+
+    sourceRoot = ".";
+    dontConfigure = true;
+    dontBuild = true;
+    # Stripping or patching would break the bundle's code signature.
+    dontFixup = true;
+
+    installPhase = ''
+      runHook preInstall
+      mkdir -p "$out/Applications" "$out/bin"
+      cp -R anoa.app "$out/Applications/"
+      # A link, as upstream's Homebrew cask installs it: the executable finds
+      # its frameworks through its real path inside the bundle.
+      ln -s "$out/Applications/anoa.app/Contents/MacOS/anoa" "$out/bin/anoa"
+      runHook postInstall
+    '';
+
+    doInstallCheck = true;
+    nativeInstallCheckInputs = [
+      openssl
+      rcodesign
+    ];
+    # The bundle carries no version; `--version` runs on Qt's offscreen
+    # platform, without a window server.
+    installCheckPhase = ''
+      runHook preInstallCheck
+      ${python3.interpreter} ${../../lib/check-app.py} "$out/Applications/anoa.app" "" "" arm64
+      "$out/bin/anoa" --version | grep -Fx "anoa ${version}"
+    ''
+    + codesignCheck ''"$out/Applications/anoa.app"''
+    + ''
+      runHook postInstallCheck
+    '';
+
+    inherit passthru meta;
+  };
+
+  # Linux: a glibc FHS environment for the unpatched binaries, like the
+  # Ubuntu upstream builds on.
+  linux = buildFHSEnv {
+    pname = "anoa";
+    inherit version passthru meta;
+
+    # Libraries the bundle expects from the host and does not ship: Chromium
+    # aborts at startup (SIGTRAP) without libudev, and Qt's TLS backend
+    # dlopen()s libssl.so.3. NSS too: anoa.sh only takes its own copy when
+    # ldconfig does not list the host's, and that copy then fails to load
+    # libsoftokn3, so every HTTPS page aborts the browser.
+    targetPkgs = pkgs: [
+      pkgs.udev
+      pkgs.openssl
+      pkgs.nss
+      pkgs.nspr
+    ];
+
+    runScript = "${bundle}/anoa.sh";
+  };
 in
-# A glibc FHS environment for the unpatched binaries, like the Ubuntu
-# upstream builds on.
-buildFHSEnv {
-  pname = "anoa";
-  inherit version meta;
-
-  # Libraries the bundle expects from the host and does not ship: Chromium
-  # aborts at startup (SIGTRAP) without libudev, and Qt's TLS backend
-  # dlopen()s libssl.so.3. NSS too: anoa.sh only takes its own copy when
-  # ldconfig does not list the host's, and that copy then fails to load
-  # libsoftokn3, so every HTTPS page aborts the browser.
-  targetPkgs = pkgs: [
-    pkgs.udev
-    pkgs.openssl
-    pkgs.nss
-    pkgs.nspr
-  ];
-
-  runScript = "${bundle}/anoa.sh";
-}
+if stdenvNoCC.hostPlatform.isDarwin then darwin else linux

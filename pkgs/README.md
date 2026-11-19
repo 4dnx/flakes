@@ -8,7 +8,7 @@ see [the top-level README](../README.md).
 | Package | Description |
 |---|---|
 | [1mcp](1mcp) | Unified MCP runtime that aggregates MCP servers behind one endpoint, with a NixOS service module |
-| [anoa](anoa) | Anoa headless browser (CDP, a command per action for agents) from upstream's Linux bundle, run unpatched in an FHS environment; Linux only, no compilation |
+| [anoa](anoa) | Anoa headless browser (CDP, a command per action for agents) from upstream's prebuilt releases: its signed, notarized `anoa.app` on macOS (the seal checked), its Linux bundle run unpatched in an FHS environment; Apple Silicon macOS and Linux, no compilation |
 | [bend](bend) | Bend parallel functional language (runs `.bend` files directly or builds native binaries) from upstream's prebuilt release, with clang on Linux; update check off, no self-update; Apple Silicon macOS and Linux, no compilation |
 | [claude-code](claude-code) | Claude Code from upstream's native release (`latest` channel, unfree), checked against its GPG-signed manifest; self-update and error reports off, usage metrics on so flag-gated features such as Remote Control work; Apple Silicon macOS and Linux, no compilation |
 | [claude-desktop](claude-desktop) | Claude Desktop for macOS from upstream's signed app bundle (unfree), its whole code-signature seal checked, with a configuration profile that turns its self-update off; Apple Silicon, no compilation |
