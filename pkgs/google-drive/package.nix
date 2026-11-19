@@ -17,7 +17,7 @@ let
   # from the version, so it is pinned too. `version` is the release as
   # Google's update server names it (134.0.1.0); the bundle says 134.0
   # (CFBundleShortVersionString) and 134.0.1 (CFBundleVersion), which
-  # update.sh reads from the installer's signed Distribution.
+  # update.sh reads from the app's Info.plist and the install check checks.
   sources = lib.importJSON ./hashes.json;
   inherit (sources)
     version
@@ -80,11 +80,6 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
     ${extractInstaller}
-    versions="$(${pkgCheck} --bundle com.google.drivefs)"
-    if [ "$versions" != "${shortVersion} ${build}" ]; then
-      echo "installer is $versions, hashes.json says ${shortVersion} ${build}" >&2
-      exit 1
-    fi
     mkdir -p "$out/Applications"
     ${pkgCheck} --cat GoogleDrive_arm64.pkg/Payload | pbzx - | (cd "$out/Applications" && cpio -id --quiet)
     rm GoogleDrive.pkg

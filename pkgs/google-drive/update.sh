@@ -2,8 +2,9 @@
 # Bump hashes.json to the Google Drive release Google's update server
 # (Omaha, which Google's own updater asks) serves to a new Apple Silicon
 # install: its download URL and the dmg's sha256, which the download must
-# match. The bundle's version and build come from the installer's signed
-# Distribution, read from the downloaded dmg (as the package does). Never
+# match. The bundle's version and build come from the app's Info.plist,
+# read from the downloaded dmg once the installer's signature checks out (as
+# the package does). Never
 # downgrades. Downloads the dmg (~140 MB) on a bump. Needs curl, jq, uuidgen
 # and nix.
 set -euo pipefail
@@ -41,7 +42,7 @@ url="$base$pkg"
   { echo "google-drive: unexpected update response (URL '$url')" >&2; exit 1; }
 hash="$(prefetch "$url" "$sha256")"
 
-# The bundle's version and build, from the installer's signed Distribution.
+# The bundle's version and build, from the app's Info.plist.
 dmg="$(nix store prefetch-file --json --name GoogleDrive.dmg --expected-hash "$hash" "$url" | jq -er .storePath)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
@@ -53,9 +54,16 @@ apfs=("$tmp"/*.apfs)
 # dissect.apfs from the flake's own nixpkgs, as the package uses it.
 nix shell --impure --expr "with (builtins.getFlake \"git+file://$flake\").inputs.nixpkgs.legacyPackages.\${builtins.currentSystem}; python3.withPackages (p: [ p.dissect-apfs ])" \
   --command python3 -I apfs-cat.py "${apfs[0]}" /GoogleDrive.pkg "$tmp/GoogleDrive.pkg"
-read -r shortVersion build < <(nix_run nixpkgs#python3 nixpkgs#openssl --command python3 -I \
+nix_run nixpkgs#python3 nixpkgs#openssl --command python3 -I \
   ../../lib/pkg-signature-check.py ../../lib/apple-root-ca.pem EQHXZ8M8AV "$tmp/GoogleDrive.pkg" \
-  --bundle com.google.drivefs 2>/dev/null)
+  --cat GoogleDrive_arm64.pkg/Payload 2>/dev/null |
+  nix_run nixpkgs#pbzx --command pbzx - |
+  (cd "$tmp" && nix_run nixpkgs#cpio --command cpio -id --quiet "./Google Drive.app/Contents/Info.plist")
+read -r shortVersion build < <(python3 -I -c '
+import plistlib, sys
+info = plistlib.load(open(sys.argv[1], "rb"))
+print(info["CFBundleShortVersionString"], info["CFBundleVersion"])
+' "$tmp/Google Drive.app/Contents/Info.plist")
 check_version google-drive "$shortVersion"
 check_version google-drive "$build"
 
