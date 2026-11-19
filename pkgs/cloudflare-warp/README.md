@@ -64,6 +64,57 @@ module. It detects nix-darwin from the `launchd` option. nixpkgs has its own
 `openFirewall`); on NixOS this module replaces it (`disabledModules`), so
 importing both is fine but those options are gone.
 
+### Domain exclusions (consumer WARP)
+
+```nix
+services.cloudflare-warp = {
+  enable = true;
+  excludeHosts = [ "example.com" ];
+};
+```
+
+`excludeHosts` shares the `warp-apply-exclusions` helper and startup behavior
+below. Each hostname is added only when absent; other entries are preserved.
+Domain exclusions affect all applications reaching the resolved IPs, including
+other domains sharing those IPs. Removing a hostname from Nix leaves its client
+state in place; remove it with `warp-cli tunnel host remove example.com`.
+Zero Trust clients require device-profile policy instead.
+
+### Rayfish coexistence (consumer WARP)
+
+```nix
+services.cloudflare-warp = {
+  enable = true;
+  excludeRayfish = true;
+};
+services.rayfish.enable = true; # requires the Rayfish module as well
+```
+
+`excludeRayfish` installs `warp-apply-exclusions` and attempts to apply the
+`200::/7` IPv6 exclusion when the WARP daemon starts or configuration activates.
+The helper waits up to 15 seconds for the daemon, preserves existing exclusions,
+and adds the range only when missing. An unavailable or unregistered client
+produces a warning without failing the daemon or activation. After first
+registration, run `warp-apply-exclusions` before connecting. A custom on-demand
+start command can invoke it before `warp-cli connect` as well.
+
+Rayfish 0.5.16 uses `200::/7` for its IPv6-only overlay, including DNS at
+`200::53`; no `100.64.0.0/10` exclusion is added. The Rayfish module's resolver
+integration must remain enabled for `.ray` DNS, and `ray-fix` can restore peer
+and resolver routes on macOS if another VPN replaces them. This exclusion
+covers overlay destinations, not Rayfish's internet transport by process, and
+does not configure Rayfish exit-node coexistence.
+
+The CLI permits local additions only for consumer WARP. Zero Trust clients
+need an equivalent IP exclusion in their device profile; this option does not
+change a dashboard policy. Disabling the option leaves the persisted exclusion.
+Remove it explicitly with `warp-cli tunnel ip remove-range 200::/7`.
+
+Sources: [Rayfish 0.5.16 routing implementation](https://github.com/rayfish/rayfish/blob/v0.5.16/src/tun.rs)
+and [Cloudflare Split Tunnels](https://developers.cloudflare.com/cloudflare-one/team-and-resources/devices/cloudflare-one-client/configure/route-traffic/split-tunnels/).
+The installed client's `warp-cli tunnel ip add-range --help` documents its
+consumer-only restriction.
+
 ### Without the tray app (Linux)
 
 The tray app (GTK and WebKitGTK) is most of the closure. For a server, leave it
@@ -88,6 +139,8 @@ Through the overlay, allow `cloudflare-warp-headless` as well as
 | Option | Default | Platform | Description |
 |---|---|---|---|
 | `services.cloudflare-warp.enable` | `false` | both | Run the WARP daemon and put `warp-cli` on `PATH`. |
+| `services.cloudflare-warp.excludeHosts` | `[ ]` | both | Add domain exclusions to consumer WARP, preserving existing entries. |
+| `services.cloudflare-warp.excludeRayfish` | `false` | both | Add the Rayfish IPv6 overlay to consumer WARP exclusions; see below. |
 | `services.cloudflare-warp.package` | this flake's package | both | Package to run. No overlay needed. |
 | `services.cloudflare-warp.settings` | `{ allow_updates = false; }`, plus `allow_managed_deployments = false` on macOS | both | The client's [deployment parameters](https://developers.cloudflare.com/cloudflare-one/team-and-resources/devices/cloudflare-one-client/deployment/mdm-deployment/parameters/), written to its `mdm.xml`. Values are booleans, integers or strings. Setting it replaces the defaults; `{ }` writes nothing (see below). |
 | `services.cloudflare-warp.taskbar.enable` | `true`, `false` for the headless package | NixOS | Start the tray app with the graphical session, as upstream's deb does. |

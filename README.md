@@ -85,6 +85,10 @@ nixosConfigurations.example = nixpkgs.lib.nixosSystem {
 for `tailscale` is nixpkgs' own `services.tailscale`; set its `package` to
 this flake's.
 
+The [Cloudflare WARP module](pkgs/cloudflare-warp) also provides opt-in
+`services.cloudflare-warp.excludeRayfish` and `excludeHosts` for consumer WARP
+split-tunnel exclusions.
+
 ### Ubuntu and other Linux distributions
 
 Install Nix with flakes enabled, then either add packages to a profile:

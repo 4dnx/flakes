@@ -43,6 +43,23 @@ let
   # % specifiers.
   mdmTmpfiles = lib.replaceStrings [ "\\" "%" "\n" ] [ "\\\\" "%%" "\\n" ] mdmXml;
 
+  hasExclusions = cfg.excludeRayfish || cfg.excludeHosts != [ ];
+
+  # Consumer WARP exposes split-tunnel exclusions through its daemon CLI,
+  # rather than the deployment-parameter file. Never reset its existing list.
+  applyExclusions = pkgs.writeShellApplication {
+    name = "warp-apply-exclusions";
+    text = builtins.readFile ./apply-exclusions.sh;
+    runtimeEnv = {
+      WARP_CLI = "${cfg.package}/bin/warp-cli";
+      WARP_EXCLUDE_RAYFISH = if cfg.excludeRayfish then "true" else "false";
+      WARP_EXCLUDE_HOSTS = lib.concatStringsSep "\n" cfg.excludeHosts;
+    };
+  };
+  applyConfiguredExclusions = lib.optionalString hasExclusions ''
+    ${lib.getExe applyExclusions} || echo "cloudflare-warp: exclusions not applied; register a consumer client and run warp-apply-exclusions before connecting" >&2
+  '';
+
   daemon = "${cfg.package}/Applications/Cloudflare WARP.app/Contents/Resources/CloudflareWARP";
 in
 {
@@ -57,6 +74,33 @@ in
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.cloudflare-warp;
       defaultText = literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.cloudflare-warp";
       description = "Cloudflare WARP package to run.";
+    };
+    excludeHosts = mkOption {
+      type = types.listOf (types.strMatching "[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?");
+      default = [ ];
+      example = [ "example.com" ];
+      description = ''
+        Domain names to exclude from consumer WARP through its daemon CLI.
+        Existing exclusions are preserved. Install warp-apply-exclusions and
+        attempt reconciliation at daemon startup and activation. After first
+        registration, run the helper before connecting. Disabling an entry
+        leaves its persisted exclusion; remove it with warp-cli tunnel host
+        remove DOMAIN. Zero Trust clients need device-profile exclusions.
+      '';
+    };
+    excludeRayfish = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Exclude Rayfish's IPv6 overlay (200::/7, including its 200::53 DNS)
+        from consumer WARP. Install warp-apply-exclusions and attempt it when
+        the daemon starts. The client must already be registered; after first
+        registration, run warp-apply-exclusions before connecting. Zero Trust
+        clients require the corresponding device-profile exclusion instead.
+        Existing exclusions are preserved. Disabling this option leaves the
+        persisted exclusion; remove it with warp-cli tunnel ip remove-range
+        200::/7. Rayfish transport traffic is not excluded by process.
+      '';
     };
     settings = mkOption {
       type = types.attrsOf (
@@ -108,7 +152,7 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     # warp-cli talks to the running daemon.
-    { environment.systemPackages = [ cfg.package ]; }
+    { environment.systemPackages = [ cfg.package ] ++ optional hasExclusions applyExclusions; }
 
     (optionalAttrs isDarwin {
       # Upstream's installer loads this daemon (as root, restarted when it
@@ -126,6 +170,9 @@ in
             "-c"
             ''
               while [ ! -x "${daemon}" ]; do sleep 1; done
+              ${lib.optionalString hasExclusions ''
+                ${applyConfiguredExclusions} &
+              ''}
               exec "${daemon}"
             ''
           ];
@@ -136,13 +183,21 @@ in
         };
       };
 
-      system.activationScripts.postActivation.text = mkIf (cfg.settings != { }) ''
-        # Cloudflare WARP deployment parameters
-        mdm_dir="/Library/Application Support/Cloudflare"
-        mkdir -p "$mdm_dir"
-        if ! /usr/bin/cmp -s ${pkgs.writeText "cloudflare-warp-mdm.xml" mdmXml} "$mdm_dir/mdm.xml"; then
-          /usr/bin/install -m 0644 ${pkgs.writeText "cloudflare-warp-mdm.xml" mdmXml} "$mdm_dir/mdm.xml"
-        fi
+      system.activationScripts.postActivation.text = ''
+        # Reconcile an available client without starting a stopped daemon.
+        ${lib.optionalString hasExclusions ''
+          if ${cfg.package}/bin/warp-cli --no-ansi tunnel ip list >/dev/null 2>&1; then
+            ${applyConfiguredExclusions}
+          fi
+        ''}
+        ${lib.optionalString (cfg.settings != { }) ''
+          # Cloudflare WARP deployment parameters
+          mdm_dir="/Library/Application Support/Cloudflare"
+          mkdir -p "$mdm_dir"
+          if ! /usr/bin/cmp -s ${pkgs.writeText "cloudflare-warp-mdm.xml" mdmXml} "$mdm_dir/mdm.xml"; then
+            /usr/bin/install -m 0644 ${pkgs.writeText "cloudflare-warp-mdm.xml" mdmXml} "$mdm_dir/mdm.xml"
+          fi
+        ''}
       '';
     })
 
@@ -159,6 +214,7 @@ in
           # The daemon's diagnostics look for bound ports with lsof, and run
           # nft by the absolute path /usr/sbin/nft (it would fail on NixOS,
           # which has no such path; the unit sees nftables there).
+          postStart = applyConfiguredExclusions;
           path = [ pkgs.lsof ];
           serviceConfig.BindReadOnlyPaths = [ "${pkgs.nftables}/bin/nft:/usr/sbin/nft" ];
         };

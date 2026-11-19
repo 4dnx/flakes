@@ -236,6 +236,23 @@
         in
         removeAttrs self.packages.${system} (rolling ++ heavy)
         // {
+          warp-exclusions =
+            pkgs.runCommand "warp-exclusions"
+              {
+                nativeBuildInputs = [
+                  pkgs.bash
+                  pkgs.python3
+                  pkgs.coreutils
+                  pkgs.gawk
+                  pkgs.gnugrep
+                ];
+              }
+              ''
+                mkdir work
+                export WARP_TEST_TMPDIR="$PWD/work"
+                python3 ${./pkgs/cloudflare-warp/tests.py} ${./pkgs/cloudflare-warp/apply-exclusions.sh}
+                touch "$out"
+              '';
           formatting = pkgs.runCommand "formatting" { nativeBuildInputs = [ pkgs.nixfmt ]; } ''
             find ${self} -name '*.nix' -exec nixfmt --check {} +
             touch "$out"
