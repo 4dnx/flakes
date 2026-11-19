@@ -25,10 +25,8 @@ done
 # Changes to the check machinery must exercise the builds too, even when
 # package derivations are unchanged (for example a new Nix installer). The
 # Office apps' builder, update script and installer signature check are not
-# check machinery but build inputs, which show up in the derivations of the
-# packages that use them: the Office apps (left out of checks, built by
-# microsoft-office.yml) and, for the signature check, google-drive, whose
-# check changed-checks.sh then finds like any other.
+# check machinery: only the Office apps use them, checks leave those out, and
+# microsoft-office.yml builds them.
 office=(
   ':(exclude)lib/microsoft-office.nix'
   ':(exclude)lib/microsoft-office-update.sh'
