@@ -40,8 +40,13 @@ skip_if_current() {
 # release asset, the digest GitHub recorded when it was uploaded (releases
 # from before GitHub kept digests have none).
 prefetch() {
-  local url=$1 want=${2:-} hash hex digest
-  hash="$(nix store prefetch-file --json "$url" | jq -er .hash)"
+  local url=$1 want=${2:-} name hash hex digest
+  # A store name from the file name, which may hold characters a store path
+  # can't ("Firefox 1.0.dmg"); the hash doesn't depend on it.
+  name="${url##*/}"
+  name="${name//%20/-}"
+  name="${name//[^A-Za-z0-9+._?=-]/-}"
+  hash="$(nix store prefetch-file --json --name "$name" "$url" | jq -er .hash)"
   hex="$(nix hash convert --hash-algo sha256 --to base16 "$hash")"
   if [ -n "$want" ] && [ "$hex" != "${want,,}" ]; then
     echo "$url: sha256 $hex, upstream lists $want" >&2; exit 1

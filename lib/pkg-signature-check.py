@@ -15,6 +15,7 @@
 #                Component.pkg/Payload) to stdout, as stored: a component's
 #                Payload is a gzip-compressed cpio archive.
 import argparse
+import bz2
 import hashlib
 import os
 import re
@@ -196,6 +197,8 @@ with open(PKG, "rb") as f:
         raw = read(data)
         if encoding in ("application/x-gzip", "application/zlib"):
             raw = zlib.decompress(raw, zlib.MAX_WBITS | 32)
+        elif encoding == "application/x-bzip2":
+            raw = bz2.decompress(raw)
         elif encoding != "application/octet-stream":
             fail(f"Distribution: unsupported encoding {encoding}")
         bundles = [b for b in ET.fromstring(raw).iter("bundle") if b.get("id") == args.bundle]

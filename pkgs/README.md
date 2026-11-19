@@ -15,9 +15,11 @@ see [the top-level README](../README.md).
 | [cloudflare-warp](cloudflare-warp) | Cloudflare WARP client (`warp-cli`, the `warp-svc` daemon and tray app, or the macOS app) from upstream's deb and installer (unfree), with a nix-darwin/NixOS service module that keeps its update check off and offers an opt-in Rayfish overlay exclusion; Apple Silicon macOS and Linux, no compilation |
 | [codex](codex) | OpenAI Codex CLI from upstream's prebuilt npm release; Apple Silicon macOS and Linux, no compilation |
 | [cua-driver](cua-driver) | Desktop control driver for Hermes' computer_use; telemetry and update check off by default; Linux only, no compilation |
+| [firefox](firefox) | Mozilla Firefox's latest release from Mozilla's builds (unfree terms): the signed macOS app, and on Linux the release tarball run through nixpkgs' `wrapFirefox`, its update check and telemetry off by default; a Home Manager module extends `programs.firefox`; Apple Silicon macOS and Linux, no compilation |
 | [ghostty](ghostty) | Ghostty terminal's latest release from upstream's Ghostty.dmg; macOS only, no compilation |
 | [ghostty-tip](ghostty) | Ghostty's rolling tip build from main, bumped daily |
 | [google-chrome](google-chrome) | Google Chrome's latest Stable release from Google's signed dmg (unfree); macOS only, no compilation |
+| [google-drive](google-drive) | Google Drive for desktop from Google's signed installer (unfree), its signature and the app's seal checked, with a nix-darwin module that installs it into `/Applications` as the installer does, without Google's updater, and turns error reports off; Apple Silicon macOS only, no compilation |
 | [helium](helium) | Helium browser (Chromium-based, private by default) from upstream's signed, notarized dmg on macOS and its binary tarball on Linux, with a Home Manager module that keeps its update check off; Apple Silicon macOS and Linux, no compilation |
 | [herdr](herdr) | Herdr desktop app, herdr-core (`hc`) and the `herdr` CLI from upstream's prebuilt releases, with a nix-darwin/NixOS module that routes its updates through Nix; Apple Silicon macOS and Linux, no compilation |
 | [hermes-agent](hermes-agent) | Hermes Agent pinned to upstream's latest stable release tag (`minimal` + telegram, mcp), with upstream's NixOS and Home Manager modules; x86_64 Linux only |

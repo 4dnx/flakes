@@ -35,7 +35,8 @@ fixes; there are no release branches.
   carry a signature by a Node release key, and Claude Code's release manifest
   one by the release key kept in `pkgs/claude-code`; downloads must match the checksums
   upstream lists beside them (checksum files, package indexes, update
-  manifests, Chrome's update server); GitHub release assets must match the
+  manifests, Google's update server for Chrome and Google Drive, Firefox's
+  `SHA256SUMS` once its signature by Mozilla's release key checks out); GitHub release assets must match the
   digest GitHub recorded at upload; and npm packages are pinned by the registry's integrity hash. Every upstream version goes through `check_version`
   (`lib/update.sh`) before it reaches a URL, `hashes.json` or a commit
   message. Claude Code's macOS binary and Claude Desktop's whole app bundle
@@ -48,7 +49,10 @@ fixes; there are no release branches.
   Microsoft's Developer ID Installer certificate chaining to Apple's root
   CA, and every file in it matching the checksum recorded there
   (`lib/pkg-signature-check.py`). The app bundles inside are not checked on
-  Linux (a ~1.4 GB download each).
+  Linux (a ~1.4 GB download each). Google Drive's installer is checked the
+  same way (Google's team), and the app inside, like Firefox's macOS app,
+  must carry an intact Developer ID seal of its vendor's team, on Linux
+  before an update lands and in the macOS install check.
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
   replaced in place. Its pin only downloads until the next build.
 - **Updates.** New releases are committed to `main` automatically once
@@ -118,6 +122,9 @@ one. On macOS (launchd) there is none.
   installer does, with upstream's plist; a root LaunchDaemon started on
   demand by the apps over XPC, no sandbox. Its code signature is checked
   against Microsoft's team before it is installed.
+- `google-drive` (nix-darwin): the app copied into `/Applications` with
+  `Contents/MacOS/mount_helper` setuid root, as Google's installer does; no
+  daemon. Google's updater is left out.
 - `tailscale`: no module here; the package ships upstream's unit for
   nixpkgs' `services.tailscale`, which runs `tailscaled` as root (for its TUN
   device, routes and firewall rules) with no sandbox.
