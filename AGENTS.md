@@ -102,6 +102,9 @@ system passes.
 
 ## Commits
 
+Commits containing Codex contributions include the trailer
+`Co-authored-by: Codex <noreply@openai.com>`.
+
 Short imperative subject lines with no prefix. The update workflow commits as
 `Update <name> to vX.Y.Z`.
 
