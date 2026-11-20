@@ -145,15 +145,16 @@ jobs:
           GH_REPO: ${{ github.repository }}
           BRANCH: ${{ github.ref_name }}
           SHA: ${{ github.sha }}
+          QUERY: |
+            mutation($id: ID!, $sha: GitObjectID!) {
+              enqueuePullRequest(input: {pullRequestId: $id, expectedHeadOid: $sha}) {
+                mergeQueueEntry { id }
+              }
+            }
         run: |
           pr=$(gh pr view "$BRANCH" --json id,state,baseRefName,isCrossRepository)
           if ! jq -e '.state == "OPEN" and .baseRefName == "main" and (.isCrossRepository == false)' <<<"$pr" >/dev/null; then
             echo "No open update targeting main"
             exit 0
           fi
-          gh api graphql -f id="$(jq -r .id <<<"$pr")" -f sha="$SHA" -f query='
-            mutation($id: ID!, $sha: GitObjectID!) {
-              enqueuePullRequest(input: {pullRequestId: $id, expectedHeadOid: $sha}) {
-                mergeQueueEntry { id }
-              }
-            }'
+          gh api graphql -f id="$(jq -r .id <<<"$pr")" -f sha="$SHA" -f query="$QUERY"
