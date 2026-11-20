@@ -25,9 +25,13 @@ starts its own periodic checks (`resetUpdater`); setting
 `SUEnableAutomaticChecks` would not disable that loop. No supported runtime
 switch to disable the loop or the app's analytics was found. This package
 keeps the signed bundle intact and does not claim to disable either.
-Its updater cannot replace a bundle in the read-only Nix store, but may
-still check and download updates. Use `nix flake update xr3t` to update the
-installed package; avoid using the in-app installer for the store copy.
+Its updater cannot replace a bundle in the read-only Nix store or
+nix-darwin's root-owned copy in `/Applications/Nix Apps`, but may still check
+and download updates. Home Manager's writable copy in
+`~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) it can replace,
+and nothing turns it off; the nix-darwin copy is out of its reach. Use
+`nix flake update xr3t` to update the installed package; avoid using the
+in-app installer.
 
 On a bump, recheck the appcast enclosure, version/build numbers, native
 bundle executable and upstream updater behavior. The upstream source and

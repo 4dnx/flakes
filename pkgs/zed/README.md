@@ -40,7 +40,14 @@ It prevents updater polling and manual self-update through that launch path,
 and explains that updates come through Nix. On macOS, launching `Zed.app`
 directly bypasses the launcher environment: the Home Manager settings also
 turn off automatic checks for that case. Without the module, the same
-settings can be set in Zed's settings file. The store bundle is read-only.
+settings can be set in Zed's settings file. The store bundle and
+nix-darwin's root-owned copy in `/Applications/Nix Apps` are read-only; Home
+Manager's copy in `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`) is writable, and these settings keep the updater
+off it. Zed reads `ZED_UPDATE_EXPLANATION` at runtime, so for `Zed.app`
+opened from Finder or the Dock it can also go into launchd's user environment
+(nix-darwin's `launchd.user.envVariables`); its manual update check then
+explains that updates come through Nix.
 
 `update.sh` follows GitHub's latest stable release and checks all three
 asset downloads against their GitHub SHA-256 digests. New versions go

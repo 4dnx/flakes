@@ -32,8 +32,11 @@ The module writes `SUEnableAutomaticChecks`, `SUAutomaticallyUpdate` and
 absent and the app is closed. Existing preferences are respected. Change a
 preference with `defaults write net.whatsapp.WhatsApp <key> -bool true` to
 re-enable it. Without the module, set those preferences by hand before
-launching. Updates to the store copy come through `nix flake update xr3t`;
-the embedded updater cannot replace the read-only Nix store bundle.
+launching. Updates come through `nix flake update xr3t`. The embedded
+updater cannot replace the read-only Nix store bundle or nix-darwin's
+root-owned copy in `/Applications/Nix Apps`, but it can replace Home Manager's
+writable copy in `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`) while these preferences are on.
 
 `SUSendProfileInfo` controls Sparkle's optional system profile only. No
 supported application-wide WhatsApp telemetry switch was found in its

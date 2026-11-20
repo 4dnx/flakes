@@ -168,6 +168,17 @@ weekly. Pick them up with `nix flake update xr3t`. Updates of root daemons,
 network filters and agents, and of nixpkgs, go through a pull request that is
 merged through the GitHub merge queue after its candidate passes the platform checks; see [SECURITY.md](SECURITY.md) for what is checked.
 
+On macOS an app's own updater replaces its bundle in place, so where the
+bundle lives decides whether it can. The Nix store is read-only, and
+nix-darwin copies the apps in `environment.systemPackages` into
+`/Applications/Nix Apps` as read-only directories owned by root. Home Manager
+copies the apps in `home.packages` into `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`, on by default from `home.stateVersion` 25.11) as
+writable directories owned by the user: an updater can replace such a copy,
+and the next activation copies the pinned version back. The package READMEs
+name each app's updater and what turns it off; where nothing does, the
+nix-darwin copy is out of reach of an updater that runs as the user.
+
 ## References
 
 This flake grew out of three projects:

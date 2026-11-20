@@ -66,8 +66,11 @@ section of the [flake README](../../README.md#ubuntu-and-other-linux-distributio
 
 ## Updates
 
-On macOS, Helium updates itself with Sparkle, from updates.helium.computer,
-which can't replace a bundle in the read-only Nix store. Its update check is a
+On macOS, Helium updates itself with Sparkle, from updates.helium.computer.
+Sparkle can't replace the bundle in the read-only Nix store or nix-darwin's
+root-owned copy in `/Applications/Nix Apps`, but it can replace Home Manager's
+writable copy in `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`). Its update check is a
 per-profile setting, on by default: the updates toggle on the Helium services
 page of the privacy settings (`helium.services.browser_updates` in
 `~/Library/Application Support/net.imput.helium/<profile>/Preferences`).

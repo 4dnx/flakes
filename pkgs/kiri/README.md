@@ -34,10 +34,12 @@ for fish. Kiri recognizes the marker and skips writing those files. Shells
 are not enabled by the module; unmanaged profiles remain upstream's to edit.
 The PATH entry appends `~/.kiri/bin`, preserving existing command priority.
 
-The LaunchAgent and the links name the binary's resolved store path. A newly
-opened copy of Kiri replaces those of the one before, so after an update open
-the app once; until then the daemon at login is the old version (or none, if
-the old one was garbage-collected).
+The LaunchAgent and the links name the binary of the copy that was opened:
+the store path, nix-darwin's `/Applications/Nix Apps` or Home Manager's
+`~/Applications/Home Manager Apps`. A newly opened copy of Kiri replaces those
+of the one before, so after an update, or after moving the install, open the
+app once; until then the daemon at login is the old version (or none, if the
+old copy is gone).
 
 ## Integrity
 
@@ -57,9 +59,17 @@ and aren't unpacked.
 ## Updates and telemetry
 
 Kiri checks its feed when the window opens and every 6 hours, and offers to
-install a newer app. It can't replace the read-only store copy (its staging
-directory goes beside the app), so updates come through this flake
-(`nix flake update xr3t`).
+install a newer app; `kiri update` installs it at once. The updater stages
+the new app in `.kiri-update/` beside the running one and swaps it in by
+renaming, so it can't replace the read-only store copy or nix-darwin's
+root-owned copy in `/Applications/Nix Apps`. Home Manager's copy in
+`~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) is writable:
+`kiri update` replaces it in place, and the next activation copies the pinned
+version back. Updates come through this flake (`nix flake update xr3t`). The
+module installs the package with Home Manager; to keep its shell integration
+and settings with the app in `environment.systemPackages`, set
+`programs.kiri.package` to a package without the app, such as
+`pkgs.emptyDirectory`.
 
 The Home Manager module turns **Settings › Check for updates automatically**
 off, through its key (`updateAuto`) in `~/.kiri/ui.json`, only while that file
