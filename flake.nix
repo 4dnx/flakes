@@ -339,7 +339,8 @@
               '';
           # firewall/updaters.lsrules, which users subscribe to by URL: valid
           # JSON, and every rule denies a process given by code ID
-          # (identifier.<team>/<identifier>), never a path or "any".
+          # (identifier.<team>/<identifier>), never a path or "any", either
+          # everywhere or towards the hosts it lists.
           firewall-rules =
             pkgs.runCommand "firewall-rules"
               {
@@ -351,7 +352,8 @@
                   (.name | type == "string") and (.rules | type == "array" and length > 0) and
                   all(.rules[];
                     (.process | test("^identifier\\.[A-Z0-9]{10}/[A-Za-z0-9.-]+$")) and
-                    .action == "deny")
+                    .action == "deny" and
+                    (.remote == "any" or (.["remote-hosts"] | type == "array" and length > 0)))
                 ' "$rules" >/dev/null || {
                   echo "firewall/updaters.lsrules: not JSON, or a rule that isn't a deny of a code ID" >&2
                   exit 1
