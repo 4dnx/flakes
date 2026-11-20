@@ -1,0 +1,62 @@
+{
+  "name": "Block app updaters (xr3t/flakes)",
+  "description": "Denies the network to macOS app updaters that run as processes of their own, so updates come through Nix: Google's updater (GoogleUpdater, Keystone) and Microsoft AutoUpdate. Rules match the vendor's code signature, not a path, so they hold wherever the updater is installed. Nix's own downloads (nix-daemon) and the apps themselves are not affected. Disable this group to let the updaters run again.",
+  "rules": [
+    {
+      "process": "identifier.EQHXZ8M8AV/com.google.GoogleUpdater",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "Google's updater (GoogleUpdater.app and its launcher), which updates Chrome and Google Drive."
+    },
+    {
+      "process": "identifier.EQHXZ8M8AV/com.google.Keystone",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "Google Software Update (Keystone), the updater GoogleUpdater replaced, still shipped with it."
+    },
+    {
+      "process": "identifier.EQHXZ8M8AV/com.google.Keystone.Agent",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "Google Software Update's per-user agent."
+    },
+    {
+      "process": "identifier.UBF8T346G9/com.microsoft.autoupdate2",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "Microsoft AutoUpdate, which updates the Office apps."
+    },
+    {
+      "process": "identifier.UBF8T346G9/com.microsoft.autoupdate.fba",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "Microsoft Update Assistant, Microsoft AutoUpdate's background checker and downloader."
+    },
+    {
+      "process": "identifier.UBF8T346G9/com.microsoft.autoupdate.helper",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "Microsoft AutoUpdate's privileged helper, which installs updates as root."
+    },
+    {
+      "process": "identifier.UBF8T346G9/com.microsoft.autoupdate.cli",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote": "any",
+      "priority": "high",
+      "notes": "msupdate, Microsoft AutoUpdate's command-line tool."
+    }
+  ]
+}

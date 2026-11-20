@@ -11,8 +11,8 @@ Packages go under `pkgs/`: one package's files in `pkgs/<name>/`, a family's
 shared files in one of its packages. What packages of different families share
 goes in a top-level folder named after what it holds, never under `pkgs/`:
 signature and install checks in `verify/`, Nix functions in `lib/`, the tools
-`update.sh` scripts use in `scripts/`. `ci/` holds the CI and update machinery
-the workflows run.
+`update.sh` scripts use in `scripts/`, firewall rules in `firewall/`. `ci/`
+holds the CI and update machinery the workflows run.
 
 ## Adding a package
 

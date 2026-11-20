@@ -337,6 +337,27 @@
                 actionlint .github/workflows/*.yml
                 touch "$out"
               '';
+          # firewall/updaters.lsrules, which users subscribe to by URL: valid
+          # JSON, and every rule denies a process given by code ID
+          # (identifier.<team>/<identifier>), never a path or "any".
+          firewall-rules =
+            pkgs.runCommand "firewall-rules"
+              {
+                nativeBuildInputs = [ pkgs.jq ];
+                rules = ./firewall/updaters.lsrules;
+              }
+              ''
+                jq -e '
+                  (.name | type == "string") and (.rules | type == "array" and length > 0) and
+                  all(.rules[];
+                    (.process | test("^identifier\\.[A-Z0-9]{10}/[A-Za-z0-9.-]+$")) and
+                    .action == "deny")
+                ' "$rules" >/dev/null || {
+                  echo "firewall/updaters.lsrules: not JSON, or a rule that isn't a deny of a code ID" >&2
+                  exit 1
+                }
+                touch "$out"
+              '';
           # The Office apps' installer signature check is their own copy, so a
           # change for another package doesn't rebuild them; the part that
           # decides whether a package is trusted must stay the same in both.

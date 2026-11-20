@@ -179,6 +179,11 @@ and the next activation copies the pinned version back. The package READMEs
 name each app's updater and what turns it off; where nothing does, the
 nix-darwin copy is out of reach of an updater that runs as the user.
 
+The updaters that run as processes of their own (Google's GoogleUpdater and
+Keystone, Microsoft AutoUpdate) can also be cut off the network with
+Little Snitch: [firewall/](firewall/README.md) holds a rule group to subscribe
+to, matched by code signature, which leaves Nix's own downloads alone.
+
 ## References
 
 This flake grew out of three projects:
