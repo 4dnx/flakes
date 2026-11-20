@@ -74,8 +74,7 @@ propose() {
 # left waiting for approval at the proposed commits ("<branch> <sha>" in
 # $proposals): GitHub starts those only when someone approves them, and fails
 # them once the pull request merges, which mails a failure for every
-# proposed update. The dispatched check.yml runs check and merge instead
-# (and their merge job deletes any left). They can take a moment to appear,
+# proposed update. The dispatched check.yml checks and enqueues the update. They can take a moment to appear,
 # so the run waits once, up to a minute, for all proposals together rather
 # than for each. A failure here is only a warning.
 proposals=()

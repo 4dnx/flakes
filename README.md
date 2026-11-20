@@ -21,6 +21,12 @@ optionally, standalone Home Manager. Packages that don't run on a system are
 left out of `packages.<system>`; the [package table](pkgs/README.md) and each
 package's README say which systems it supports.
 
+Try Codex without installing it in a profile:
+
+```sh
+nix run github:xr3t/flakes#codex -- --version
+```
+
 Add it as an input. Its `nix-darwin` and `home-manager` inputs are used only
 by its own checks and are never fetched otherwise; pointing them at existing
 inputs with `follows` keeps a single copy of each in the lock file:
@@ -139,9 +145,6 @@ Differences from NixOS:
   helpers in it): see [helium](pkgs/helium/README.md#ubuntu) and
   [claude-code](pkgs/claude-code) for the profile each needs.
 
-A package also runs without being installed:
-`nix run github:xr3t/flakes#codex -- --version`.
-
 ## Outputs
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
@@ -163,7 +166,7 @@ Packages follow upstream automatically: a workflow checks for new releases
 twice a day and commits them to `main`, and the pinned nixpkgs is bumped
 weekly. Pick them up with `nix flake update xr3t`. Updates of root daemons,
 network filters and agents, and of nixpkgs, go through a pull request that is
-merged once it builds on every system; see [SECURITY.md](SECURITY.md) for what is checked.
+merged through the GitHub merge queue after its candidate passes the platform checks; see [SECURITY.md](SECURITY.md) for what is checked.
 
 ## References
 

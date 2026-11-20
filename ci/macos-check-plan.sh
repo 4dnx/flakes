@@ -17,8 +17,12 @@ base=""
 # never have been built. PRs also require a successful baseline, rather than
 # assuming that every commit on their base branch passed. Failed/cancelled
 # runs do not qualify.
-candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?status=success&per_page=100" \
-  --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch") | .head_sha') || candidates=""
+reason="no successful ancestor found"
+if ! candidates=$(gh api "repos/$GH_REPO/actions/workflows/check.yml/runs?status=success&per_page=100" \
+  --jq '.workflow_runs[] | select(.event == "push" or .event == "workflow_dispatch") | .head_sha'); then
+  reason="workflow run lookup failed"
+  candidates=""
+fi
 for rev in $candidates; do
   if git merge-base --is-ancestor "$rev" "$target"; then
     base=$rev
@@ -32,10 +36,12 @@ done
 # checks that read them run.
 if [ -n "$base" ] && ! git diff --quiet "$base" HEAD -- .github/workflows/check.yml ci/; then
   base=""
+  reason="check workflow or CI scripts changed"
 fi
 if [ -n "$base" ]; then
   checks=$(ci/changed-checks.sh "$system" "$base")
 else
+  echo "Building all macOS checks: $reason"
   checks=$(nix eval --json ".#checks.$system" \
     --apply 'cs: builtins.attrNames (removeAttrs cs [ "formatting" ])' | jq -r '.[]')
 fi

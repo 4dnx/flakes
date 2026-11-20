@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 concurrency:
@@ -111,47 +112,49 @@ jobs:
           done
           nix build --no-link --keep-going -L "${installables[@]}"
 
-  # An update/<name> branch that update.yml proposed and every system above
-  # built (macOS may be skipped, but only when the plan found nothing for it
-  # to build): merge its pull request, unless the branch moved on since this
-  # run started. Only a dispatch from update.yml (or someone with write
-  # access) runs this, never a pull_request event. This token's merge starts
-  # no workflow, so check.yml is started on main for its Cachix push.
-  merge:
+  # Require this status on main and in its merge queue.
+  validated:
+    name: Validate all systems
     needs: [plan, linux, macos]
-    if: >-
-      !cancelled() && github.event_name == 'workflow_dispatch' &&
-      startsWith(github.ref, 'refs/heads/update/') &&
-      needs.plan.result == 'success' && needs.linux.result == 'success' &&
-      (needs.macos.result == 'success' ||
-      (needs.macos.result == 'skipped' && needs.plan.outputs.checks == ''))
+    if: always()
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build results
+        env:
+          PLAN: ${{ needs.plan.result }}
+          LINUX: ${{ needs.linux.result }}
+          MACOS: ${{ needs.macos.result }}
+          CHECKS: ${{ needs.plan.outputs.checks }}
+        run: |
+          [[ "$PLAN" == success && "$LINUX" == success ]]
+          [[ "$MACOS" == success || ( "$MACOS" == skipped && -z "$CHECKS" ) ]]
+
+  merge:
+    needs: validated
+    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/update/')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
-      actions: write
     steps:
-      # The token goes only to this step, as the secrets above do.
-      - name: Merge the update's pull request
+      - name: Queue the tested update
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           BRANCH: ${{ github.ref_name }}
           SHA: ${{ github.sha }}
-        # The branch is deleted through the API: gh pr merge --delete-branch
-        # also looks for a local checkout, which this job has none of.
-        # pull_request runs still waiting for approval at this commit are
-        # deleted first (ci/update-all.sh deletes those it sees): merging
-        # would fail them as expired, and GitHub would mail the failure.
+          QUERY: |
+            mutation($id: ID!, $sha: GitObjectID!) {
+              enqueuePullRequest(input: {pullRequestId: $id, expectedHeadOid: $sha}) {
+                mergeQueueEntry { id }
+              }
+            }
         run: |
-          if [ "$(gh pr view "$BRANCH" --json state -q .state)" != OPEN ]; then
-            echo "$BRANCH: no open pull request"; exit 0
+          pr=$(gh pr view "$BRANCH" --json id,state,baseRefName,isCrossRepository)
+          if ! jq -e '.state == "OPEN" and .baseRefName == "main" and (.isCrossRepository == false)' <<<"$pr" >/dev/null; then
+            echo "No open update targeting main"
+            exit 0
           fi
-          for id in $(gh api "repos/$GH_REPO/actions/runs?event=pull_request&head_sha=$SHA&status=action_required" -q '.workflow_runs[].id' || true); do
-            gh api -X DELETE "repos/$GH_REPO/actions/runs/$id" ||
-              echo "::warning::could not delete run $id, which waits for approval"
-          done
-          gh pr merge "$BRANCH" --merge --match-head-commit "$SHA"
-          gh api -X DELETE "repos/$GH_REPO/git/refs/heads/$BRANCH" >/dev/null
-          gh workflow run check.yml --ref main
+          gh api graphql -f id="$(jq -r .id <<<"$pr")" -f sha="$SHA" -f query="$QUERY"
