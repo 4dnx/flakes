@@ -1,19 +1,18 @@
 # AGENTS.md
 
-Guidance for coding agents working in this repo. `README.md` is the user-facing
-doc; keep it, the package table in `pkgs/README.md` and each package's README
-in sync with behavior. Remote:
-`xr3t/flakes`.
+Guidance for coding agents working in this repo. `README.md` is the
+user-facing doc; keep it, the package table in `pkgs/README.md` and each
+package's README in sync with behavior. Remote: `xr3t/flakes`.
 
 ## Layout
 
 See `LAYOUT.md`; keep it in sync when adding a kind of file or workflow.
-Packages go under `pkgs/`: one package's files in `pkgs/<name>/`, a
-family's shared files in one of its packages. What packages of different
-families share goes in a top-level folder named after what it holds, never
-under `pkgs/`: signature and install checks in `verify/`, Nix functions in
-`lib/`, the tools `update.sh` scripts use in `scripts/`. `ci/` holds the CI and update machinery the
-workflows run.
+Packages go under `pkgs/`: one package's files in `pkgs/<name>/`, a family's
+shared files in one of its packages. What packages of different families share
+goes in a top-level folder named after what it holds, never under `pkgs/`:
+signature and install checks in `verify/`, Nix functions in `lib/`, the tools
+`update.sh` scripts use in `scripts/`. `ci/` holds the CI and update machinery
+the workflows run.
 
 ## Adding a package
 
@@ -22,23 +21,23 @@ and CPU architecture, including Apple Silicon on macOS and the matching Linux
 architecture. Do not substitute a web wrapper or an emulated binary when an
 upstream native release is missing; leave that system unsupported and say so.
 
-
-1. `pkgs/<name>/package.nix` (+ `hashes.json` and `update.sh` if it tracks upstream releases).
-   `update.sh` sources `scripts/update-lib.sh` and passes every
-   upstream version through `check_version`. Where upstream publishes checksums (a sums file,
-   `.sha256` files, a manifest), check downloads against them (`sums`, or
-   `prefetch URL SHA256`); GitHub release assets are checked against GitHub's
-   digest by `prefetch` itself. If the package runs as root or acts with the
-   user's access, add it to `REVIEW` in `.github/workflows/update.yml`.
-   Give the package an install check that runs it (`--version`, or
-   `verify/check-app.py` for a macOS app bundle): building is
-   not starting.
-2. Set `meta.platforms` to the systems it really supports; that's what filters `packages.<system>`.
-   If evaluating it fetches another flake, also list it in `fixedPlatforms` in
-   `flake.nix`.
-3. Add a row, in alphabetical order, to the package table in `pkgs/README.md`, and a `pkgs/<name>/README.md` if it has options.
-   Package-specific notes (gotchas, what to recheck on a bump) go in that README
-   or as comments in the package's own files, not in this file.
+1. `pkgs/<name>/package.nix` (+ `hashes.json` and `update.sh` if it tracks
+   upstream releases). `update.sh` sources `scripts/update-lib.sh` and passes
+   every upstream version through `check_version`. Where upstream publishes
+   checksums (a sums file, `.sha256` files, a manifest), check downloads
+   against them (`sums`, or `prefetch URL SHA256`); GitHub release assets are
+   checked against GitHub's digest by `prefetch` itself. If the package runs
+   as root or acts with the user's access, add it to `REVIEW` in
+   `.github/workflows/update.yml`. Give the package an install check that runs
+   it (`--version`, or `verify/check-app.py` for a macOS app bundle): building
+   is not starting.
+2. Set `meta.platforms` to the systems it really supports; that's what filters
+   `packages.<system>`. If evaluating it fetches another flake, also list it
+   in `fixedPlatforms` in `flake.nix`.
+3. Add a row, in alphabetical order, to the package table in `pkgs/README.md`,
+   and a `pkgs/<name>/README.md` if it has options. Package-specific notes
+   (gotchas, what to recheck on a bump) go in that README or as comments in
+   the package's own files, not in this file.
 4. `git add` new files; flakes ignore untracked files.
 
 ## Modules
@@ -57,21 +56,21 @@ look for all three in its docs, its config schema and its binary.
 
 1. Use upstream's documented switch first: a setting, an env var, a flag, or
    an override that upstream offers redistributions.
-2. Without one, an undocumented knob will do, but say so in the package
-   README and recheck it on every bump: upstream may drop it.
+2. Without one, an undocumented knob will do, but say so in the package README
+   and recheck it on every bump: upstream may drop it.
 3. Last resort for an update command: a guard wrapper that refuses it.
 
-Telemetry and update checks are defaults the user can set back: the user's
-Nix config or the program's own config wins. So apply them only while that
-config doesn't set them (a flag or env var added conditionally), or as a
-module option. A self-update stays off: it would replace the store copy, a
-root daemon could write into the store, and on macOS an app's updater can
-replace Home Manager's writable copy of the app (`targets.darwin.copyApps`,
-see "Updates" in `README.md`). Don't call an app's updater harmless because
-the store is read-only: say which installs it can replace.
+Telemetry and update checks are defaults the user can set back: the user's Nix
+config or the program's own config wins. So apply them only while that config
+doesn't set them (a flag or env var added conditionally), or as a module
+option. A self-update stays off: it would replace the store copy, a root
+daemon could write into the store, and on macOS an app's updater can replace
+Home Manager's writable copy of the app (`targets.darwin.copyApps`, see
+"Updates" in `README.md`). Don't call an app's updater harmless because the
+store is read-only: say which installs it can replace.
 
-In the package README, say what is off, how, and how to turn it back on.
-Where nothing in the package can turn it off (an updater inside a signed app
+In the package README, say what is off, how, and how to turn it back on. Where
+nothing in the package can turn it off (an updater inside a signed app
 bundle), say that and how to turn it off in the app.
 
 ## Writing docs
@@ -86,18 +85,20 @@ output, such as an error message, stays as the program prints it.
 ## Checking changes
 
 ```sh
-nix flake check --all-systems   # evaluate everything, build this host's packages; on Linux also lint scripts and workflows
+# Evaluate everything and build this host's packages; on Linux also lint
+# scripts and workflows.
+nix flake check --all-systems
 nix build .#<name> && ./result/bin/<prog> --version
-nix fmt                         # nixfmt; checks.formatting fails otherwise
+nix fmt   # nixfmt; checks.formatting fails otherwise
 ```
 
 Avoid `--no-build`: its read-only store fails on filtered sources that are
 read during evaluation.
 
-A local check builds only the host's own system; CI builds Linux x86_64,
-Linux aarch64 and macOS. To try a change in a system config, build that
-config against this checkout (`--override-input <input> path:<checkout>`);
-don't switch to it unless asked.
+A local check builds only the host's own system; CI builds Linux x86_64, Linux
+aarch64 and macOS. To try a change in a system config, build that config
+against this checkout (`--override-input <input> path:<checkout>`); don't
+switch to it unless asked.
 
 ## Workflows
 
@@ -107,8 +108,9 @@ the step that needs them, never at job level, and default to
 
 The update workflow opens pull requests for the packages in `REVIEW`, which
 needs Settings → Actions → General → "Allow GitHub Actions to create and
-approve pull requests" on the repository; `check.yml` enqueues the tested head. Configure the `main` branch rule to
-require the merge queue and the `Validate all systems` status check.
+approve pull requests" on the repository; `check.yml` enqueues the tested
+head. Configure the `main` branch rule to require the merge queue and the
+`Validate all systems` status check.
 
 ## Commits
 
@@ -128,10 +130,10 @@ This repo is public. Commits and files must not carry private data:
 - No hostnames, usernames, IPs, local paths or other details of anyone's
   machines in code, comments, docs or commit messages; use `alice`,
   `example.com` and the like in examples.
-- READMEs, notes and comments describe a package for anyone who installs
-  it, not how its maintainer uses it. Leave out their setup and habits: which
+- READMEs, notes and comments describe a package for anyone who installs it,
+  not how its maintainer uses it. Leave out their setup and habits: which
   features, channels or services they run, the other tools they pair it with,
   what they tested on, and incidents seen on their machines. Write such facts
-  as upstream behavior or a general case ("a polling channel", "another
-  VPN", "a transient API error"); upstream's own release, bug or issue is
-  fine to cite.
+  as upstream behavior or a general case ("a polling channel", "another VPN",
+  "a transient API error"); upstream's own release, bug or issue is fine to
+  cite.
