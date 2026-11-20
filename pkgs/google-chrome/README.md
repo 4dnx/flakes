@@ -12,9 +12,16 @@ overlay, the consuming nixpkgs config has to allow `google-chrome`.
 users (the versionhistory API) and its download URL from Google's update
 server, and never downgrades. It downloads the dmg (~280 MB) to hash it.
 
-Chrome's own updater can't replace the copy in the read-only Nix store, so
-updates come from this flake (`nix flake update xr3t`). Chrome may still
+Chrome's updater, Google's GoogleUpdater, can't replace the copy in the
+read-only Nix store or nix-darwin's root-owned copy in `/Applications/Nix Apps`,
+so updates come from this flake (`nix flake update xr3t`). Chrome may still
 install Google's updater under `~/Library` on first launch and show an update
-notice; that copy is not what runs.
+notice. Home Manager's writable copy in `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`) is within that updater's reach, and nothing in the
+package turns it off: GoogleUpdater reads its `updatePolicies`
+(`UpdateDefault`) only from managed preferences, and only on a Mac enrolled in
+MDM (`profiles status -type enrollment`). Chrome's **Set Up Automatic Updates
+for All Users** installs a system-wide updater that runs as root and could
+replace either copy.
 
 On Linux use nixpkgs' `google-chrome`.

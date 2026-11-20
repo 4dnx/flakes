@@ -52,8 +52,12 @@ default) and, on macOS, the policies below.
 
 ## Updates and telemetry
 
-Firefox's own updater can't replace the copy in the read-only Nix store;
-updates come from this flake (`nix flake update xr3t`).
+Firefox's own updater can't replace the copy in the read-only Nix store or
+nix-darwin's root-owned copy in `/Applications/Nix Apps`, but it can replace
+Home Manager's writable copy in `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`); on macOS the Home Manager module's
+`DisableAppUpdate` (below) turns it off. Updates come from this flake
+(`nix flake update xr3t`).
 
 On Linux the package turns the update check off with Mozilla's documented
 `DisableAppUpdate` policy (in the wrapper's `policies.json`; the wrapper's

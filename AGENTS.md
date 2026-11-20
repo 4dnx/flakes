@@ -64,8 +64,11 @@ look for all three in its docs, its config schema and its binary.
 Telemetry and update checks are defaults the user can set back: the user's
 Nix config or the program's own config wins. So apply them only while that
 config doesn't set them (a flag or env var added conditionally), or as a
-module option. A self-update stays off: it would replace the store copy, and
-a root daemon could write into the store.
+module option. A self-update stays off: it would replace the store copy, a
+root daemon could write into the store, and on macOS an app's updater can
+replace Home Manager's writable copy of the app (`targets.darwin.copyApps`,
+see "Updates" in `README.md`). Don't call an app's updater harmless because
+the store is read-only: say which installs it can replace.
 
 In the package README, say what is off, how, and how to turn it back on.
 Where nothing in the package can turn it off (an updater inside a signed app

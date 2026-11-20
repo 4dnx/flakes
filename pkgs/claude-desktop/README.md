@@ -42,9 +42,11 @@ request.
 
 Claude Desktop updates itself with Squirrel.Mac, and its Code tab also
 downloads and updates the Claude Code binary it runs. Its updater can't
-replace the read-only store copy, but it still checks for and downloads
-updates; nix-darwin's writable copy under `/Applications/Nix Apps` it could
-replace. Updates belong to this flake (`nix flake update xr3t`).
+replace the read-only store copy or nix-darwin's root-owned, read-only copy in
+`/Applications/Nix Apps`, but it still checks for and downloads updates; Home
+Manager's writable copy in `~/Applications/Home Manager Apps`
+(`targets.darwin.copyApps`) it could replace. Updates belong to this flake
+(`nix flake update xr3t`).
 
 Upstream's documented switch is `disableAutoUpdates` in the
 `com.anthropic.claudefordesktop` domain
@@ -53,13 +55,22 @@ It turns off both the app's and the Code tab's automatic updates. The app
 reads it only from managed preferences (`/Library/Managed Preferences`),
 which macOS fills from a configuration profile, not from `defaults write`.
 macOS requires the user to approve a profile, so no module can install it;
-the package ships one:
+the package ships one, `share/claude-desktop/disable-auto-updates.mobileconfig`.
+nix-darwin's system profile and its per-user profiles (Home Manager with
+`useUserPackages`) link only the paths in `environment.pathsToLink`, so a
+nix-darwin configuration adds the folder there first:
+
+```nix
+environment.pathsToLink = [ "/share/claude-desktop" ];
+```
 
 ```sh
 # installed with nix-darwin
 open /run/current-system/sw/share/claude-desktop/disable-auto-updates.mobileconfig
-# installed with Home Manager
+# installed with nix-darwin's Home Manager module and useUserPackages
 open /etc/profiles/per-user/$USER/share/claude-desktop/disable-auto-updates.mobileconfig
+# installed with standalone Home Manager (~/.local/state/nix/profile with use-xdg-base-directories)
+open ~/.nix-profile/share/claude-desktop/disable-auto-updates.mobileconfig
 ```
 
 Then approve it in System Settings → General → Device Management (it shows
