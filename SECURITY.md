@@ -59,8 +59,9 @@ fixes; there are no release branches.
 - **Updates.** New releases are committed to `main` automatically once
   `nix flake check` passes, without review, except for the packages in
   `REVIEW` (root daemons, network filters, agents), whose updates go through
-  a pull request that CI merges, also without review, once it builds on Linux
-  x86_64, Linux aarch64 and macOS. The packages in `ON_REQUEST` (the Office
+  a pull request that CI enqueues after its platform checks pass. The merge
+  queue checks the combined candidate on Linux x86_64, Linux aarch64 and
+  macOS before merging without human review. The packages in `ON_REQUEST` (the Office
   apps, a ~1.4 GB download each) update only when a run names them. The pinned nixpkgs, which every package's
   libraries and tools come from, is bumped weekly the same way, with the
   nix-darwin and Home Manager inputs; those two only evaluate the modules in
@@ -100,7 +101,7 @@ fixes; there are no release branches.
 
 - Workflows default to a read-only `GITHUB_TOKEN`; only the update
   workflow's jobs can write, to commit updates and open their pull requests,
-  and the check workflow's `merge` job, to merge an `update/<name>` pull
+  and the check workflow's `merge` job, to enqueue an `update/<name>` pull
   request it built. No job keeps the token in its checkout: the update
   script pushes through `gh`'s credential helper with the token its step
   gets.

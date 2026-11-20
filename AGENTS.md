@@ -104,8 +104,8 @@ the step that needs them, never at job level, and default to
 
 The update workflow opens pull requests for the packages in `REVIEW`, which
 needs Settings → Actions → General → "Allow GitHub Actions to create and
-approve pull requests" on the repository; `check.yml` merges them once every
-system passes.
+approve pull requests" on the repository; `check.yml` enqueues the tested head. Configure the `main` branch rule to
+require the merge queue and the `Validate all systems` status check.
 
 ## Commits
 
