@@ -13,6 +13,8 @@ better name for the old one).
   pinned Apple root CA) and that an installed app is the pinned one.
 - `lib/` holds Nix functions and values the packages and modules share.
 - `scripts/` holds the tools the packages' `update.sh` scripts use.
+- `firewall/` holds firewall rules for the users of the packages: a Little
+  Snitch rule group that cuts app updaters off the network.
 - `ci/` holds the CI and update machinery the workflows run, which no
   package reads.
 
@@ -49,6 +51,7 @@ build every macOS check (`ci/macos-check-plan.sh`).
 | `lib/hardening.nix` | The systemd sandboxing the opt-in `hardening.enable` options share (`serviceConfig`); each module adds what its service can live without. Modules otherwise run services as upstream's installer does. |
 | `scripts/macos-app-release.py` | Selects the newest stable WhatsApp or native Telegram version/build from the official Sparkle feed; validates the download URL against each vendor's release endpoint. |
 | `scripts/update-lib.sh` | Helpers for `update.sh`: `check_version` (rejects unexpected upstream versions), `gh_latest`, `skip_if_current`, `prefetch` (checks a download against upstream's sha256 when given one, and a GitHub release asset against GitHub's digest), `write_hashes` (with `sums` set, against upstream's checksum list or per-file `.sha256`). |
+| `firewall/updaters.lsrules`, `firewall/README.md` | A Little Snitch rule group (macOS) denying the network to the app updaters that run as processes of their own (Google's GoogleUpdater and Keystone, Microsoft AutoUpdate), matched by code signature; users subscribe to it by its raw URL. `checks.<linux>.firewall-rules` checks its JSON and that every rule denies a code ID. |
 | `ci/update-all.sh` | What `update.yml` runs, once per `UPDATE_SYSTEM` (without `PACKAGES`, all but `ON_REQUEST`'s): every `update.sh` of that system's packages (`x86_64-linux`: all that build there; `aarch64-darwin`: those that build only on macOS), each update built (`nix flake check --keep-going`) before it lands, and on Linux the weekly bump of `nixpkgs` with `nix-darwin` and `home-manager`. A package that `checks` leave out (rolling, heavy) is deleted from the store again once built, so the macOS job's store cache doesn't keep it. Git pushes and fetches go through `gh`'s credential helper with `GH_TOKEN`, as `update.yml`'s checkouts keep no token. After proposing an update it deletes the `pull_request` runs that GitHub holds for approval on a pull request this token opened or pushed (they would fail once the dispatched `check.yml` merges it). |
 | `ci/changed-checks.sh` | Prints the checks of a system whose derivation differs from those at a git revision; `check.yml` builds only those on macOS. Evaluation only, so it runs on Linux. |
 | `ci/macos-check-plan.sh` | Run by `check.yml`'s `plan` job, on Linux. Selects macOS checks against a successful ancestor Check of the PR base branch or `main`, from a push or dispatch run (a `pull_request` run built a merge commit, not the head it reports); falls back to all checks without a baseline or when check machinery changes (`check.yml` or `ci/`). |
