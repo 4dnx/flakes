@@ -1,6 +1,6 @@
 {
   "name": "Block app updaters (xr3t/flakes)",
-  "description": "Denies the network to macOS app updaters that run as processes of their own, so updates come through Nix: Google's updater (GoogleUpdater, Keystone) and Microsoft AutoUpdate. Rules match the vendor's code signature, not a path, so they hold wherever the updater is installed. Nix's own downloads (nix-daemon) and the apps themselves are not affected. Disable this group to let the updaters run again.",
+  "description": "Denies the network to macOS app updaters, so updates come through Nix: the updaters that run as processes of their own (Google's GoogleUpdater and Keystone, Microsoft AutoUpdate) entirely, and apps that update from inside their own process (Telegram, Ghostty) only towards their update hosts. Rules match the vendor's code signature, not a path, so they hold wherever the app or updater is installed. Nix's own downloads (nix-daemon) are not affected. Disable this group to let the updaters run again.",
   "rules": [
     {
       "process": "identifier.EQHXZ8M8AV/com.google.GoogleUpdater",
@@ -57,6 +57,27 @@
       "remote": "any",
       "priority": "high",
       "notes": "msupdate, Microsoft AutoUpdate's command-line tool."
+    },
+    {
+      "process": "identifier.6N38VWS5BX/ru.keepcoder.Telegram",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote-hosts": [
+        "osx.telegram.org"
+      ],
+      "priority": "high",
+      "notes": "Telegram's update feed and downloads (SUFeedURL https://osx.telegram.org/updates/versions.xml). Messages go to Telegram's MTProto servers, not this host."
+    },
+    {
+      "process": "identifier.24VZTF6M5V/com.mitchellh.ghostty",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote-hosts": [
+        "release.files.ghostty.org",
+        "tip.files.ghostty.org"
+      ],
+      "priority": "high",
+      "notes": "Ghostty's Sparkle appcasts and downloads, stable and tip. Ghostty itself needs no network; programs run in it are processes of their own."
     }
   ]
 }
