@@ -29,7 +29,8 @@ programs.whatsapp.enable = true;
 
 The module writes `SUEnableAutomaticChecks`, `SUAutomaticallyUpdate` and
 `SUSendProfileInfo` to `net.whatsapp.WhatsApp` only while each preference is
-absent and the app is closed. Existing preferences are respected. Change a
+absent and the app is closed. Activation asks to close the app only while
+one of them is still absent. Existing preferences are respected. Change a
 preference with `defaults write net.whatsapp.WhatsApp <key> -bool true` to
 re-enable it. Without the module, set those preferences by hand before
 launching. Updates come through `nix flake update xr3t`. The embedded

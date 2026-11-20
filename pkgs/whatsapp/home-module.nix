@@ -22,15 +22,23 @@ in
     home.packages = [ cfg.package ];
     # Seed Sparkle preferences only when absent. User settings win, and the
     # signed app bundle stays untouched. GUI launches use these defaults too.
+    # Nothing is written while the app runs, and the note asking to close it
+    # appears only while a preference is still absent.
     home.activation.whatsappSparkleDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      if /usr/bin/pgrep -xq WhatsApp; then
-        echo "whatsapp: close the app before activating its default update preferences"
-      else
-        for key in SUEnableAutomaticChecks SUAutomaticallyUpdate SUSendProfileInfo; do
-          if ! /usr/bin/defaults read net.whatsapp.WhatsApp "$key" >/dev/null 2>&1; then
+      whatsapp_missing=""
+      for key in SUEnableAutomaticChecks SUAutomaticallyUpdate SUSendProfileInfo; do
+        if ! /usr/bin/defaults read net.whatsapp.WhatsApp "$key" >/dev/null 2>&1; then
+          whatsapp_missing="$whatsapp_missing $key"
+        fi
+      done
+      if [ -n "$whatsapp_missing" ]; then
+        if /usr/bin/pgrep -xq WhatsApp; then
+          echo "whatsapp: close the app before activating its default update preferences"
+        else
+          for key in $whatsapp_missing; do
             run /usr/bin/defaults write net.whatsapp.WhatsApp "$key" -bool false
-          fi
-        done
+          done
+        fi
       fi
     '';
   };
