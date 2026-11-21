@@ -23,46 +23,34 @@ Updates come through `nix flake update xr3t`. The embedded Sparkle updater
 cannot replace the read-only Nix store bundle or nix-darwin's root-owned copy
 in `/Applications/Nix Apps`. Home Manager copies the app into
 `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) writable by
-the user, and without the module below Sparkle can replace that copy while
-its automatic installation is on.
+the user, and Sparkle can replace that copy while its automatic installation
+is on.
 
-The Home Manager module turns Sparkle's automatic update check and automatic
-installation off:
+### Update check
 
-```nix
-imports = [ inputs.xr3t.homeManagerModules.whatsapp ];
-programs.whatsapp.enable = true;
-```
+WhatsApp's update check can't be turned off. The app and its Sparkle plugin
+start checks themselves (`checkForUpdatesInBackground`,
+`checkForUpdatesWithIsCurrentBuildExpired:…`), which `SUEnableAutomaticChecks`
+doesn't stop; that key only turns off Sparkle's own scheduled check. The plugin also adds its own
+parameters to the appcast request (`feedParametersForUpdater:`). A firewall
+rule can't single out the check: the appcast is on `web.whatsapp.com`, which
+serves more than updates (see `firewall/README.md`).
 
-It sets `SUEnableAutomaticChecks` and `SUAutomaticallyUpdate` to false in
-`net.whatsapp.WhatsApp` on every activation (`targets.darwin.defaults`),
-whatever the domain held, and writes `SUSendProfileInfo` = false only while
-it is absent. `programs.whatsapp.checkUpdates = true` leaves the update check
-to the app; automatic installation stays off.
+### Automatic installation
 
-With `targets.darwin.copyApps` on, the module also makes Home Manager's copy,
-`~/Applications/Home Manager Apps/WhatsApp.app`, read-only (`chmod -R a-w`)
-after every copy, so an updater running as the user can't write to, delete or
-move the bundle without first changing its permissions back. Activation makes
-the copy writable again just before Home Manager's App Management check and
-copy, which write into it, and then locks the new copy; it does that while
-`programs.whatsapp.enable` is false too, so the copy can be removed. With the
-module dropped from the imports, nothing unlocks the copy and Home Manager's
-copy fails to delete it (`cannot delete non-empty directory`); make it
-writable before switching:
-
-```sh
-chmod -R u+w ~/Applications/Home\ Manager\ Apps/WhatsApp.app
-```
-
-WhatsApp's Sparkle plugin sets the check and automatic installation itself
-(`setAutomaticallyChecksForUpdates:`, `setAutomaticallyDownloadsUpdates:`),
-so they can be back on after the app starts, until the next activation. User
-preferences can't hold them; managed preferences can, and macOS fills those
-only from a configuration profile the user approves, so no module can
-install it. The package ships one,
-`share/whatsapp/disable-auto-updates.mobileconfig`, which forces both keys
-off. nix-darwin's per-user profiles (Home Manager with `useUserPackages`)
+The plugin also turns Sparkle's scheduled check and automatic installation
+back on whenever it starts (`setAutomaticallyChecksForUpdates:`,
+`setAutomaticallyDownloadsUpdates:`). The app is sandboxed, so its
+preferences live in
+`~/Library/Containers/net.whatsapp.WhatsApp/Data/Library/Preferences`, not in
+`~/Library/Preferences`: `defaults write net.whatsapp.WhatsApp` doesn't
+reach them, and the plugin would overwrite them anyway. Managed preferences
+take precedence over both, and macOS fills them only from a configuration
+profile the user approves, so no module can install it. The package ships
+one, `share/whatsapp/disable-auto-updates.mobileconfig`, which forces
+`SUAutomaticallyUpdate` and `SUEnableAutomaticChecks` off: Sparkle then asks
+before installing an update a check finds, instead of installing it on its
+own. nix-darwin's per-user profiles (Home Manager with `useUserPackages`)
 link only the paths in `environment.pathsToLink`, so a nix-darwin
 configuration adds the folder there first:
 
@@ -78,17 +66,51 @@ open ~/.nix-profile/share/whatsapp/disable-auto-updates.mobileconfig
 ```
 
 Then approve it in System Settings → General → Device Management (it shows
-as unsigned, "WhatsApp: updates through Nix"). To turn the updater back on,
-remove the profile there and set `programs.whatsapp.checkUpdates = true`.
-Without the module, install the profile, or set the keys with
-`defaults write net.whatsapp.WhatsApp <key> -bool false` before launching.
+as unsigned, "WhatsApp: updates through Nix"). The managed values show in
+`/Library/Managed Preferences/$USER/net.whatsapp.WhatsApp.plist`. To turn
+automatic installation back on, remove the profile there.
 
-`SUSendProfileInfo` controls Sparkle's optional system profile only. No
-supported application-wide WhatsApp telemetry switch was found in its
-published settings or bundle; this package does not claim to disable the
-messenger's own analytics or communication with Meta.
+### Read-only Home Manager copy
 
-On every bump, recheck the appcast URL, bundle identifier, Sparkle preference
-keys, whether the plugin still sets them itself and the app's minimum macOS
-version. Keep the app bundle untouched to
-preserve its code signature.
+The Home Manager module installs the package and keeps Home Manager's copy
+read-only:
+
+```nix
+imports = [ inputs.xr3t.homeManagerModules.whatsapp ];
+programs.whatsapp.enable = true;
+```
+
+With `targets.darwin.copyApps` on, it makes
+`~/Applications/Home Manager Apps/WhatsApp.app` read-only (`chmod -R a-w`)
+after every copy, so an updater running as the user can't write to, delete or
+move the bundle without first changing its permissions back. Activation makes the copy
+writable again just before Home Manager's App Management check and copy,
+which write into it, and then locks the new copy; it does that while
+`programs.whatsapp.enable` is false too, so the copy can be removed. With the
+module dropped from the imports, nothing unlocks the copy and Home Manager's
+copy fails to delete it (`cannot delete non-empty directory`); make it
+writable before switching:
+
+```sh
+chmod -R u+w ~/Applications/Home\ Manager\ Apps/WhatsApp.app
+```
+
+The module's former `programs.whatsapp.checkUpdates` option is removed: the
+keys it wrote went to `~/Library/Preferences`, which the sandboxed app
+doesn't read.
+
+### Telemetry
+
+Sparkle's optional system profile (`SUSendProfileInfo`) is off: Sparkle
+leaves it off by default, the bundle's `Info.plist` doesn't turn it on, and
+neither the app nor its plugin sets it. No supported application-wide
+WhatsApp telemetry switch was found in its published settings or bundle;
+this package does not claim to disable the messenger's own analytics or
+communication with Meta.
+
+### Rechecking on a bump
+
+The appcast URL, bundle identifier, Sparkle preference keys, whether the
+plugin still sets them and starts checks itself, whether the app is still
+sandboxed, and the app's minimum macOS version. Keep the app bundle
+untouched to preserve its code signature.

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  Forces Sparkle's automatic update check and automatic installation off in
+  Forces Sparkle's scheduled update check and automatic installation off in
   the net.whatsapp.WhatsApp domain, for installs whose version Nix manages.
   WhatsApp turns both back on in its user preferences; managed preferences
-  take precedence over them. See pkgs/whatsapp/README.md.
+  take precedence over them. Checks the app starts itself still run. See
+  pkgs/whatsapp/README.md.
 -->
 <plist version="1.0">
 <dict>
@@ -40,7 +41,7 @@
   <key>PayloadDisplayName</key>
   <string>WhatsApp: updates through Nix</string>
   <key>PayloadDescription</key>
-  <string>Turns off WhatsApp's automatic update check and automatic installation (Sparkle's SUEnableAutomaticChecks and SUAutomaticallyUpdate), because Nix installs its updates. Remove this profile to turn them back on.</string>
+  <string>Turns off WhatsApp's automatic installation of updates and Sparkle's scheduled update check (SUAutomaticallyUpdate and SUEnableAutomaticChecks), because Nix installs its updates. Checks the app starts itself still run. Remove this profile to turn them back on.</string>
   <key>PayloadRemovalDisallowed</key>
   <false/>
 </dict>
