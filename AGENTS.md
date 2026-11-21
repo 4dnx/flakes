@@ -121,10 +121,13 @@ The update workflow opens pull requests for the packages in `REVIEW`, which
 needs Settings → Actions → General → "Allow GitHub Actions to create and
 approve pull requests" on the repository; `check.yml` merges them once every
 system passes. GitHub's merge queue isn't available to a repository owned by
-a user account, so the `merge` job merges directly. Configure the `main`
-branch rule to require the `Validate all systems` status check and branches
-to be up to date before merging: `check.yml` checks a pull request at its
-head, so only a head that contains `main` is the tree that lands.
+a user account, so the `merge` job merges directly, and only a tested head
+that contains `main` (`ci/merge-update.sh` rebases one that doesn't and
+checks it again). `check.yml` checks a pull request at its head, so update
+any other pull request that GitHub reports out of date with `main` and let
+its checks pass before merging it. Don't make the `main` branch rule require
+status checks: `update.yml` pushes the updates outside `REVIEW` straight to
+`main` with `GITHUB_TOKEN`, which such a rule rejects and can't exempt.
 
 ## Commits
 
