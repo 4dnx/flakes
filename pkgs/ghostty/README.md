@@ -24,7 +24,9 @@ nixpkgs' `ghostty` or upstream's flake, `github:ghostty-org/ghostty`.
 - **Auto-update.** The built-in updater (Sparkle) still checks its channel.
   It can't replace the read-only store copy or nix-darwin's root-owned copy in
   `/Applications/Nix Apps`, but it can replace Home Manager's writable copy in
-  `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`). Turn it off
+  `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`), unless
+  `homeManagerModules.read-only-apps` keeps it read-only (see the
+  [top-level README](../../README.md#updates)). Turn it off
   in the Ghostty config, e.g. with Home Manager:
 
   ```nix

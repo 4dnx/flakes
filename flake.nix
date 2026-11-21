@@ -217,6 +217,7 @@
                 kiri.enable = true;
                 whatsapp.enable = true;
               };
+              targets.darwin.copyApps.readOnly = true;
             })
           ];
         };
@@ -235,7 +236,11 @@
 
       darwinModules = modulesFrom "module.nix" // modulesFrom "darwin-module.nix";
       nixosModules = modulesFrom "module.nix" // modulesFrom "nixos-module.nix";
-      homeManagerModules = modulesFrom "home-module.nix";
+      # Home Manager modules of the packages, and read-only-apps
+      # (modules/read-only-apps.nix), which belongs to no one package.
+      homeManagerModules = modulesFrom "home-module.nix" // {
+        read-only-apps = import ./modules/read-only-apps.nix;
+      };
 
       # Every package but the rolling and heavy ones, every .nix file
       # formatted with `nix fmt`, and on Linux the scripts and workflows

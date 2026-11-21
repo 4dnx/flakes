@@ -45,7 +45,9 @@ downloads and updates the Claude Code binary it runs. Its updater can't
 replace the read-only store copy or nix-darwin's root-owned, read-only copy in
 `/Applications/Nix Apps`, but it still checks for and downloads updates; Home
 Manager's writable copy in `~/Applications/Home Manager Apps`
-(`targets.darwin.copyApps`) it could replace. Updates belong to this flake
+(`targets.darwin.copyApps`) it could replace, unless
+`homeManagerModules.read-only-apps` keeps it read-only (see the
+[top-level README](../../README.md#updates)). Updates belong to this flake
 (`nix flake update xr3t`).
 
 Upstream's documented switch is `disableAutoUpdates` in the

@@ -70,7 +70,8 @@ On macOS, Helium updates itself with Sparkle, from updates.helium.computer.
 Sparkle can't replace the bundle in the read-only Nix store or nix-darwin's
 root-owned copy in `/Applications/Nix Apps`, but it can replace Home Manager's
 writable copy in `~/Applications/Home Manager Apps`
-(`targets.darwin.copyApps`). Its update check is a
+(`targets.darwin.copyApps`), unless `homeManagerModules.read-only-apps` keeps
+it read-only (see the [top-level README](../../README.md#updates)). Its update check is a
 per-profile setting, on by default: the updates toggle on the Helium services
 page of the privacy settings (`helium.services.browser_updates` in
 `~/Library/Application Support/net.imput.helium/<profile>/Preferences`).

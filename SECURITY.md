@@ -91,7 +91,10 @@ fixes; there are no release branches.
   that refuses the update command. Update checks
   and telemetry are only defaults, which the user's own config can set back; each
   package's README says what is off and how. An updater built into a signed
-  app bundle can only be turned off in the app.
+  app bundle can only be turned off in the app. On macOS,
+  `homeManagerModules.read-only-apps` keeps Home Manager's copies of the apps
+  read-only between activations, so an updater running as the user can't
+  replace them without an administrator's password.
 - **Binary cache.** CI pushes only the closures of `hermes-agent` and `llama`, built from
   `main`, to `ret.cachix.org`; builds of pull requests and `update/<name>` branches
   never reach it. Trusting that cache means trusting this repository's CI.

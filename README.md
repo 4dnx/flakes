@@ -152,7 +152,8 @@ Differences from NixOS:
 - `darwinModules.<name>`, `nixosModules.<name>`: system services (launchd
   daemons, systemd units), for the packages that have one
 - `homeManagerModules.<name>`: per-user settings and services, for the
-  packages that have them
+  packages that have them, and `read-only-apps`, which keeps Home Manager's
+  copies of macOS apps read-only (see "Updates")
 - `checks.<system>`: the flake's own tests: every package built (but the
   rolling `ghostty-tip` and the heavy Office apps, which their own workflows
   build), every `.nix` file formatted, and the modules evaluated
@@ -178,6 +179,31 @@ writable directories owned by the user: an updater can replace such a copy,
 and the next activation copies the pinned version back. The package READMEs
 name each app's updater and what turns it off; where nothing does, the
 nix-darwin copy is out of reach of an updater that runs as the user.
+
+`homeManagerModules.read-only-apps` keeps Home Manager's copies read-only
+instead, for every app Home Manager copies, from this flake or not:
+
+```nix
+imports = [ xr3t.homeManagerModules.read-only-apps ];
+targets.darwin.copyApps.readOnly = true;
+```
+
+Each activation makes `~/Applications/Home Manager Apps` and everything in it
+writable before Home Manager's App Management check and copy, which write
+into the bundles, and read-only (`chmod -R a-w`) after the copy. An updater
+running as the user then can't replace a copy, write into it or stage a new
+one beside it without first changing its permissions back. Sparkle and
+Google's updater may ask for an administrator's password instead; given it,
+they can replace the copy as root. The unlock also runs while the option is
+false, so turning it off leaves no copy that Home Manager can't replace;
+with the module dropped from the imports, nothing unlocks the folder, so
+make it writable before switching:
+
+```sh
+chmod -R u+w ~/Applications/Home\ Manager\ Apps
+```
+
+The `whatsapp` module keeps only its own copy read-only the same way.
 
 App updaters can also be cut off the network with Little Snitch:
 [firewall/](firewall/README.md) holds a rule group to subscribe to, matched by
