@@ -37,13 +37,13 @@ Or with the Home Manager module, which also keeps its update check off:
 |---|---|---|
 | `programs.muxin.enable` | `false` | Install Muxin |
 | `programs.muxin.package` | this flake's `muxin` | |
-| `programs.muxin.checkUpdates` | `false` | `false` adds `check_updates = false` to `[settings]` in `config.toml` while the key is absent; after that Muxin's own setting decides. `true` leaves upstream's default (on). |
+| `programs.muxin.checkUpdates` | `false` | `false` sets `check_updates = false` in `[settings]` of `config.toml` on every activation, so the in-app setting stays on only until the next one. `true` leaves the setting to Muxin (on by upstream's default). |
 
 ## Updates and telemetry
 
 Muxin doesn't update itself: it asks GitHub for its latest release at launch
-and twice a day, and shows it with a link. That check is off by default with
-the module (above); without it, turn it off in Settings › General › Updates,
+and twice a day, and shows it with a link. That check is off with the module
+(above), on every activation; without it, turn it off in Settings › General › Updates,
 or with `check_updates = false` under `[settings]` in
 `~/.config/muxin/config.toml` (`$XDG_CONFIG_HOME/muxin`, or `$MUXIN_HOME`).
 New releases come through this flake.

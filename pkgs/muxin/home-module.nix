@@ -6,17 +6,16 @@ self:
   ...
 }:
 
-# Installs Muxin and keeps its update check off by default: Nix's default,
-# not a lock. Muxin keeps its settings in config.toml ([settings]
-# check_updates, Settings › General › Updates in the app); this only adds
-# `check_updates = false` there while the key is absent, so whatever the user
-# sets afterwards stays.
+# Installs Muxin and keeps its update check off, as updates come through
+# Nix. Muxin keeps its settings in config.toml ([settings] check_updates,
+# Settings › General › Updates in the app); every activation sets
+# `check_updates = false` there, and checkUpdates hands it back to the app.
 let
   cfg = config.programs.muxin;
   # Muxin's own default: $XDG_CONFIG_HOME/muxin, else ~/.config/muxin.
   dir = "${config.xdg.configHome}/muxin";
   python = pkgs.python3.withPackages (ps: [ ps.tomlkit ]);
-  # Adds the key to [settings], keeping the rest of the file (comments
+  # Sets the key in [settings], keeping the rest of the file (comments
   # included) as Muxin wrote it, and its mode.
   addDefault = pkgs.writeText "muxin-check-updates.py" ''
     import os, sys, tomlkit
@@ -24,7 +23,7 @@ let
     with open(path) as f:
         doc = tomlkit.parse(f.read())
     settings = doc.get("settings")
-    if settings is not None and "check_updates" in settings:
+    if settings is not None and settings.get("check_updates") is False:
         sys.exit(0)
     if settings is None:
         settings = tomlkit.table()
@@ -51,11 +50,11 @@ in
       default = false;
       description = ''
         Let Muxin ask GitHub for a newer release (at launch and twice a day)
-        and show it; it never installs one itself. false, the default, adds
-        `check_updates = false` to config.toml's [settings] while the key is
-        absent, as updates come through Nix. Once it's there, Muxin's own
-        setting (Settings › General › Updates) decides. true leaves upstream's
-        default, on.
+        and show it; it never installs one itself. false, the default, sets
+        `check_updates = false` in config.toml's [settings] on every
+        activation, as updates come through Nix, so Settings › General ›
+        Updates stays on only until then. true leaves the setting to Muxin,
+        on by upstream's default.
       '';
     };
   };

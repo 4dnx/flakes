@@ -44,6 +44,18 @@ in
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.kiri;
       description = "Kiri package to install.";
     };
+    checkUpdates = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Let Kiri check its feed for a newer app (when its window opens and
+        every 6 hours) and offer to install it. false, the default, sets
+        `updateAuto` to false in `~/.kiri/ui.json` on every activation, as
+        updates come through Nix, so Settings › "Check for updates
+        automatically" stays on only until then. true leaves the setting to
+        Kiri, on by upstream's default.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -64,18 +76,21 @@ in
         fish_add_path --append $HOME/.kiri/bin
       '';
     };
-    # Turn Settings › "Check for updates automatically" off, by its key in
-    # the window's settings file, only while that file doesn't set it: the
-    # user's choice wins. Only in a file the app has made: the app takes a
-    # missing file for its first start (language and welcome steps).
-    home.activation.kiriUpdateCheck = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      kiri_ui="$HOME/.kiri/ui.json"
-      if [ -f "$kiri_ui" ] &&
-        ${lib.getExe pkgs.jq} -e 'type == "object" and (has("updateAuto") | not)' "$kiri_ui" >/dev/null 2>&1; then
-        kiri_tmp="$(mktemp "$kiri_ui.XXXXXX")"
-        ${lib.getExe pkgs.jq} -c '. + {updateAuto: false}' "$kiri_ui" >"$kiri_tmp" &&
-          run mv "$kiri_tmp" "$kiri_ui" || rm -f "$kiri_tmp"
-      fi
-    '';
+    # Turn Settings › "Check for updates automatically" off on every
+    # activation, by its key in the window's settings file, as updates come
+    # through Nix; checkUpdates leaves it to the app. Only in a file the app
+    # has made: the app takes a missing file for its first start (language
+    # and welcome steps).
+    home.activation.kiriUpdateCheck = lib.mkIf (!cfg.checkUpdates) (
+      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        kiri_ui="$HOME/.kiri/ui.json"
+        if [ -f "$kiri_ui" ] &&
+          ${lib.getExe pkgs.jq} -e 'type == "object" and .updateAuto != false' "$kiri_ui" >/dev/null 2>&1; then
+          kiri_tmp="$(mktemp "$kiri_ui.XXXXXX")"
+          ${lib.getExe pkgs.jq} -c '. + {updateAuto: false}' "$kiri_ui" >"$kiri_tmp" &&
+            run mv "$kiri_tmp" "$kiri_ui" || rm -f "$kiri_tmp"
+        fi
+      ''
+    );
   };
 }

@@ -36,7 +36,7 @@ build every macOS check (`ci/macos-check-plan.sh`).
 | `pkgs/<name>/nixos-module.nix`, `darwin-module.nix` | Same shape as `module.nix`, exported only to `nixosModules` or `darwinModules`. |
 | `pkgs/<name>/home-module.nix` | Same shape, exported as `homeManagerModules.<name>`. |
 | `pkgs/<name>/*.asc` | Optional. An upstream release signing key that `update.sh` checks signatures against (`claude-code`), pinned by fingerprint in the script. |
-| `pkgs/<name>/*.mobileconfig` | Optional. A macOS configuration profile the package ships for the user to approve, for a setting the app reads only from managed preferences (`claude-desktop`). |
+| `pkgs/<name>/*.mobileconfig` | Optional. A macOS configuration profile the package ships for the user to approve, for a setting the app reads only from managed preferences (`claude-desktop`), or that the app would otherwise set back itself (`whatsapp`). |
 | `pkgs/<name>/README.md` | Optional. The package's usage, options and maintenance notes. |
 | `pkgs/README.md` | The package table: each package, what it brings and the systems it runs on, in alphabetical order. The top-level README links to it. |
 | `pkgs/microsoft-office/builder.nix` | The builder the Office app packages (`microsoft-excel`, `microsoft-powerpoint`, `microsoft-word`) share: checks the installer with `verify/office-pkg-signature-check.py`, extracts the app component into `out` and the licensing helper into `licensing`. In the `microsoft-office` package directory, not `ci/`: only the Office apps use it. |
