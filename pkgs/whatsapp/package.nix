@@ -7,12 +7,6 @@
 }:
 let
   sources = lib.importJSON ./hashes.json;
-  # Forces Sparkle's update check and automatic installation off in the app's
-  # domain. WhatsApp sets both back on itself, and only managed preferences,
-  # which macOS fills from a configuration profile, take precedence; installing
-  # one needs the user's approval, so it ships here for them to open (see
-  # README.md).
-  profile = ./disable-auto-updates.mobileconfig;
 in
 stdenvNoCC.mkDerivation {
   pname = "whatsapp";
@@ -33,14 +27,13 @@ stdenvNoCC.mkDerivation {
 
   installPhase = ''
     runHook preInstall
-    mkdir -p "$out/Applications" "$out/bin" "$out/share/whatsapp"
+    mkdir -p "$out/Applications" "$out/bin"
     cp -R "WhatsApp.app" "$out/Applications/"
     cat > "$out/bin/whatsapp" <<SH
     #!/bin/sh
     exec "$out/Applications/WhatsApp.app/Contents/MacOS/WhatsApp" "\$@"
     SH
     chmod +x "$out/bin/whatsapp"
-    cp ${profile} "$out/share/whatsapp/disable-auto-updates.mobileconfig"
     runHook postInstall
   '';
 

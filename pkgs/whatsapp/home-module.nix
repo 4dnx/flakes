@@ -15,10 +15,9 @@ in
 {
   imports = [
     (lib.mkRemovedOptionModule [ "programs" "whatsapp" "checkUpdates" ] ''
-      WhatsApp is sandboxed and reads its preferences from its container, not
-      from the defaults domain the option wrote, and it starts update checks
-      itself. Its configuration profile keeps automatic installation off; see
-      the whatsapp package README.
+      WhatsApp checks for updates on every launch whatever its Sparkle
+      preferences say, so no option can turn the check off; see the
+      whatsapp package README.
     '')
   ];
 
@@ -34,6 +33,15 @@ in
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
       home.packages = [ cfg.package ];
+      # Sparkle's system-profile report is telemetry, a default the user can set
+      # back: written only while absent. The update check and automatic
+      # installation keys are left alone: WhatsApp sets both itself when it
+      # starts (see README.md).
+      home.activation.whatsappSparkleDefaults = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        if ! /usr/bin/defaults read net.whatsapp.WhatsApp SUSendProfileInfo >/dev/null 2>&1; then
+          run /usr/bin/defaults write net.whatsapp.WhatsApp SUSendProfileInfo -bool false
+        fi
+      '';
     })
 
     # Sparkle replaces the bundle it runs from, and copyApps leaves its copy

@@ -68,9 +68,11 @@ the store copy, a root daemon could write into the store, and on macOS an
 app's updater can replace Home Manager's writable copy of the app
 (`targets.darwin.copyApps`, see "Updates" in `README.md`). Don't call an
 app's updater harmless because the store is read-only: say which installs it
-can replace. Where the app turns its own switch back on while it runs, and
-managed preferences can hold it, ship a configuration profile
-(`pkgs/<name>/*.mobileconfig`).
+can replace. Where an app reads its switch only from managed preferences,
+ship a configuration profile (`pkgs/<name>/*.mobileconfig`). Where no
+setting holds it (an app that starts its own checks whatever its settings
+say), say so in the package README instead of claiming it is off; a rule in
+`firewall/` can cut the update host off if the app works without it.
 
 Telemetry is a default the user can set back: the user's Nix config or the
 program's own config wins. So apply it only while that config doesn't set it
@@ -115,9 +117,9 @@ the step that needs them, never at job level, and default to
 
 The update workflow opens pull requests for the packages in `REVIEW`, which
 needs Settings → Actions → General → "Allow GitHub Actions to create and
-approve pull requests" on the repository; `check.yml` enqueues the tested
-head. Configure the `main` branch rule to require the merge queue and the
-`Validate all systems` status check.
+approve pull requests" on the repository; `check.yml` merges them once every
+system passes. GitHub's merge queue isn't available to a repository owned by
+a user account, so the `merge` job merges directly.
 
 ## Commits
 
