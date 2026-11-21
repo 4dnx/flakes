@@ -70,9 +70,15 @@ stdenvNoCC.mkDerivation {
   + (
     if isDarwin then
       ''
-        mkdir -p "$out/Applications"
+        mkdir -p "$out/Applications" "$out/libexec"
         cp -R "$(find . -maxdepth 2 -type d -name Zed.app -print -quit)" "$out/Applications/"
-        makeWrapper "$out/Applications/Zed.app/Contents/MacOS/cli" "$out/bin/zed" \
+        # The CLI opens the Zed.app it sits in: run it from the installed copy.
+        ${import ../../lib/app-copy-launcher.nix {
+          bundle = "Zed.app";
+          executable = "Contents/MacOS/cli";
+          launcher = "$out/libexec/zed-cli";
+        }}
+        makeWrapper "$out/libexec/zed-cli" "$out/bin/zed" \
           --set ZED_UPDATE_EXPLANATION ${lib.escapeShellArg updateMessage}
       ''
     else

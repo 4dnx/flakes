@@ -100,7 +100,10 @@ fixes; there are no release branches.
   app bundle can only be turned off in the app. On macOS,
   `homeManagerModules.read-only-apps` keeps Home Manager's copies of the apps
   read-only between activations, so an updater running as the user can't
-  replace them without an administrator's password.
+  replace them without an administrator's password. The `anoa` and `zed`
+  commands run their bundle's executable from such a copy only when the copy's
+  executable, `Info.plist` and `CodeResources` are byte for byte the store's;
+  otherwise from the store.
 - **Binary cache.** CI pushes only the closures of the packages in
   `ci/cached-packages.sh` (`hermes-agent` and `llama`), built from `main`, to
   `ret.cachix.org`, and only those it doesn't hold yet; builds of pull requests
