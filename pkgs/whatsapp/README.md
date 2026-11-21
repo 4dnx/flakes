@@ -33,11 +33,11 @@ upstream has released one this flake hasn't picked up yet; it stays quiet
 while the pinned version is the newest.
 
 The updater cannot replace the read-only Nix store bundle or nix-darwin's
-root-owned copy in `/Applications/Nix Apps`, but it can replace Home
-Manager's writable copy in `~/Applications/Home Manager Apps`
-(`targets.darwin.copyApps`). Install it with nix-darwin
-(`environment.systemPackages`) to keep it out of the updater's reach, or
-decline the update. Only the network can stop the check: a firewall rule
+root-owned copy in `/Applications/Nix Apps`. Home Manager copies the app into
+`~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) writable by
+the user; the Home Manager module below makes that copy read-only. Without
+the module, install it with nix-darwin (`environment.systemPackages`) to keep
+it out of the updater's reach, or decline the update. Only the network can stop the check: a firewall rule
 that denies the app `web.whatsapp.com` (WhatsApp Web in a browser is a
 different process and isn't affected).
 
@@ -47,6 +47,21 @@ false only while it is absent:
 ```nix
 imports = [ inputs.xr3t.homeManagerModules.whatsapp ];
 programs.whatsapp.enable = true;
+```
+
+With `targets.darwin.copyApps` on, the module also makes Home Manager's copy,
+`~/Applications/Home Manager Apps/WhatsApp.app`, read-only (`chmod -R a-w`)
+after every copy, so an updater running as the user can't write to, delete or
+move the bundle without first changing its permissions back. Activation makes
+the copy writable again just before Home Manager's App Management check and
+copy, which write into it, and then locks the new copy; it does that while
+`programs.whatsapp.enable` is false too, so the copy can be removed. With the
+module dropped from the imports, nothing unlocks the copy and Home Manager's
+copy fails to delete it (`cannot delete non-empty directory`); make it
+writable before switching:
+
+```sh
+chmod -R u+w ~/Applications/Home\ Manager\ Apps/WhatsApp.app
 ```
 
 `SUSendProfileInfo` controls Sparkle's optional system profile only. No
