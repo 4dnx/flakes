@@ -43,5 +43,5 @@ see [the top-level README](../README.md).
 | [tailscale](tailscale) | Tailscale CLI and node agent (`tailscale`, `tailscaled`, no GUI) from upstream's static build, for NixOS' `services.tailscale`; log upload off by default, no self-update; Linux only, no compilation |
 | [telegram](telegram) | Native Telegram for macOS from its official app bundle (not Telegram Desktop); Apple Silicon, no compilation |
 | [utm](utm) | UTM virtual machine host for macOS from the upstream release dmg, no compilation |
-| [whatsapp](whatsapp) | Native WhatsApp for macOS from its official app bundle (unfree), with a Home Manager module and a configuration profile that keep its update check and automatic installation off; Apple Silicon, no compilation |
+| [whatsapp](whatsapp) | Native WhatsApp for macOS from its official app bundle (unfree), with a Home Manager module; its built-in updater checks on every launch whatever its settings say (see its README); Apple Silicon, no compilation |
 | [zed](zed) | Zed editor from official native releases; Apple Silicon macOS and Linux x86_64/ARM64, with a Home Manager module for update and telemetry defaults; no compilation |

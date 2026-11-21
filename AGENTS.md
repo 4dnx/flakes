@@ -68,9 +68,11 @@ the store copy, a root daemon could write into the store, and on macOS an
 app's updater can replace Home Manager's writable copy of the app
 (`targets.darwin.copyApps`, see "Updates" in `README.md`). Don't call an
 app's updater harmless because the store is read-only: say which installs it
-can replace. Where the app turns its own switch back on while it runs, and
-managed preferences can hold it, ship a configuration profile
-(`pkgs/<name>/*.mobileconfig`).
+can replace. Where an app reads its switch only from managed preferences,
+ship a configuration profile (`pkgs/<name>/*.mobileconfig`). Where no
+setting holds it (an app that starts its own checks whatever its settings
+say), say so in the package README instead of claiming it is off; a rule in
+`firewall/` can cut the update host off if the app works without it.
 
 Telemetry is a default the user can set back: the user's Nix config or the
 program's own config wins. So apply it only while that config doesn't set it
