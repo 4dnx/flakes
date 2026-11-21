@@ -72,8 +72,9 @@ and settings with the app in `environment.systemPackages`, set
 `pkgs.emptyDirectory`.
 
 The Home Manager module turns **Settings › Check for updates automatically**
-off, through its key (`updateAuto`) in `~/.kiri/ui.json`, only while that file
-doesn't set it, so turning it back on in Settings sticks. It writes the key
+off, through its key (`updateAuto`) in `~/.kiri/ui.json`, on every
+activation, so turning it back on in Settings lasts until the next one;
+`programs.kiri.checkUpdates = true` leaves it to Kiri. It writes the key
 only into a file the app has made: Kiri takes a missing file for its first
 start. So the check stays on until the first activation after Kiri is first
 opened. This is the app's own setting, not a documented redistribution switch;

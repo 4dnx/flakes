@@ -35,7 +35,7 @@ Or with the Home Manager module, which also keeps its update check off:
 |---|---|---|
 | `programs.helium.enable` | `false` | Install Helium |
 | `programs.helium.package` | this flake's `helium` | |
-| `programs.helium.checkUpdates` | `false` | `false` sets `helium.services.browser_updates` to `false` in each profile's `Preferences` while the key is absent; after that Helium's own toggle decides. `true` leaves upstream's default (on). |
+| `programs.helium.checkUpdates` | `false` | `false` sets `helium.services.browser_updates` to `false` in each profile's `Preferences` on every activation, so the toggle stays on only until the next one. `true` leaves the toggle to Helium (on by upstream's default). |
 
 ## Ubuntu
 
@@ -76,8 +76,10 @@ page of the privacy settings (`helium.services.browser_updates` in
 `~/Library/Application Support/net.imput.helium/<profile>/Preferences`).
 Helium checks while any profile has it on.
 
-The module turns it off in every profile that hasn't set it yet, including
-the default profile before the first launch. Helium rewrites its profiles
+The module turns it off in every profile on every activation, including the
+default profile before the first launch, so turning the toggle back on lasts
+until the next one; `programs.helium.checkUpdates = true` leaves it to
+Helium. Helium rewrites its profiles
 when it quits, so they are only changed while it isn't running; a profile
 created later is covered at the next activation. Without the module, turn the
 toggle off in each profile. New releases come through this flake.

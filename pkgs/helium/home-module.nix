@@ -6,12 +6,12 @@ self:
   ...
 }:
 
-# Installs Helium and keeps its update check off by default: Nix's default,
-# not a lock. Helium keeps the switch per profile, in each profile's
-# Preferences (helium.services.browser_updates, the updates toggle on the
-# Helium services page of its privacy settings), and checks for updates while
-# any profile has it on. This only adds `false` to profiles that don't have
-# the key yet, so whatever the user sets afterwards stays. Only on macOS:
+# Installs Helium and keeps its update check off, as updates come through
+# Nix. Helium keeps the switch per profile, in each profile's Preferences
+# (helium.services.browser_updates, the updates toggle on the Helium services
+# page of its privacy settings), and checks for updates while any profile has
+# it on. Every activation sets it to false in every profile; checkUpdates
+# hands it back to the toggle. Only on macOS:
 # Helium's Linux build has no update check (upstream builds it for macOS and
 # Windows only), so on Linux the module just installs it.
 let
@@ -57,7 +57,7 @@ let
         except (OSError, ValueError):
             continue
         services = prefs.setdefault("helium", {}).setdefault("services", {})
-        if "browser_updates" in services:
+        if services.get("browser_updates") is False:
             continue
         services["browser_updates"] = False
         write(path, prefs, os.stat(path).st_mode & 0o777)
@@ -79,11 +79,11 @@ in
         Let Helium check updates.helium.computer for a newer release (macOS;
         the Linux build has no update check). It can't install one into the
         Nix store. false, the default, sets
-        `helium.services.browser_updates` to false in each profile that
-        doesn't have it yet, as updates come through Nix; once it's there,
-        Helium's own toggle decides. Profiles are only changed while Helium
-        isn't running, since it rewrites them on exit. true leaves upstream's
-        default, on.
+        `helium.services.browser_updates` to false in every profile on every
+        activation, as updates come through Nix, so the toggle in Helium
+        stays on only until then. Profiles are only changed while Helium
+        isn't running, since it rewrites them on exit. true leaves the
+        toggle to Helium, on by upstream's default.
       '';
     };
   };
