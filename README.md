@@ -166,7 +166,7 @@ Packages follow upstream automatically: a workflow checks for new releases
 twice a day and commits them to `main`, and the pinned nixpkgs is bumped
 weekly. Pick them up with `nix flake update xr3t`. Updates of root daemons,
 network filters and agents, and of nixpkgs, go through a pull request that is
-merged through the GitHub merge queue after its candidate passes the platform checks; see [SECURITY.md](SECURITY.md) for what is checked.
+merged once it builds on every system; see [SECURITY.md](SECURITY.md) for what is checked.
 
 On macOS an app's own updater replaces its bundle in place, so where the
 bundle lives decides whether it can. The Nix store is read-only, and
