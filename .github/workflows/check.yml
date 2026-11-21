@@ -1,8 +1,9 @@
 name: Check
 
 on:
-  push:
-    branches: [main]
+  # main gets no run of its own: a pull request is checked at its head
+  # (below), which is the tree that lands once it contains main (the branch
+  # rule on main requires that), and cache.yml pushes the cached packages.
   pull_request:
   workflow_dispatch:
 
@@ -15,107 +16,84 @@ permissions:
   contents: read
 
 jobs:
-  # Which macOS checks to build, worked out on Linux: a macOS runner takes
-  # longer to get and to set up, and a change that leaves the macOS
-  # derivations alone needs none. Compares with a successful push or
-  # dispatch run of an ancestor (of main, or of a PR's base branch); not a
-  # pull_request run, which built a merge commit rather than its head.
-  # No trustworthy baseline means building all macOS checks.
+  # Which checks each system builds, worked out on Linux: those whose
+  # derivation differs from a successful run of an ancestor (ci/check-plan.sh),
+  # so a system the change leaves alone starts no runner, and a macOS runner,
+  # which takes longer to get and to set up, starts only for macOS changes.
+  # No trustworthy baseline means building every check. Also evaluates every
+  # package and checks the formatting.
   plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     permissions:
       contents: read
       # To list the successful Check runs.
       actions: read
     outputs:
-      checks: ${{ steps.plan.outputs.checks }}
+      matrix: ${{ steps.plan.outputs.matrix }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # The base branch too, to compare against.
+          # A pull request's head, not GitHub's merge commit with its base:
+          # the commit the run reports, so a later plan can take it as its
+          # baseline.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          # The history, to find the baseline among the ancestors.
           fetch-depth: 0
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      - name: Plan macOS checks
+      - name: Plan the checks of each system
         id: plan
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          BASE: origin/${{ github.base_ref || 'main' }}
-        run: ci/macos-check-plan.sh
+        run: ci/check-plan.sh
 
-  linux:
-    name: check (${{ matrix.os }})
+  # One runner per system with checks to build, building just those. No store
+  # cache between runs: most packages here are upstream's binaries, and
+  # restoring and saving a store took longer than fetching what a few
+  # changed checks need. Linux pulls the packages that compile for minutes
+  # from ret.cachix.org (ci/cached-packages.sh), which holds nothing for
+  # macOS.
+  build:
+    name: check (${{ matrix.system }})
+    needs: plan
+    if: needs.plan.outputs.matrix != '[]'
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.os }}
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
-    env:
-      # Only whether the secret is set; the token itself goes to the push step.
-      HAS_CACHIX: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
       # Pull from ret.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        if: runner.os == 'Linux'
         with:
           name: ret
           skipPush: true
-      # Each runner evaluates and builds its own system only. Not --no-build:
-      # its read-only store breaks filtered sources read during evaluation
-      # (hermes-agent's uv.lock). --keep-going reports every failing package,
-      # not just the first.
-      - name: Evaluate and build this runner's system
-        run: nix flake check --keep-going -L
-      # Only the runtime closures of the packages that compile for minutes
-      # (hermes-agent, x86_64 only, and llama), and only from main: builds of
-      # pull requests and update/<name> branches never reach the cache. Paths
-      # already on cache.nixos.org are skipped.
-      - name: Push hermes-agent and llama to Cachix
-        if: env.HAS_CACHIX == 'true' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        env:
-          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: |
-          packages=(.#llama)
-          [ "$RUNNER_ARCH" != X64 ] || packages+=(.#hermes-agent)
-          nix build "${packages[@]}" --no-link --print-out-paths | cachix push ret
-
-  # Only the checks the plan found to differ from its baseline, and no runner
-  # at all without any. No store cache between runs: the packages here are
-  # upstream's binaries, and restoring and saving a store took longer than
-  # fetching what a few changed checks need. ret.cachix.org holds nothing for
-  # macOS.
-  macos:
-    name: check (macos-latest)
-    needs: plan
-    if: needs.plan.outputs.checks != ''
-    runs-on: macos-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # --keep-going reports every failing check, not just the first.
       - name: Build the checks that differ from the baseline
         env:
-          CHECKS: ${{ needs.plan.outputs.checks }}
+          SYSTEM: ${{ matrix.system }}
+          CHECKS: ${{ matrix.checks }}
         run: |
           installables=()
           for check in $CHECKS; do
-            installables+=(".#checks.aarch64-darwin.\"$check\"")
+            installables+=(".#checks.$SYSTEM.\"$check\"")
           done
           nix build --no-link --keep-going -L "${installables[@]}"
 
   # One status for every system, for the merge job below and for a branch
-  # rule to require.
+  # rule to require (with branches up to date before merging).
   validated:
     name: Validate all systems
-    needs: [plan, linux, macos]
+    needs: [plan, build]
     if: always()
     timeout-minutes: 5
     runs-on: ubuntu-latest
@@ -123,21 +101,20 @@ jobs:
       - name: Check build results
         env:
           PLAN: ${{ needs.plan.result }}
-          LINUX: ${{ needs.linux.result }}
-          MACOS: ${{ needs.macos.result }}
-          CHECKS: ${{ needs.plan.outputs.checks }}
+          BUILD: ${{ needs.build.result }}
+          MATRIX: ${{ needs.plan.outputs.matrix }}
         run: |
-          [[ "$PLAN" == success && "$LINUX" == success ]]
-          [[ "$MACOS" == success || ( "$MACOS" == skipped && -z "$CHECKS" ) ]]
+          [[ "$PLAN" == success ]]
+          [[ "$BUILD" == success || ( "$BUILD" == skipped && "$MATRIX" == "[]" ) ]]
 
   # An update/<name> branch that update.yml proposed and every system above
-  # built (macOS may be skipped, but only when the plan found nothing for it
-  # to build): merge its pull request, unless the branch moved on since this
-  # run started. Only a dispatch from update.yml (or someone with write
-  # access) runs this, never a pull_request event. GitHub's merge queue is
-  # not available to repositories owned by a user account, so this merges
-  # directly. This token's merge starts no workflow, so check.yml is started
-  # on main for its Cachix push.
+  # built (a system may be skipped, but only when the plan found nothing for
+  # it to build): merge its pull request (ci/merge-update.sh), unless the
+  # branch moved on since this run started, or rebase it onto main and check
+  # it again when main has moved past it. Only a dispatch from update.yml (or
+  # someone with write access) runs this, never a pull_request event.
+  # GitHub's merge queue is not available to repositories owned by a user
+  # account, so this merges directly.
   merge:
     needs: validated
     if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/update/')
@@ -146,8 +123,15 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      # To start cache.yml, or this workflow again after a rebase: merges and
+      # pushes with this token start no workflow themselves.
       actions: write
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          # The script pushes through gh's credential helper with GH_TOKEN.
+          persist-credentials: false
       # The token goes only to this step, as the secrets above do.
       - name: Merge the update's pull request
         env:
@@ -155,21 +139,4 @@ jobs:
           GH_REPO: ${{ github.repository }}
           BRANCH: ${{ github.ref_name }}
           SHA: ${{ github.sha }}
-        # The branch is deleted through the API: gh pr merge --delete-branch
-        # also looks for a local checkout, which this job has none of.
-        # pull_request runs still waiting for approval at this commit are
-        # deleted first (ci/update-all.sh deletes those it sees): merging
-        # would fail them as expired, and GitHub would mail the failure.
-        run: |
-          pr=$(gh pr view "$BRANCH" --json state,baseRefName,isCrossRepository)
-          if ! jq -e '.state == "OPEN" and .baseRefName == "main" and (.isCrossRepository == false)' <<<"$pr" >/dev/null; then
-            echo "No open update targeting main"
-            exit 0
-          fi
-          for id in $(gh api "repos/$GH_REPO/actions/runs?event=pull_request&head_sha=$SHA&status=action_required" -q '.workflow_runs[].id' || true); do
-            gh api -X DELETE "repos/$GH_REPO/actions/runs/$id" ||
-              echo "::warning::could not delete run $id, which waits for approval"
-          done
-          gh pr merge "$BRANCH" --merge --match-head-commit "$SHA"
-          gh api -X DELETE "repos/$GH_REPO/git/refs/heads/$BRANCH" >/dev/null
-          gh workflow run check.yml --ref main
+        run: ci/merge-update.sh

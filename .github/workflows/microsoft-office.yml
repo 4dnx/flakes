@@ -16,7 +16,7 @@ name: Microsoft Office
 #
 # Pull requests that update.yml opens (update/<name>) get no run: GitHub
 # holds pull_request runs of that token's pull requests for approval, and
-# ci/update-all.sh and check.yml delete them. update.yml's macOS job builds
+# ci/drop-approval-runs.sh and check.yml delete them. update.yml's macOS job builds
 # each bump itself before proposing it.
 
 on:
