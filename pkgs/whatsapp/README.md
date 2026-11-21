@@ -64,6 +64,10 @@ writable before switching:
 chmod -R u+w ~/Applications/Home\ Manager\ Apps/WhatsApp.app
 ```
 
+`homeManagerModules.read-only-apps` does the same for every app Home Manager
+copies and their folder (see the
+[top-level README](../../README.md#updates)); the two work together.
+
 `SUSendProfileInfo` controls Sparkle's optional system profile only. No
 supported application-wide WhatsApp telemetry switch was found in its
 published settings or bundle; this package does not claim to disable the

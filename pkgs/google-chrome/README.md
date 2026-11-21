@@ -17,8 +17,9 @@ read-only Nix store or nix-darwin's root-owned copy in `/Applications/Nix Apps`,
 so updates come from this flake (`nix flake update xr3t`). Chrome may still
 install Google's updater under `~/Library` on first launch and show an update
 notice. Home Manager's writable copy in `~/Applications/Home Manager Apps`
-(`targets.darwin.copyApps`) is within that updater's reach, and nothing in the
-package turns it off: GoogleUpdater reads its `updatePolicies`
+(`targets.darwin.copyApps`) is within that updater's reach unless
+`homeManagerModules.read-only-apps` keeps it read-only (see the
+[top-level README](../../README.md#updates)), and nothing in the package turns the updater off: GoogleUpdater reads its `updatePolicies`
 (`UpdateDefault`) only from managed preferences, and only on a Mac enrolled in
 MDM (`profiles status -type enrollment`). Chrome's **Set Up Automatic Updates
 for All Users** installs a system-wide updater that runs as root and could

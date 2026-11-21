@@ -29,7 +29,9 @@ Its updater cannot replace a bundle in the read-only Nix store or
 nix-darwin's root-owned copy in `/Applications/Nix Apps`, but may still check
 and download updates. Home Manager's writable copy in
 `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) it can replace,
-and nothing turns it off; the nix-darwin copy is out of its reach. Use
+and nothing in the app turns it off. The nix-darwin copy is out of its reach,
+and `homeManagerModules.read-only-apps` keeps Home Manager's copy read-only
+(see the [top-level README](../../README.md#updates)). Use
 `nix flake update xr3t` to update the installed package; avoid using the
 in-app installer.
 

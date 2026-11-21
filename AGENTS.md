@@ -11,8 +11,9 @@ Packages go under `pkgs/`: one package's files in `pkgs/<name>/`, a family's
 shared files in one of its packages. What packages of different families share
 goes in a top-level folder named after what it holds, never under `pkgs/`:
 signature and install checks in `verify/`, Nix functions in `lib/`, the tools
-`update.sh` scripts use in `scripts/`, firewall rules in `firewall/`. `ci/`
-holds the CI and update machinery the workflows run.
+`update.sh` scripts use in `scripts/`, firewall rules in `firewall/`, modules
+that belong to no one package in `modules/`. `ci/` holds the CI and update
+machinery the workflows run.
 
 ## Adding a package
 
@@ -66,7 +67,8 @@ own config holds, and only the Nix config turns an update check back on, with
 a module option (`checkUpdates`). A self-update stays off: it would replace
 the store copy, a root daemon could write into the store, and on macOS an
 app's updater can replace Home Manager's writable copy of the app
-(`targets.darwin.copyApps`, see "Updates" in `README.md`). Don't call an
+(`targets.darwin.copyApps`, see "Updates" in `README.md`; `read-only-apps`
+keeps those copies read-only). Don't call an
 app's updater harmless because the store is read-only: say which installs it
 can replace. Where an app reads its switch only from managed preferences,
 ship a configuration profile (`pkgs/<name>/*.mobileconfig`). Where no
