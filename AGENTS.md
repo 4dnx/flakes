@@ -60,14 +60,21 @@ look for all three in its docs, its config schema and its binary.
    and recheck it on every bump: upstream may drop it.
 3. Last resort for an update command: a guard wrapper that refuses it.
 
-Telemetry and update checks are defaults the user can set back: the user's Nix
-config or the program's own config wins. So apply them only while that config
-doesn't set them (a flag or env var added conditionally), or as a module
-option. A self-update stays off: it would replace the store copy, a root
-daemon could write into the store, and on macOS an app's updater can replace
-Home Manager's writable copy of the app (`targets.darwin.copyApps`, see
-"Updates" in `README.md`). Don't call an app's updater harmless because the
-store is read-only: say which installs it can replace.
+Update checks and self-updates go through Nix only. A module turns them off
+on every activation (or through Nix-managed config), whatever the program's
+own config holds, and only the Nix config turns an update check back on, with
+a module option (`checkUpdates`). A self-update stays off: it would replace
+the store copy, a root daemon could write into the store, and on macOS an
+app's updater can replace Home Manager's writable copy of the app
+(`targets.darwin.copyApps`, see "Updates" in `README.md`). Don't call an
+app's updater harmless because the store is read-only: say which installs it
+can replace. Where the app turns its own switch back on while it runs, and
+managed preferences can hold it, ship a configuration profile
+(`pkgs/<name>/*.mobileconfig`).
+
+Telemetry is a default the user can set back: the user's Nix config or the
+program's own config wins. So apply it only while that config doesn't set it
+(a flag or env var added conditionally), or as a module option.
 
 In the package README, say what is off, how, and how to turn it back on. Where
 nothing in the package can turn it off (an updater inside a signed app
