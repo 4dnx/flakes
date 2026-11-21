@@ -69,8 +69,7 @@ version back. `homeManagerModules.read-only-apps` keeps that copy read-only
 (see the [top-level README](../../README.md#updates)). Updates come through this flake (`nix flake update xr3t`). The
 module installs the package with Home Manager; to keep its shell integration
 and settings with the app in `environment.systemPackages`, set
-`programs.kiri.package` to a package without the app, such as
-`pkgs.emptyDirectory`.
+`programs.kiri.package = null`.
 
 The Home Manager module turns **Settings › Check for updates automatically**
 off, through its key (`updateAuto`) in `~/.kiri/ui.json`, on every

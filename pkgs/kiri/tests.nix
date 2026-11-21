@@ -58,9 +58,18 @@ let
       defaults.home.file."./.zshrc".source
       managed.xdg.configFile."fish/conf.d/kiri.fish".source
     ];
+  # Kiri installed elsewhere: no package, the same shell integration.
+  noPackage =
+    (mkHome {
+      programs.kiri.package = null;
+      programs.bash.enable = true;
+    }).config;
+  isKiri = p: (p.pname or "") == "kiri";
   pathSnippet = pkgs.writeText "kiri-path-test" managed.programs.zsh.profileExtra;
 in
 assert !(disabled.xdg.configFile ? "fish/conf.d/kiri.fish");
+assert lib.any isKiri managed.home.packages;
+assert !(lib.any isKiri noPackage.home.packages);
 pkgs.runCommand "kiri-shell-profiles" { } ''
   for profile in ${lib.escapeShellArgs (map toString profiles)}; do
     # Upstream skips writing only when this exact marker is present.
@@ -72,6 +81,8 @@ pkgs.runCommand "kiri-shell-profiles" { } ''
   # Preserve a consumer's custom source as well.
   grep -Fq 'export CUSTOM_LOGIN=preserved' ${custom.home.file.".bash_profile".source}
   grep -Fq ${lib.escapeShellArg marker} ${custom.home.file.".bash_profile".source}
+  # Without a package, the module still marks the profile.
+  grep -Fq ${lib.escapeShellArg marker} ${noPackage.home.file.".bash_profile".source}
   # Disabled Kiri must leave bash's profile unchanged.
   if grep -Fq ${lib.escapeShellArg marker} ${disabled.home.file.".bash_profile".source}; then
     exit 1

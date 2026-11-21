@@ -40,9 +40,13 @@ in
   options.programs.kiri = {
     enable = lib.mkEnableOption "Kiri, the container runtime";
     package = lib.mkOption {
-      type = lib.types.package;
+      type = lib.types.nullOr lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.kiri;
-      description = "Kiri package to install.";
+      description = ''
+        Kiri package to install. null installs nothing and keeps the shell
+        integration and update setting, for a Kiri installed elsewhere, such
+        as nix-darwin's `environment.systemPackages`.
+      '';
     };
     checkUpdates = lib.mkOption {
       type = lib.types.bool;
@@ -59,7 +63,7 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [ cfg.package ];
+    home.packages = lib.optional (cfg.package != null) cfg.package;
     # First launch writes shell profiles before opening the window. Seed the
     # marker and PATH in managed profiles so setup leaves store files alone.
     programs.zsh = lib.mkIf config.programs.zsh.enable {
