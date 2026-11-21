@@ -60,22 +60,26 @@ fixes; there are no release branches.
   `nix flake check` passes, without review, except for the packages in
   `REVIEW` (root daemons, network filters, agents), whose updates go through
   a pull request that CI merges, also without review, once it builds on Linux
-  x86_64, Linux aarch64 and macOS. The packages in `ON_REQUEST` (the Office
+  x86_64, Linux aarch64 and macOS at a head on top of the latest `main` (a
+  branch that `main` has moved past is rebased onto it and checked again). The packages in `ON_REQUEST` (the Office
   apps, a ~1.4 GB download each) update only when a run names them. The pinned nixpkgs, which every package's
   libraries and tools come from, is bumped weekly the same way, with the
   nix-darwin and Home Manager inputs; those two only evaluate the modules in
   `checks` and are in no package or module. See
   [LAYOUT.md](LAYOUT.md) for how the workflow runs.
-- **macOS checks.** CI evaluates macOS package derivations (on a Linux
-  runner: evaluating builds nothing) and rebuilds, on macOS, those
-  that differ from a successful ancestor Check of the PR base branch or `main`
-  (a push or dispatch run: a `pull_request` run built a merge commit, not
-  the head it reports).
+- **Checks per system.** CI evaluates every system's checks (on a Linux
+  runner: evaluating builds nothing) and rebuilds, on each system's runner,
+  those that differ from the newest successful ancestor Check run of this
+  repository: a pull request's (checked out at its head, so it built the
+  commit it reports), a dispatch's, or an earlier push to `main`'s.
   Unchanged derivations reuse that baseline's validation. Missing baselines
-  and changes to check machinery (`check.yml` and `ci/`) trigger all macOS
-  package checks; a change to a helper in `verify/`, `lib/` or `scripts/` changes the
-  derivations of the packages that read it, so their checks run. Linux
-  continues to run the full flake checks, including formatting. The heavy
+  and changes to check machinery (`check.yml` and `ci/`) trigger every check
+  on every system; a change to a helper in `verify/`, `lib/` or `scripts/`
+  changes the derivations of the packages that read it, so their checks
+  run. Formatting is checked on every run. A pull request is checked at its
+  head, not merged with `main`, so the `main` branch rule must require
+  branches to be up to date before merging for the checked tree to be the
+  one that lands. The heavy
   Office apps are not in the checks: `microsoft-office.yml` builds those a
   pull request changes when it is labeled `build-office` (or on Run
   workflow), and the update workflow builds each bump before it lands. A
@@ -95,20 +99,21 @@ fixes; there are no release branches.
   `homeManagerModules.read-only-apps` keeps Home Manager's copies of the apps
   read-only between activations, so an updater running as the user can't
   replace them without an administrator's password.
-- **Binary cache.** CI pushes only the closures of `hermes-agent` and `llama`, built from
-  `main`, to `ret.cachix.org`; builds of pull requests and `update/<name>` branches
-  never reach it. Trusting that cache means trusting this repository's CI.
+- **Binary cache.** CI pushes only the closures of the packages in
+  `ci/cached-packages.sh` (`hermes-agent` and `llama`), built from `main`, to
+  `ret.cachix.org`, and only those it doesn't hold yet; builds of pull requests
+  and `update/<name>` branches never reach it. Trusting that cache means trusting this repository's CI.
 
 ## CI hardening
 
 - Workflows default to a read-only `GITHUB_TOKEN`; only the update
   workflow's jobs can write, to commit updates and open their pull requests,
   and the check workflow's `merge` job, to merge an `update/<name>` pull
-  request it built. No job keeps the token in its checkout: the update
+  request it built (or rebase it onto `main` and check it again). No job keeps the token in its checkout: the update
   script pushes through `gh`'s credential helper with the token its step
   gets.
 - Secrets and the token reach only the step that uses them (the Cachix push,
-  the update script, the merge), never a whole job.
+  the update script, the merge script), never a whole job.
 - Every job has a time limit.
 - `checks.lint` runs shellcheck over the scripts and actionlint over the
   workflows.

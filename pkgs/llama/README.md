@@ -37,9 +37,9 @@ The tarball has no git history, so `hashes.json` records the build number and
 commit that `llama version` reports; `update.sh` reads them from the
 `v<version>-b<build>-<commit>` tag.
 
-Compiling takes minutes, so CI pushes the `x86_64-linux` and `aarch64-linux`
-builds to `ret.cachix.org` from `main` (see `SECURITY.md`); with that cache
-as a substituter the package is downloaded instead.
+Compiling takes minutes, so CI (`cache.yml`) pushes the `x86_64-linux` and
+`aarch64-linux` builds to `ret.cachix.org` from `main` (see `SECURITY.md`);
+with that cache as a substituter the package is downloaded instead.
 
 ## Updates and telemetry
 

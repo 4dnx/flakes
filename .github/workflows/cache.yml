@@ -1,0 +1,88 @@
+name: Cache
+
+# Pushes the packages that compile for minutes (ci/cached-packages.sh:
+# hermes-agent, x86_64 only, and llama) to ret.cachix.org, as main has
+# them, and only those ret.cachix.org doesn't hold yet: a change that leaves
+# them alone builds nothing. Only from main: builds of pull requests and
+# update/<name> branches never reach the cache. Runs on a push to main (a
+# merged pull request), and is started by update.yml and check.yml's merge
+# job after they land an update, since what they push or merge with their
+# token starts no workflow.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer main replaces an older one's builds.
+concurrency:
+  group: cache
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Evaluation and cache lookups only, for both Linux systems. Without a
+  # Cachix token (a fork) there is nothing to push, so nothing to build.
+  plan:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Only whether the secret is set; the token itself goes to the push step.
+      HAS_CACHIX: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - name: List the cached packages ret.cachix.org lacks
+        id: plan
+        if: env.HAS_CACHIX == 'true'
+        run: ci/cache-plan.sh
+
+  push:
+    name: push (${{ matrix.system }})
+    needs: plan
+    if: needs.plan.outputs.matrix != '' && needs.plan.outputs.matrix != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      # Pull from ret.cachix.org, which is public: no token needed.
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: ret
+          skipPush: true
+      - name: Build the missing packages
+        env:
+          SYSTEM: ${{ matrix.system }}
+          PACKAGES: ${{ matrix.packages }}
+        run: |
+          installables=()
+          for name in $PACKAGES; do
+            installables+=(".#packages.$SYSTEM.\"$name\"")
+          done
+          nix build --no-link -L "${installables[@]}"
+      # Their runtime closures; paths already on cache.nixos.org are skipped.
+      - name: Push them to Cachix
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          SYSTEM: ${{ matrix.system }}
+          PACKAGES: ${{ matrix.packages }}
+        run: |
+          installables=()
+          for name in $PACKAGES; do
+            installables+=(".#packages.$SYSTEM.\"$name\"")
+          done
+          nix build --no-link --print-out-paths "${installables[@]}" | cachix push ret

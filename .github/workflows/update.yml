@@ -42,8 +42,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      # To start check.yml on update/<name>: pushes made with this token
-      # start no workflows, but a dispatch does.
+      # To start check.yml on update/<name>, and cache.yml on main: pushes
+      # made with this token start no workflows, but a dispatch does.
       actions: write
     env:
       # Only whether the secret is set; the token itself goes to the push step.
@@ -71,14 +71,24 @@ jobs:
           UPDATE_SYSTEM: x86_64-linux
         run: ci/update-all.sh
 
-      # Only hermes-agent's and llama's runtime closures, as main now has them;
-      # paths already on cache.nixos.org are skipped. Runs after a failed update
-      # too.
-      - name: Push hermes-agent and llama to Cachix
+      # Only the runtime closures of the packages that compile for minutes
+      # (ci/cached-packages.sh), as main now has them; paths already on
+      # cache.nixos.org are skipped. Runs after a failed update too.
+      - name: Push the cached packages to Cachix
         if: ${{ !cancelled() && env.HAS_CACHIX == 'true' }}
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
-        run: nix build .#hermes-agent .#llama --no-link --print-out-paths | cachix push ret
+        run: |
+          mapfile -t names < <(ci/cached-packages.sh x86_64-linux)
+          nix build --no-link --print-out-paths "${names[@]/#/.#}" | cachix push ret
+      # The other Linux system's builds: this token's push to main starts no
+      # workflow. cache.yml builds only what ret.cachix.org lacks.
+      - name: Start the Cache workflow on main
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run cache.yml --ref main
 
   # The packages that build only on macOS, built there before they land, on
   # top of what the Linux job pushed.

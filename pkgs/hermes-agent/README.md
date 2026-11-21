@@ -194,10 +194,11 @@ Tools for the agent go in `extraPackages`, which leaves the package untouched.
 
 `update.sh` reads the release GitHub marks latest, resolves the annotated
 tag to its commit and writes `{ version, rev, narHash }` to `hashes.json`.
-`update.yml` then builds it on x86_64 Linux, commits
-`Update hermes-agent to vX.Y.Z` and pushes its runtime closure to Cachix; a
-failed build drops the bump and `main` stays on the previous release. CI
-pushes no other package to the cache. Run `update.sh` by hand for a manual bump.
+`update.yml` then builds it on x86_64 Linux and proposes
+`Update hermes-agent to vX.Y.Z` on `update/hermes-agent`, which `check.yml`
+merges once every system passes; `cache.yml` then pushes its runtime closure
+to Cachix. A failed build drops the bump and `main` stays on the previous
+release. Only the packages in `ci/cached-packages.sh` go to the cache. Run `update.sh` by hand for a manual bump.
 
 On a bump, check:
 

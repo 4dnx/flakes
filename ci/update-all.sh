@@ -70,38 +70,19 @@ propose() {
   proposals+=("$branch $commit_sha")
 }
 
-# Deletes the pull_request runs that this token's pushes or pull requests
-# left waiting for approval at the proposed commits ("<branch> <sha>" in
-# $proposals): GitHub starts those only when someone approves them, and fails
-# them once the pull request merges, which mails a failure for every
-# proposed update. The dispatched check.yml runs check and merge instead
-# (and their merge job deletes any left). They can take a moment to appear,
-# so the run waits once, up to a minute, for all proposals together rather
-# than for each. A failure here is only a warning.
+# The proposed commits ("<branch> <sha>"), whose pull_request runs that wait
+# for approval ci/drop-approval-runs.sh deletes at the end: GitHub fails them
+# once the pull request merges, and mails the failure. The dispatched
+# check.yml checks and merges the update instead.
 proposals=()
-drop_approval_runs() {
-  local pending=("${proposals[@]}") left entry ids id try
-  for try in 1 2 3 4 5 6; do
-    [ ${#pending[@]} -gt 0 ] || return 0
-    left=()
-    for entry in "${pending[@]}"; do
-      ids="$(gh api "repos/{owner}/{repo}/actions/runs?event=pull_request&head_sha=${entry#* }&status=action_required" \
-        -q '.workflow_runs[].id' 2>/dev/null)" || ids=""
-      if [ -z "$ids" ]; then left+=("$entry"); continue; fi
-      for id in $ids; do
-        gh api -X DELETE "repos/{owner}/{repo}/actions/runs/$id" >/dev/null ||
-          echo "::warning::${entry% *}: could not delete run $id, which waits for approval"
-      done
-    done
-    pending=("${left[@]}")
-    [ ${#pending[@]} = 0 ] || [ "$try" = 6 ] || sleep 10
-  done
-}
 
-# Whether update/<name> already holds exactly this update.
+# Whether update/<name> already holds exactly this update, on top of main: a
+# branch that main has moved past is proposed again, as check.yml's merge job
+# merges only a head that contains main.
 proposed() {
   git_auth fetch -q origin "update/$1" 2>/dev/null || return 1
-  git diff --quiet FETCH_HEAD -- "$(paths "$1")" &&
+  git merge-base --is-ancestor origin/main FETCH_HEAD &&
+    git diff --quiet FETCH_HEAD -- "$(paths "$1")" &&
     [ -z "$(git ls-files --others --exclude-standard -- "$(paths "$1")")" ]
 }
 
@@ -192,7 +173,7 @@ if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
   fi
 fi
 
-drop_approval_runs
+[ ${#proposals[@]} = 0 ] || ci/drop-approval-runs.sh "${proposals[@]}"
 git_auth pull -q --rebase origin main
 git_auth push -q origin HEAD:main
 exit "$failed"
