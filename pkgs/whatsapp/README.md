@@ -21,9 +21,10 @@ opening the app or logging into an account.
 
 Updates come through `nix flake update xr3t`. The embedded Sparkle updater
 cannot replace the read-only Nix store bundle or nix-darwin's root-owned copy
-in `/Applications/Nix Apps`, but it can replace Home Manager's writable copy
-in `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) while its
-automatic installation is on.
+in `/Applications/Nix Apps`. Home Manager copies the app into
+`~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) writable by
+the user, and without the module below Sparkle can replace that copy while
+its automatic installation is on.
 
 The Home Manager module turns Sparkle's automatic update check and automatic
 installation off:
@@ -38,6 +39,21 @@ It sets `SUEnableAutomaticChecks` and `SUAutomaticallyUpdate` to false in
 whatever the domain held, and writes `SUSendProfileInfo` = false only while
 it is absent. `programs.whatsapp.checkUpdates = true` leaves the update check
 to the app; automatic installation stays off.
+
+With `targets.darwin.copyApps` on, the module also makes Home Manager's copy,
+`~/Applications/Home Manager Apps/WhatsApp.app`, read-only (`chmod -R a-w`)
+after every copy, so an updater running as the user can't write to, delete or
+move the bundle without first changing its permissions back. Activation makes
+the copy writable again just before Home Manager's App Management check and
+copy, which write into it, and then locks the new copy; it does that while
+`programs.whatsapp.enable` is false too, so the copy can be removed. With the
+module dropped from the imports, nothing unlocks the copy and Home Manager's
+copy fails to delete it (`cannot delete non-empty directory`); make it
+writable before switching:
+
+```sh
+chmod -R u+w ~/Applications/Home\ Manager\ Apps/WhatsApp.app
+```
 
 WhatsApp's Sparkle plugin sets the check and automatic installation itself
 (`setAutomaticallyChecksForUpdates:`, `setAutomaticallyDownloadsUpdates:`),
