@@ -108,9 +108,14 @@ let
       runHook preInstall
       mkdir -p "$out/Applications" "$out/bin"
       cp -R anoa.app "$out/Applications/"
-      # A link, as upstream's Homebrew cask installs it: the executable finds
-      # its frameworks through its real path inside the bundle.
-      ln -s "$out/Applications/anoa.app/Contents/MacOS/anoa" "$out/bin/anoa"
+      # Upstream's Homebrew cask links the executable; a launcher instead, to
+      # run it from the installed copy of anoa.app. It execs the bundle's
+      # executable by its real path, where it finds its frameworks.
+      ${import ../../lib/app-copy-launcher.nix {
+        bundle = "anoa.app";
+        executable = "Contents/MacOS/anoa";
+        launcher = "$out/bin/anoa";
+      }}
       runHook postInstall
     '';
 

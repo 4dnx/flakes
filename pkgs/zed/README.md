@@ -5,7 +5,10 @@
 or CPU emulation.
 
 - macOS: the official Apple Silicon DMG, installed as the unchanged signed
-  `$out/Applications/Zed.app`. `bin/zed` invokes the bundle's official CLI.
+  `$out/Applications/Zed.app`. `bin/zed` invokes the bundle's official CLI,
+  from Home Manager's or nix-darwin's copy of `Zed.app` when that copy is
+  this build (`lib/app-copy-launcher.sh`), so the CLI opens the copy and the
+  store bundle never shows up in Finder's Open With.
   Neither Mach-O executable nor app resources are patched or stripped.
 - Linux: the official architecture-specific tarball, with its `zed.app`
   layout and bundled libraries preserved under `$out/libexec/zed`. ELF
