@@ -2,8 +2,9 @@ name: Check
 
 on:
   # main gets no run of its own: a pull request is checked at its head
-  # (below), which is the tree that lands once it contains main (the branch
-  # rule on main requires that), and cache.yml pushes the cached packages.
+  # (below), which is the tree that lands once it contains main (the merge
+  # job ensures that for update branches), and cache.yml pushes the cached
+  # packages.
   pull_request:
   workflow_dispatch:
 
@@ -89,8 +90,8 @@ jobs:
           done
           nix build --no-link --keep-going -L "${installables[@]}"
 
-  # One status for every system, for the merge job below and for a branch
-  # rule to require (with branches up to date before merging).
+  # One status for every system, for the merge job below. Not required by a
+  # branch rule: one would also reject update.yml's direct pushes to main.
   validated:
     name: Validate all systems
     needs: [plan, build]

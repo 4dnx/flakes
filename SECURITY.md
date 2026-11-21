@@ -77,9 +77,11 @@ fixes; there are no release branches.
   on every system; a change to a helper in `verify/`, `lib/` or `scripts/`
   changes the derivations of the packages that read it, so their checks
   run. Formatting is checked on every run. A pull request is checked at its
-  head, not merged with `main`, so the `main` branch rule must require
-  branches to be up to date before merging for the checked tree to be the
-  one that lands. The heavy
+  head, not merged with `main`, so the checked tree is the one that lands
+  only while the head contains `main`: the merge job ensures that for update
+  pull requests, and other pull requests are brought up to date before they
+  merge. No branch rule enforces it, as one that requires status checks
+  would also reject the update workflow's direct pushes to `main`. The heavy
   Office apps are not in the checks: `microsoft-office.yml` builds those a
   pull request changes when it is labeled `build-office` (or on Run
   workflow), and the update workflow builds each bump before it lands. A
