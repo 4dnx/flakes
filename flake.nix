@@ -212,6 +212,11 @@
               };
               services.nullclaw.enable = true;
             }
+            # The Linux default Home Manager keeps for a stateVersion before
+            # 26.05, set so it doesn't warn about the new XDG default.
+            (lib.optionalAttrs (!darwinHome system) {
+              programs.firefox.configPath = ".mozilla/firefox";
+            })
             (lib.optionalAttrs (darwinHome system) {
               programs = {
                 kiri.enable = true;
@@ -405,5 +410,27 @@
 
       # nixfmt over the whole tree: plain `nix fmt` needs no path.
       formatter = eachSystem (system: pkgsFor.${system}.nixfmt-tree);
+
+      # `nix develop`: the tools `checks` run, from the pinned nixpkgs, to run
+      # one of them on its own (shellcheck on a script, actionlint on a
+      # workflow) without the whole `nix flake check`.
+      devShells = eachSystem (
+        system:
+        let
+          pkgs = pkgsFor.${system};
+        in
+        {
+          default = pkgs.mkShellNoCC {
+            packages = [
+              self.formatter.${system}
+              pkgs.nixfmt
+              pkgs.shellcheck
+              pkgs.actionlint
+              pkgs.jq
+              pkgs.python3
+            ];
+          };
+        }
+      );
     };
 }

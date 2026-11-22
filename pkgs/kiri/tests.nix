@@ -13,9 +13,11 @@ let
       modules = [
         self.homeManagerModules.kiri
         {
-          home.username = "alice";
-          home.homeDirectory = "/Users/alice";
-          home.stateVersion = "25.11";
+          home = {
+            username = "alice";
+            homeDirectory = "/Users/alice";
+            stateVersion = "25.11";
+          };
           programs.kiri.enable = true;
         }
         extra
@@ -23,15 +25,21 @@ let
     };
   managed =
     (mkHome {
-      programs.zsh.enable = true;
-      programs.zsh.dotDir = "/Users/alice/.config/zsh";
-      programs.bash.enable = true;
-      programs.fish.enable = true;
+      programs = {
+        zsh = {
+          enable = true;
+          dotDir = "/Users/alice/.config/zsh";
+        };
+        bash.enable = true;
+        fish.enable = true;
+      };
     }).config;
   defaults =
     (mkHome {
-      programs.zsh.enable = true;
-      programs.zsh.dotDir = "/Users/alice";
+      programs.zsh = {
+        enable = true;
+        dotDir = "/Users/alice";
+      };
     }).config;
   disabled =
     (mkHome {

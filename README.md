@@ -158,6 +158,9 @@ Differences from NixOS:
   rolling `ghostty-tip` and the heavy Office apps, which their own workflows
   build), every `.nix` file formatted, and the modules evaluated
 - `formatter`: `nixfmt`
+- `devShells.<system>.default`: the tools the checks run (nixfmt,
+  shellcheck, actionlint, jq, Python), for working on this flake with
+  `nix develop`
 
 Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
