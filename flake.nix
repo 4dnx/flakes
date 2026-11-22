@@ -212,6 +212,11 @@
               };
               services.nullclaw.enable = true;
             }
+            # The Linux default Home Manager keeps for a stateVersion before
+            # 26.05, set so it doesn't warn about the new XDG default.
+            (lib.optionalAttrs (!darwinHome system) {
+              programs.firefox.configPath = ".mozilla/firefox";
+            })
             (lib.optionalAttrs (darwinHome system) {
               programs = {
                 kiri.enable = true;
