@@ -101,6 +101,9 @@ output, such as an error message, stays as the program prints it.
 nix flake check --all-systems
 nix build .#<name> && ./result/bin/<prog> --version
 nix fmt   # nixfmt; checks.formatting fails otherwise
+# One check's tool on its own, at the version the checks use.
+nix develop -c shellcheck -x pkgs/<name>/update.sh
+nix develop -c actionlint .github/workflows/<file>.yml
 ```
 
 Avoid `--no-build`: its read-only store fails on filtered sources that are
