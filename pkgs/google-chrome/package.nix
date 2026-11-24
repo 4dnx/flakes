@@ -35,12 +35,11 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
     mkdir -p "$out/Applications" "$out/bin"
     cp -R "Google Chrome.app" "$out/Applications/"
-    # Exec by full path so Chrome finds its framework inside the bundle.
-    cat > "$out/bin/google-chrome" <<SH
-    #!/bin/sh
-    exec "$out/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" "\$@"
-    SH
-    chmod +x "$out/bin/google-chrome"
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "Google Chrome.app";
+      executable = "Contents/MacOS/Google Chrome";
+      launcher = "$out/bin/google-chrome";
+    }}
     runHook postInstall
   '';
 

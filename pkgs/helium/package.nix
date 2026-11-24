@@ -115,12 +115,11 @@ let
       runHook preInstall
       mkdir -p "$out/Applications" "$out/bin"
       cp -R Helium.app "$out/Applications/"
-      # Exec by full path so Helium finds its framework inside the bundle.
-      cat > "$out/bin/helium" <<SH
-      #!/bin/sh
-      exec "$out/Applications/Helium.app/Contents/MacOS/Helium" "\$@"
-      SH
-      chmod +x "$out/bin/helium"
+      ${import ../../lib/app-copy-launcher.nix {
+        bundle = "Helium.app";
+        executable = "Contents/MacOS/Helium";
+        launcher = "$out/bin/helium";
+      }}
       runHook postInstall
     '';
 

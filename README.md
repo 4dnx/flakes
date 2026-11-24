@@ -234,3 +234,11 @@ This flake grew out of three projects:
 Each packaged program keeps its own license, set by its authors. All product
 names, logos and trademarks belong to their respective owners and creators.
 This repository is not affiliated with or endorsed by them.
+
+## macOS app launchers
+
+Profile commands for anoa, Claude Desktop, Firefox, Ghostty, Chrome, Helium,
+Herdr Desktop, Telegram, UTM, WhatsApp, and Zed look for an app copy in
+Home Manager’s app directory and then in nix-darwin’s app directory. A copy
+must match the packaged executable, Info.plist, and code resources seal.
+The launcher uses the store bundle when no copy matches.

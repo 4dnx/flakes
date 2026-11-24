@@ -56,12 +56,11 @@ stdenvNoCC.mkDerivation {
     mkdir -p "$out/Applications" "$out/bin" "$man/share" "$terminfo/share"
     cp -R Ghostty.app "$out/Applications/"
     res="$out/Applications/Ghostty.app/Contents/Resources"
-    # Exec by full path so Ghostty sees itself inside the bundle.
-    cat > "$out/bin/ghostty" <<SH
-    #!/bin/sh
-    exec "$out/Applications/Ghostty.app/Contents/MacOS/ghostty" "\$@"
-    SH
-    chmod +x "$out/bin/ghostty"
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "Ghostty.app";
+      executable = "Contents/MacOS/ghostty";
+      launcher = "$out/bin/ghostty";
+    }}
     cp -R "$res/man" "$man/share/man"
     cp -R "$res/terminfo" "$terminfo/share/terminfo"
     cp -R "$res/ghostty/shell-integration" "$shell_integration"

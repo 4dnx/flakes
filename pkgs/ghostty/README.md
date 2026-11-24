@@ -1,5 +1,7 @@
 # ghostty
 
+On macOS, `ghostty` prefers a matching installed app copy and falls back to the store bundle.
+
 [Ghostty](https://ghostty.org/) from upstream's `Ghostty.dmg`, as
 `$out/Applications/Ghostty.app` plus a `bin/ghostty` launcher. Nothing is
 compiled: the derivation only unpacks the dmg and copies the signed, notarized

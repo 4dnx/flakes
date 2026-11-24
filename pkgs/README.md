@@ -5,6 +5,8 @@ name links to the package's own README, with its options, what it turns off
 (self-update, telemetry) and how to turn that back on. For installing them,
 see [the top-level README](../README.md).
 
+See [macOS app launchers](../README.md#macos-app-launchers) for how profile commands select an app bundle.
+
 | Package | Description |
 |---|---|
 | [1mcp](1mcp) | Unified MCP runtime that aggregates MCP servers behind one endpoint, with a NixOS service module |

@@ -1,9 +1,7 @@
 #!@shell@
 # shellcheck shell=sh
-# Starts Herdr from the Nix store. The app's own updater would download a
-# release it can't install over the read-only store, so point it at a copy of
-# the pinned release manifests: it then reports itself up to date. Updates come
-# with this package.
+# Point Herdr at the pinned release manifests so it reports itself up to date.
+# Updates come with this package.
 
 export HERDR_RELEASES_URL="file://@releases@"
 # No usage reports by default. With HERDR_TELEMETRY set (to 1, as the module

@@ -1,5 +1,7 @@
 # claude-desktop
 
+On macOS, `claude-desktop` prefers a matching installed app copy and falls back to the store bundle.
+
 Claude Desktop for macOS (Claude, Claude Code and Cowork in one app), from
 upstream's signed, notarized universal zip. `$out/Applications/Claude.app`
 is the bundle unchanged, with a `bin/claude-desktop` launcher. Nothing is
