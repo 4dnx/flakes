@@ -118,10 +118,14 @@ stdenv.mkDerivation {
   + (
     if isDarwin then
       ''
-        mkdir -p "$out/Applications"
+        mkdir -p "$out/Applications" "$out/libexec"
         cp -R Herdr.app "$out/Applications/"
-        # Exec by full path so the app finds its resources inside the bundle.
-        exe="$out/Applications/Herdr.app/Contents/MacOS/Herdr"
+        exe="$out/libexec/herdr-app"
+        ${import ../../lib/app-copy-launcher.nix {
+          bundle = "Herdr.app";
+          executable = "Contents/MacOS/Herdr";
+          launcher = "$exe";
+        }}
       ''
     else
       ''

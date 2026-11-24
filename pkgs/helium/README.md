@@ -1,5 +1,7 @@
 # helium
 
+On macOS, `helium` prefers a matching installed app copy and falls back to the store bundle.
+
 [Helium](https://helium.computer/), a Chromium-based browser that is private
 by default. Upstream's prebuilt releases, nothing compiled:
 

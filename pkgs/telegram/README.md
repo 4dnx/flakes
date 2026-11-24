@@ -1,5 +1,7 @@
 # telegram
 
+On macOS, `telegram` prefers a matching installed app copy and falls back to the store bundle.
+
 Telegram's official **native macOS client**, not the cross-platform Telegram
 Desktop app. The ZIP from `osx.telegram.org` is installed as the untouched
 signed `$out/Applications/Telegram.app`, with a `bin/telegram` launcher.

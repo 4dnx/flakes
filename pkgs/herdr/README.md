@@ -1,5 +1,7 @@
 # herdr
 
+On macOS, `herdr-app` prefers a matching installed app copy and falls back to the store bundle.
+
 [Herdr](https://herdr.dev/)'s desktop app together with herdr-core and the
 `herdr` CLI, from upstream's prebuilt releases. Nothing is compiled.
 

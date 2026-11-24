@@ -1,5 +1,7 @@
 # firefox
 
+On macOS, `firefox` prefers a matching installed app copy and falls back to the store bundle.
+
 Mozilla Firefox, the latest release, from Mozilla's own builds (en-US;
 other languages install as language packs from within Firefox). Nothing is
 compiled:

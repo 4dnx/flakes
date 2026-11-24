@@ -53,11 +53,11 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
     mkdir -p "$out/Applications" "$out/bin" "$out/share/claude-desktop"
     cp -R Claude.app "$out/Applications/"
-    cat > "$out/bin/claude-desktop" <<SH
-    #!/bin/sh
-    exec "$out/Applications/Claude.app/Contents/MacOS/Claude" "\$@"
-    SH
-    chmod +x "$out/bin/claude-desktop"
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "Claude.app";
+      executable = "Contents/MacOS/Claude";
+      launcher = "$out/bin/claude-desktop";
+    }}
     cp ${profile} "$out/share/claude-desktop/disable-auto-updates.mobileconfig"
     runHook postInstall
   '';

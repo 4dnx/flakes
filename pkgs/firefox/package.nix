@@ -116,12 +116,11 @@ let
       runHook preInstall
       mkdir -p "$out/Applications" "$out/bin"
       cp -R Firefox.app "$out/Applications/"
-      # Exec by full path so Firefox finds its libraries inside the bundle.
-      cat > "$out/bin/firefox" <<SH
-      #!/bin/sh
-      exec "$out/Applications/Firefox.app/Contents/MacOS/firefox" "\$@"
-      SH
-      chmod +x "$out/bin/firefox"
+      ${import ../../lib/app-copy-launcher.nix {
+        bundle = "Firefox.app";
+        executable = "Contents/MacOS/firefox";
+        launcher = "$out/bin/firefox";
+      }}
       runHook postInstall
     '';
 

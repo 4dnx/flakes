@@ -1,5 +1,7 @@
 # google-chrome
 
+On macOS, `google-chrome` prefers a matching installed app copy and falls back to the store bundle.
+
 Google Chrome's latest Stable release for macOS, from Google's signed,
 notarized universal dmg, installed untouched as
 `$out/Applications/Google Chrome.app` with a `bin/google-chrome` wrapper.

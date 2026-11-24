@@ -1,5 +1,7 @@
 # whatsapp
 
+On macOS, `whatsapp` prefers a matching installed app copy and falls back to the store bundle.
+
 The official native WhatsApp for macOS, downloaded as a ZIP from
 `web.whatsapp.com`. The signed `WhatsApp.app` is installed unchanged under
 `$out/Applications`, with a `bin/whatsapp` launcher. No compilation.

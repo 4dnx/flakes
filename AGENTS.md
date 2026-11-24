@@ -15,6 +15,13 @@ signature and install checks in `verify/`, Nix functions in `lib/`, the tools
 that belong to no one package in `modules/`. `ci/` holds the CI and update
 machinery the workflows run.
 
+## Running installed commands
+
+Use the active installation through `PATH` or the active user or system
+profile when running any installed command. Keep the profile path when it
+resolves to a store symlink. Use a specific store path when the task requires
+an exact artifact, such as testing a build before activation.
+
 ## Adding a package
 
 Use upstream's native application binaries for each declared operating system
@@ -40,6 +47,13 @@ upstream native release is missing; leave that system unsupported and say so.
    (gotchas, what to recheck on a bump) go in that README or as comments in
    the package's own files, not in this file.
 4. `git add` new files; flakes ignore untracked files.
+
+For a macOS profile command that launches an executable inside an app bundle,
+use `lib/app-copy-launcher.nix` so it prefers a matching installed copy and
+falls back to the packaged bundle. Preserve the launcher’s arguments and
+environment. When an app has multiple launch commands, use the same copy
+selection policy for each. Keep service entry points and installer-managed
+links on the paths their integration requires.
 
 ## Modules
 

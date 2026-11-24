@@ -1,5 +1,7 @@
 # utm
 
+On macOS, `UTM` and `utmctl` prefer a matching installed app copy and fall back to the store bundle.
+
 [UTM](https://mac.getutm.app/) from upstream's release `UTM.dmg`, as
 `$out/Applications/UTM.app` plus `bin/UTM` and `bin/utmctl` launchers. Nothing
 is compiled: the derivation only unpacks the dmg and copies the signed,

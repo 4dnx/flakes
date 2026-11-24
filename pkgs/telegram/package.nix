@@ -29,11 +29,11 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
     mkdir -p "$out/Applications" "$out/bin"
     cp -R "Telegram.app" "$out/Applications/"
-    cat > "$out/bin/telegram" <<SH
-    #!/bin/sh
-    exec "$out/Applications/Telegram.app/Contents/MacOS/Telegram" "\$@"
-    SH
-    chmod +x "$out/bin/telegram"
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "Telegram.app";
+      executable = "Contents/MacOS/Telegram";
+      launcher = "$out/bin/telegram";
+    }}
     runHook postInstall
   '';
 

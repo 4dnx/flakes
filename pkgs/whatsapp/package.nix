@@ -29,11 +29,11 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
     mkdir -p "$out/Applications" "$out/bin"
     cp -R "WhatsApp.app" "$out/Applications/"
-    cat > "$out/bin/whatsapp" <<SH
-    #!/bin/sh
-    exec "$out/Applications/WhatsApp.app/Contents/MacOS/WhatsApp" "\$@"
-    SH
-    chmod +x "$out/bin/whatsapp"
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "WhatsApp.app";
+      executable = "Contents/MacOS/WhatsApp";
+      launcher = "$out/bin/whatsapp";
+    }}
     runHook postInstall
   '';
 

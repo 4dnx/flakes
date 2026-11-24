@@ -36,15 +36,16 @@ stdenvNoCC.mkDerivation {
     runHook preInstall
     mkdir -p "$out/Applications" "$out/bin"
     cp -R UTM.app "$out/Applications/"
-    # Exec by full path: a symlink in bin/ makes UTM look for its resources in
-    # the wrong place.
-    for prog in UTM utmctl; do
-      cat > "$out/bin/$prog" <<SH
-    #!/bin/sh
-    exec "$out/Applications/UTM.app/Contents/MacOS/$prog" "\$@"
-    SH
-      chmod +x "$out/bin/$prog"
-    done
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "UTM.app";
+      executable = "Contents/MacOS/UTM";
+      launcher = "$out/bin/UTM";
+    }}
+    ${import ../../lib/app-copy-launcher.nix {
+      bundle = "UTM.app";
+      executable = "Contents/MacOS/utmctl";
+      launcher = "$out/bin/utmctl";
+    }}
     runHook postInstall
   '';
 
