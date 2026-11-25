@@ -179,4 +179,4 @@ jobs:
           fi
           checkout="$PWD"
           cd "$(mktemp -d "$RUNNER_TEMP/nixos-shell.XXXXXXXX")"
-          /usr/bin/expect "$checkout/ci/nixos-shell-smoke.exp" "git+file://$checkout#nixos-shell"
+          /usr/bin/expect "$checkout/ci/nixos-shell-smoke.exp" "github:$GITHUB_REPOSITORY/$GITHUB_SHA#nixos-shell"
