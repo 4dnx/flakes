@@ -69,7 +69,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.helium;
-      defaultText = lib.literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.helium";
+      defaultText = lib.literalExpression "fordnx.packages.\${pkgs.stdenv.hostPlatform.system}.helium";
       description = "Helium package to install.";
     };
     checkUpdates = lib.mkOption {

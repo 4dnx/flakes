@@ -23,14 +23,14 @@ Systems: `aarch64-darwin` (macOS 13 or later), `x86_64-linux`,
 ## Usage
 
 ```nix
-home.packages = [ inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.helium ];
+home.packages = [ inputs.fordnx.packages.${pkgs.stdenv.hostPlatform.system}.helium ];
 ```
 
 Or with the Home Manager module, which also keeps its update check off:
 
 ```nix
 {
-  imports = [ inputs.xr3t.homeManagerModules.helium ];
+  imports = [ inputs.fordnx.homeManagerModules.helium ];
   programs.helium.enable = true;
 }
 ```

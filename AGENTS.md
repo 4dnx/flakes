@@ -2,7 +2,7 @@
 
 Guidance for coding agents working in this repo. Keep each package's
 README, the package table in `pkgs/README.md` and `README.md` in sync with
-behavior. Remote: `xr3t/flakes`.
+behavior. Remote: `4dnx/flakes`.
 
 ## READMEs
 

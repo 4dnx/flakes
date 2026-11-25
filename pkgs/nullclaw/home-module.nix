@@ -72,7 +72,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.nullclaw;
-      defaultText = literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.nullclaw";
+      defaultText = literalExpression "fordnx.packages.\${pkgs.stdenv.hostPlatform.system}.nullclaw";
       description = "NullClaw package to run.";
     };
     stateDir = mkOption {

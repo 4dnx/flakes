@@ -30,7 +30,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "li
 
 ```nix
 {
-  imports = [ inputs.xr3t.nixosModules.littlesnitch ];
+  imports = [ inputs.fordnx.nixosModules.littlesnitch ];
   services.littlesnitch.enable = true;
 }
 ```

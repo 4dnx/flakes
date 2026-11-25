@@ -24,7 +24,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.cua-driver;
-      defaultText = lib.literalExpression "xr3t.packages.\${system}.cua-driver";
+      defaultText = lib.literalExpression "fordnx.packages.\${system}.cua-driver";
       description = "The cua-driver package.";
     };
   };

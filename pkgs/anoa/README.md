@@ -17,12 +17,12 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
   bundle expects from the host (udev, OpenSSL, NSS).
 
 ```nix
-{ environment.systemPackages = [ inputs.xr3t.packages.${system}.anoa ]; }
+{ environment.systemPackages = [ inputs.fordnx.packages.${system}.anoa ]; }
 ```
 
 ## Updates
 
-Updates come from this flake (`nix flake update xr3t`); this package turns
+Updates come from this flake (`nix flake update fordnx`); this package turns
 nothing off. `update.sh` follows upstream's latest GitHub release and checks
 each archive against GitHub's digest. The install check runs `anoa --version`
 and, on macOS, checks `anoa.app`'s whole Developer ID seal (team

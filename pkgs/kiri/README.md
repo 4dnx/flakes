@@ -9,7 +9,7 @@ Systems: `aarch64-darwin`, macOS 14 or later. Upstream also ships an Intel
 app, Windows and Linux builds; this flake doesn't package them yet.
 
 ```nix
-imports = [ inputs.xr3t.homeManagerModules.kiri ];
+imports = [ inputs.fordnx.homeManagerModules.kiri ];
 programs.kiri.enable = true;
 ```
 
@@ -66,7 +66,7 @@ root-owned copy in `/Applications/Nix Apps`. Home Manager's copy in
 `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) is writable:
 `kiri update` replaces it in place, and the next activation copies the pinned
 version back. `homeManagerModules.read-only-apps` keeps that copy read-only
-(see the [top-level README](../../README.md#updates)). Updates come through this flake (`nix flake update xr3t`). The
+(see the [top-level README](../../README.md#updates)). Updates come through this flake (`nix flake update fordnx`). The
 module installs the package with Home Manager; to keep its shell integration
 and settings with the app in `environment.systemPackages`, set
 `programs.kiri.package = null`.

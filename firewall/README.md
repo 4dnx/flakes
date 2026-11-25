@@ -45,7 +45,7 @@ use, so a system-wide host block would break the builds too.
 
 Subscribe in Little Snitch: Rules window, "+" beside **Rule Groups**, **Remote
 Rule Group…**, and the URL
-`https://raw.githubusercontent.com/xr3t/flakes/main/firewall/updaters.lsrules`.
+`https://raw.githubusercontent.com/4dnx/flakes/main/firewall/updaters.lsrules`.
 Little Snitch then keeps the group up to date. Disable the group, or one rule
 in it, to let an updater run again.
 

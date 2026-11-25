@@ -16,14 +16,14 @@ libstdc++) so it runs on NixOS; the embedded app survives the patch. It is
 never stripped.
 
 The attribute name starts with a digit, so quote it:
-`inputs.xr3t.packages.${system}."1mcp"`, `pkgs.xr3t."1mcp"`,
-`services."1mcp"`. `nix run github:xr3t/flakes#1mcp` needs no quotes.
+`inputs.fordnx.packages.${system}."1mcp"`, `pkgs.fordnx."1mcp"`,
+`services."1mcp"`. `nix run github:4dnx/flakes#1mcp` needs no quotes.
 
 ## Usage (NixOS)
 
 ```nix
 {
-  imports = [ inputs.xr3t.nixosModules."1mcp" ];
+  imports = [ inputs.fordnx.nixosModules."1mcp" ];
 
   services."1mcp" = {
     enable = true;
@@ -53,10 +53,10 @@ The attribute name starts with a digit, so quote it:
 ## Updates
 
 `update.sh` checks the latest upstream release and rewrites `hashes.json`.
-Consumers pick it up with `nix flake update xr3t`.
+Consumers pick it up with `nix flake update fordnx`.
 
 ## Outputs
 
 - `packages.<system>."1mcp"`
-- `pkgs.xr3t."1mcp"` through `overlays.default`
+- `pkgs.fordnx."1mcp"` through `overlays.default`
 - `nixosModules."1mcp"`

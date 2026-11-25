@@ -32,7 +32,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.littlesnitch;
-      defaultText = lib.literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.littlesnitch";
+      defaultText = lib.literalExpression "fordnx.packages.\${pkgs.stdenv.hostPlatform.system}.littlesnitch";
       description = "Little Snitch package to run.";
     };
     updateCheck = lib.mkOption {
