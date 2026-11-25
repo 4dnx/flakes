@@ -13,15 +13,16 @@
 
 let
   # Version, build and hash live in hashes.json so update.sh can rewrite
-  # them. `build` is the bundle's CFBundleVersion (2026.9.256), which
+  # them. `build` is the bundle's CFBundleVersion (2026.10.263), which
   # update.sh reads from the installer's Distribution.
   sources = lib.importJSON ./hashes.json;
   inherit (sources) version build;
 
   # Upstream's signed, notarized installer package, as its docs recommend
   # deploying it. Its payload holds Santa.app (installed by the postinstall
-  # script from /var/db/santa/migration), the newsyslog config for Santa's
-  # log and a launch job that only migrates from Google's Santa (left out).
+  # script from /var/db/santa/migration) and a launch job that only migrates
+  # from Google's Santa (left out). Since 2026.10 the newsyslog config for
+  # Santa's log is in the daemon's system extension, which installs it.
   src = fetchurl {
     url = "https://github.com/northpolesec/santa/releases/download/${version}/santa-${version}.pkg";
     hash = sources.hashes.aarch64-darwin;
@@ -58,9 +59,8 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
     ${extract}
-    mkdir -p "$out/Applications" "$out/bin" "$out/share/santa"
+    mkdir -p "$out/Applications" "$out/bin"
     mv var/db/santa/migration/Santa.app "$out/Applications/"
-    cp private/etc/newsyslog.d/com.northpolesec.santa.newsyslog.conf "$out/share/santa/"
     ln -s "$out/Applications/Santa.app/Contents/MacOS/santactl" "$out/bin/santactl"
     runHook postInstall
   '';

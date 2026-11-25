@@ -8,9 +8,9 @@ package does. Nothing is compiled.
 Systems: `aarch64-darwin`, macOS 14 or later. Santa is macOS-only.
 
 The package holds `Santa.app` untouched (`$out/Applications/Santa.app`: the
-GUI agent, `santactl`, the helper services and the system extensions), the
-newsyslog config for Santa's log (`share/santa`) and `bin/santactl`. The
-installer's launch job that migrates from Google's Santa is left out.
+GUI agent, `santactl`, the helper services and the system extensions) and
+`bin/santactl`. The installer's launch job that migrates from Google's Santa
+is left out.
 
 ## nix-darwin module
 
@@ -32,7 +32,6 @@ doesn't add the package to `environment.systemPackages`; when the installed
 copy's build differs from the package's, its activation script does what the
 installer's postinstall script does:
 
-- installs the newsyslog config into `/private/etc/newsyslog.d`;
 - copies `Santa.app` to `/var/db/santa/migration`, owned by `root:wheel`;
 - removes `/Applications/Santa.app`. If that works (Santa isn't running), it
   moves the new copy there and runs `Santa --load-system-extension`.
@@ -43,7 +42,10 @@ installer's postinstall script does:
 
 The system extension then installs and loads the GUI agent and the helper
 services (`com.northpolesec.santa.*` in `/Library/LaunchAgents` and
-`/Library/LaunchDaemons`), as with upstream's package.
+`/Library/LaunchDaemons`), as with upstream's package. It also installs the
+newsyslog config for Santa's log
+(`/private/etc/newsyslog.d/com.northpolesec.santa.newsyslog.conf`) when it is
+missing or is one Santa shipped before, and leaves one the admin changed.
 
 The module stops there, as upstream's package does: macOS asks the user to
 allow the system extension (System Settings → General → Login Items &
@@ -83,6 +85,9 @@ pass through a pull request: the module installs a root system extension.
 
 On a bump, check that the release still has `santa-<version>.pkg` with one
 component `app.pkg` (a gzip cpio payload) holding
-`var/db/santa/migration/Santa.app` and the newsyslog config, and what its
-`preinstall` and `postinstall` scripts and upstream's `Conf/install.sh` do
-(the module mirrors them).
+`var/db/santa/migration/Santa.app`, and what its `preinstall` and
+`postinstall` scripts, upstream's `Conf/install.sh` and the system
+extension's `install_services.sh` do (the module mirrors them). Since 2026.10
+the payload no longer holds the newsyslog config: it is in the daemon's
+system extension (`Contents/Resources`), and `install_services.sh` installs
+it.

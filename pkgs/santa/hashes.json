@@ -1,7 +1,7 @@
 {
-  "version": "2026.9",
-  "build": "2026.9.256",
+  "version": "2026.10",
+  "build": "2026.10.263",
   "hashes": {
-    "aarch64-darwin": "sha256-loIbZDnVHs4pkeHZqN3ZlpxieDkTJdjnOQT/CWHf9uo="
+    "aarch64-darwin": "sha256-nkAOG5HdqqYqHKM8SXKpsq/OhwztkPbfW1kcc6JAXr8="
   }
 }

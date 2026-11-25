@@ -19,7 +19,6 @@ let
   cfg = config.services.santa;
   app = "/Applications/Santa.app";
   staged = "/var/db/santa/migration";
-  newsyslog = "/private/etc/newsyslog.d/com.northpolesec.santa.newsyslog.conf";
 in
 {
   options.services.santa = {
@@ -51,7 +50,8 @@ in
           return 0
         fi
         echo "installing Santa $want..." >&2
-        /usr/bin/install -m 0644 -o root -g wheel ${cfg.package}/share/santa/com.northpolesec.santa.newsyslog.conf ${newsyslog} || return 1
+        # The newsyslog config is the system extension's to install: it
+        # keeps one the admin changed.
         /bin/rm -rf ${staged}
         /bin/mkdir -p ${staged} &&
           /usr/bin/ditto "$src" ${staged}/Santa.app &&
