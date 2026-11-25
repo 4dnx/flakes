@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+# Boot through the public launcher with a PTY and builds disabled.
+set timeout 300
+set launcher [lindex $argv 0]
+spawn nix run --builders "" --max-jobs 0 $launcher
+
+proc fail {message} {
+    puts stderr $message
+    exit 1
+}
+
+expect {
+    -re {root@nixos-shell[^\r\n]*# } {}
+    timeout { fail "Timed out waiting for the guest shell" }
+    eof { fail "The launcher exited before the guest shell was ready" }
+}
+
+# Split the marker so the echoed command cannot satisfy the check.
+send -- {test "$(uname -sm)" = "Linux aarch64" && nix --version && jq --version && rg --version && printf '%s%s\n' NIXOS_SHELL_ SMOKE_OK}
+send -- "\r"
+expect {
+    "NIXOS_SHELL_SMOKE_OK" {}
+    timeout { fail "The guest CLI checks did not pass" }
+    eof { fail "The launcher exited before the guest CLI checks completed" }
+}
+
+send -- "poweroff\r"
+expect {
+    eof {}
+    timeout { fail "Timed out waiting for the guest to power off" }
+}
+set result [wait]
+if {[lrange $result 2 end] ne {0 0}} {
+    fail "The VM launcher did not exit cleanly"
+}
