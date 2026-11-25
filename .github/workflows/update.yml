@@ -32,7 +32,7 @@ env:
   # the schedule: each Office app is a ~1.4 GB download, built anew for
   # every bump.
   ON_REQUEST: "microsoft-excel microsoft-powerpoint microsoft-word"
-  REVIEW: "1mcp claude-code claude-desktop cloudflare-warp codex cua-driver google-drive hermes-agent kiri littlesnitch microsoft-excel microsoft-powerpoint microsoft-word muxin nullclaw opencode pi rayfish santa tailscale telegram whatsapp zed"
+  REVIEW: "1mcp claude-code claude-desktop cloudflare-warp codex cua-driver google-drive hermes-agent kiri littlesnitch microsoft-excel microsoft-powerpoint microsoft-word muxin nullclaw opencode pi rayfish rex santa tailscale telegram whatsapp zed"
 
 jobs:
   # Every package that builds on Linux, and nixpkgs weekly. See

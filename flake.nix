@@ -55,6 +55,7 @@
         "microsoft-office"
         "microsoft-powerpoint"
         "microsoft-word"
+        "rex"
         "whatsapp"
       ];
 
