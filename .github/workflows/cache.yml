@@ -34,6 +34,7 @@ jobs:
       HAS_CACHIX: ${{ secrets.CACHIX_AUTH_TOKEN != '' }}
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
+      nixos-shell: ${{ steps.nixos-shell.outputs.missing }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -43,6 +44,14 @@ jobs:
         id: plan
         if: env.HAS_CACHIX == 'true'
         run: ci/cache-plan.sh
+      - name: Check the NixOS shell launcher cache
+        id: nixos-shell
+        if: env.HAS_CACHIX == 'true'
+        run: |
+          launcher="$(nix eval --raw .#packages.aarch64-darwin.nixos-shell.outPath)"
+          if ! nix path-info --store https://ret.cachix.org "$launcher"; then
+            echo "missing=true" >> "$GITHUB_OUTPUT"
+          fi
 
   push:
     name: push (${{ matrix.system }})
@@ -86,3 +95,77 @@ jobs:
             installables+=(".#packages.$SYSTEM.\"$name\"")
           done
           nix build --no-link --print-out-paths "${installables[@]}" | cachix push ret
+
+  nixos-shell-guest:
+    needs: plan
+    if: needs.plan.outputs.nixos-shell == 'true'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: ret
+          skipPush: true
+      - name: Build the NixOS guest
+        id: guest
+        run: |
+          paths="$(nix build --no-link -L --print-out-paths \
+            .#nixosConfigurations.nixos-shell.config.system.build.toplevel \
+            .#nixosConfigurations.nixos-shell.config.system.build.initialRamdisk)"
+          {
+            echo 'paths<<EOF'
+            echo "$paths"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - name: Publish the guest
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          STORE_PATHS: ${{ steps.guest.outputs.paths }}
+        run: cachix push ret <<< "$STORE_PATHS"
+
+  nixos-shell-launcher:
+    needs: nixos-shell-guest
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: ret
+          skipPush: true
+      - name: Build the macOS launcher using the cached guest
+        id: launcher
+        run: |
+          path="$(nix build --no-link -L --print-out-paths --builders "" .#nixos-shell)"
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+      - name: Publish the launcher
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          STORE_PATH: ${{ steps.launcher.outputs.path }}
+        run: cachix push ret "$STORE_PATH"
+
+  nixos-shell-smoke:
+    needs: nixos-shell-launcher
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: ret
+          skipPush: true
+      - name: Boot the cached guest with no builders
+        run: |
+          checkout="$PWD"
+          cd "$(mktemp -d "$RUNNER_TEMP/nixos-shell.XXXXXXXX")"
+          /usr/bin/expect "$checkout/ci/nixos-shell-smoke.exp" "git+file://$checkout#nixos-shell"

@@ -145,6 +145,12 @@ Differences from NixOS:
   helpers in it): see [helium](pkgs/helium/README.md#ubuntu) and
   [claude-code](pkgs/claude-code) for the profile each needs.
 
+## NixOS shell on Apple Silicon
+
+The [NixOS shell](pkgs/nixos-shell) boots a prebuilt NixOS guest and attaches
+its console to the current terminal. The Cache workflow builds and publishes
+the guest and launcher for use without a Linux builder on the Mac.
+
 ## Outputs
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
@@ -155,8 +161,8 @@ Differences from NixOS:
   packages that have them, and `read-only-apps`, which keeps Home Manager's
   copies of macOS apps read-only (see "Updates")
 - `checks.<system>`: the flake's own tests: every package built (but the
-  rolling `ghostty-tip` and the heavy Office apps, which their own workflows
-  build), every `.nix` file formatted, and the modules evaluated
+  rolling `ghostty-tip`, the heavy Office apps and `nixos-shell`, which their
+  own workflows build), every `.nix` file formatted, and the modules evaluated
 - `formatter`: `nixfmt`
 - `devShells.<system>.default`: the tools the checks run (nixfmt,
   shellcheck, actionlint, jq, Python), for working on this flake with

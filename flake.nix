@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixos-shell = {
+      url = "github:Mic92/nixos-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Only the module checks use these two (checks.<linux>.darwin-modules,
     # home-modules, darwin-home-modules): the packages, the overlay and the
     # modules themselves don't, so they are fetched only when checks are
@@ -24,6 +28,7 @@
       nixpkgs,
       nix-darwin,
       home-manager,
+      nixos-shell,
     }:
     let
       inherit (nixpkgs) lib;
@@ -35,8 +40,24 @@
       ];
       eachSystem = lib.genAttrs systems;
 
-      # Every directory under pkgs/ is a package: pkgs/<name>/package.nix.
-      pkgDirs = lib.filterAttrs (_: type: type == "directory") (builtins.readDir ./pkgs);
+      shellVM = lib.nixosSystem {
+        modules = [
+          nixos-shell.nixosModules.nixos-shell
+          # The upstream launcher adjusts virtiofs flags. Darwin uses 9p.
+          # Apply its guest defaults and expose nixpkgs' VM runner directly.
+          (nixos-shell + "/share/modules/nixos-shell-config.nix")
+          ./modules/nixos-shell-vm.nix
+          {
+            nixpkgs.hostPlatform = "aarch64-linux";
+            virtualisation.host.pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+          }
+        ];
+      };
+
+      # Packages in the shared scope have a pkgs/<name>/package.nix.
+      pkgDirs = lib.filterAttrs (
+        name: type: type == "directory" && builtins.pathExists ./pkgs/${name}/package.nix
+      ) (builtins.readDir ./pkgs);
       packageNames = builtins.attrNames pkgDirs;
 
       # Unfree packages this flake's own `packages` allow. Overlay users allow
@@ -234,8 +255,14 @@
         pkgs.writeText name (builtins.unsafeDiscardStringContext drv.drvPath);
     in
     {
+      nixosConfigurations.nixos-shell = shellVM;
+
       packages = eachSystem (
-        system: lib.filterAttrs (available system) (mkPackagesFor pkgsFor.${system})
+        system:
+        lib.filterAttrs (available system) (mkPackagesFor pkgsFor.${system})
+        // lib.optionalAttrs (system == "aarch64-darwin") {
+          nixos-shell = shellVM.config.system.build.vm;
+        }
       );
 
       overlays.default = import ./overlays { inherit mkPackagesFor; };
@@ -256,7 +283,7 @@
         let
           pkgs = pkgsFor.${system};
         in
-        removeAttrs self.packages.${system} (rolling ++ heavy)
+        removeAttrs self.packages.${system} (rolling ++ heavy ++ [ "nixos-shell" ])
         // {
           warp-launchd-syntax =
             let
