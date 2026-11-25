@@ -40,6 +40,26 @@
         "type": "github"
       }
     },
+    "nixos-shell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795541649,
+        "narHash": "sha256-3mqOZcWvMygMwTL9humDnWmBkd8Yf1N0/lRT/nqbuO0=",
+        "owner": "Mic92",
+        "repo": "nixos-shell",
+        "rev": "97e1bfc9079b10ffb651e870481e33083d45fe2e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nixos-shell",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793494649,
@@ -60,6 +80,7 @@
       "inputs": {
         "home-manager": "home-manager",
         "nix-darwin": "nix-darwin",
+        "nixos-shell": "nixos-shell",
         "nixpkgs": "nixpkgs"
       }
     }

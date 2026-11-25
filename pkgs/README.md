@@ -35,6 +35,7 @@ See [macOS app launchers](../README.md#macos-app-launchers) for how profile comm
 | [microsoft-word](microsoft-word) | Microsoft Word from Microsoft's signed installer (unfree), its signature checked; installed with its licensing helper by the [microsoft-office](microsoft-office) nix-darwin module; macOS only, no compilation |
 | [muxin](muxin) | One desktop app for many machines and their AI agents (sessions, desktops, logs, files) over ssh, with its CLI and MCP server, from upstream's prebuilt release; Apple Silicon macOS and Linux, no compilation |
 | [nh](nh) | Nix CLI helper from prebuilt upstream binaries, without Rust compilation |
+| [nixos-shell](nixos-shell) | Headless ARM NixOS guest with a QEMU terminal console, prebuilt in CI for Apple Silicon macOS |
 | [nodejs-24-lts](nodejs-24-lts) | Official prebuilt Node.js 24 LTS with independently pinned npm latest; no source compilation |
 | [nullclaw](nullclaw) | Small, fully autonomous AI assistant in one static Zig binary, with a Home Manager module that runs it as upstream's user service |
 | [nullclaw-chat-ui](nullclaw-chat-ui) | NullClaw's web chat UI as static files, to serve from any web server |
