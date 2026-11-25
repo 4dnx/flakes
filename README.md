@@ -166,9 +166,9 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
 ## Updates
 
-Packages follow upstream automatically: a workflow checks for new releases
-three times a day and commits them to `main`, and the pinned nixpkgs is bumped
-weekly. Pick them up with `nix flake update xr3t`. Updates of root daemons,
+Packages follow upstream automatically: a scheduled workflow checks for new
+releases and commits them to `main`, and the pinned nixpkgs is bumped weekly.
+Pick them up with `nix flake update xr3t`. Updates of root daemons,
 network filters and agents, and of nixpkgs, go through a pull request that is
 merged once it builds on every system; see [SECURITY.md](SECURITY.md) for what is checked.
 
