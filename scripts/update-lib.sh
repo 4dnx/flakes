@@ -95,3 +95,23 @@ write_hashes() {
   jq -n --arg v "$version" --argjson h "$hashes" \
     '{version: $v, hashes: ($h | to_entries | sort_by(.key) | from_entries)}' > hashes.json
 }
+
+# sparkle_verify NAME URL HASH KEY SIGNATURE: exit unless the file at URL
+# (already prefetched with HASH) carries SIGNATURE, a Sparkle EdDSA
+# signature (base64) by KEY, the app's SUPublicEDKey (base64 of the raw
+# 32-byte Ed25519 key): the check Sparkle makes before it installs an update.
+sparkle_verify() {
+  local name=$1 url=$2 hash=$3 key=$4 sig=$5 file tmp ok=0
+  [ -n "$sig" ] || { echo "$name: $url has no EdDSA signature in its feed" >&2; exit 1; }
+  file="$(nix store prefetch-file --json --expected-hash "$hash" "$url" | jq -er .storePath)"
+  tmp="$(mktemp -d)"
+  { printf '\x30\x2a\x30\x05\x06\x03\x2b\x65\x70\x03\x21\x00' && base64 -d <<<"$key"; } > "$tmp/key.der"
+  base64 -d <<<"$sig" > "$tmp/sig"
+  if [ "$(wc -c < "$tmp/key.der")" -eq 44 ] && [ "$(wc -c < "$tmp/sig")" -eq 64 ] &&
+    nix shell --inputs-from "$(realpath ../..)" nixpkgs#openssl --command \
+      openssl pkeyutl -verify -pubin -keyform DER -inkey "$tmp/key.der" -rawin -in "$file" -sigfile "$tmp/sig" >/dev/null; then
+    ok=1
+  fi
+  rm -rf "$tmp"
+  [ "$ok" = 1 ] || { echo "$name: $url doesn't carry a valid EdDSA signature by $key" >&2; exit 1; }
+}

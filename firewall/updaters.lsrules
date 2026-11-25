@@ -1,6 +1,6 @@
 {
   "name": "Block app updaters (xr3t/flakes)",
-  "description": "Denies the network to macOS app updaters, so updates come through Nix: the updaters that run as processes of their own (Google's GoogleUpdater and Keystone, Microsoft AutoUpdate) entirely, and apps that update from inside their own process (Telegram, Ghostty) only towards their update hosts. Rules match the vendor's code signature, not a path, so they hold wherever the app or updater is installed. Nix's own downloads (nix-daemon) are not affected. Disable this group to let the updaters run again.",
+  "description": "Denies the network to macOS app updaters, so updates come through Nix: the updaters that run as processes of their own (Google's GoogleUpdater and Keystone, Microsoft AutoUpdate) entirely, and apps that update from inside their own process (Telegram, Ghostty, Rex) only towards their update hosts. Rules match the vendor's code signature, not a path, so they hold wherever the app or updater is installed. Nix's own downloads (nix-daemon) are not affected. Disable this group to let the updaters run again.",
   "rules": [
     {
       "process": "identifier.EQHXZ8M8AV/com.google.GoogleUpdater",
@@ -78,6 +78,16 @@
       ],
       "priority": "high",
       "notes": "Ghostty's Sparkle appcasts and downloads, stable and tip. Ghostty itself needs no network; programs run in it are processes of their own."
+    },
+    {
+      "process": "identifier.AG92C3PT77/com.superlogical.rex",
+      "action": "deny",
+      "direction": "outgoing",
+      "remote-hosts": [
+        "blob.superlogical.com"
+      ],
+      "priority": "high",
+      "notes": "Rex for Mac's Sparkle appcasts and downloads (https://blob.superlogical.com/public/rex-app/<channel>/appcast.xml). Upstream's privacy page lists the update check as the app's only connection to Superlogical; its remote servers are hosts of their own."
     }
   ]
 }

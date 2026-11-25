@@ -51,9 +51,11 @@ fixes; there are no release branches.
   CA, and every file in it matching the checksum recorded there
   (`verify/office-pkg-signature-check.py`). The app bundles inside are not checked on
   Linux (a ~1.4 GB download each). Google Drive's installer is checked the
-  same way (Google's team), and the app inside, like Firefox's, Anoa's and Santa's macOS apps,
+  same way (Google's team), and the app inside, like Firefox's, Anoa's, Rex's and Santa's macOS apps,
   must carry an intact Developer ID seal of its vendor's team, on Linux
-  before an update lands and in the macOS install check.
+  before an update lands and in the macOS install check. Rex for Mac's dmg
+  must also carry the Sparkle EdDSA signature its appcast lists, by the key
+  pinned in `pkgs/rex-app` (`sparkle_verify` in `scripts/update-lib.sh`).
 - **Rolling builds.** `ghostty-tip` follows upstream builds that are
   replaced in place. Its pin only downloads until the next build.
 - **Updates.** New releases are committed to `main` automatically once

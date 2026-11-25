@@ -7,9 +7,9 @@ upstream's release archive (unfree). Nothing is compiled.
 Systems: `aarch64-darwin` only. Upstream also builds the binary for Intel
 Macs, Linux and Windows; this package covers Apple Silicon macOS.
 
-The package holds `bin/rex` as released, its linker signature intact. It
-doesn't include Rex for Mac, the app: its downloads are available only to
-beta testers who log in with Discord, and no public release lists them.
+The package holds `bin/rex` as released, its linker signature intact. Rex
+for Mac, the app, is the [`rex-app`](../rex-app) package; it runs a server
+of its own.
 
 Rex is in testing. Until upstream publishes a stable release, the package
 follows the preview channel, as upstream's install script does.
@@ -32,10 +32,7 @@ and, when turned on, Tailscale.
 Nothing in this package turns anything off. Updates come from this flake
 (`nix flake update xr3t`).
 
-Rex for Mac, the app this package doesn't include, checks for updates with
-Sparkle at launch and once a day, and upstream says that check can't be
-turned off; whether it downloads and installs them on its own is set in
-Settings > General > App Version (the info button beside Update Channel).
+Rex for Mac's own update check is described in [`rex-app`](../rex-app).
 
 `update.sh` reads the newest release from upstream's release API
 (`https://blob.superlogical.com/api/releases/rex/<channel>`), stable first,

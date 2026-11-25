@@ -23,10 +23,13 @@ where those hosts serve nothing else:
 |---|---|---|
 | Telegram | `6N38VWS5BX/ru.keepcoder.Telegram` | `osx.telegram.org` (its `SUFeedURL`, and the downloads) |
 | Ghostty | `24VZTF6M5V/com.mitchellh.ghostty` | `release.files.ghostty.org`, `tip.files.ghostty.org` (its stable and tip appcasts) |
+| Rex | `AG92C3PT77/com.superlogical.rex` | `blob.superlogical.com` (its appcasts, `SUFeedURL`, and the downloads) |
 
 Telegram's messages go to its MTProto servers, and the app names no other use
 of that host. Ghostty itself needs no network: the programs run in it are
-processes of their own, with rules of their own.
+processes of their own, with rules of their own. Rex's privacy page lists the
+update check as the app's only connection to Superlogical; the servers it
+reaches are the user's own.
 
 The rules match by code signature (Little Snitch 6's code IDs), not by path:
 GoogleUpdater's path holds its version, a copy may sit in `~/Library` or
@@ -34,7 +37,7 @@ GoogleUpdater's path holds its version, a copy may sit in `~/Library` or
 and hosts come from upstream's own files: GoogleUpdater from the Chrome disk
 image this flake pins, Microsoft AutoUpdate from Microsoft's MAU installer
 (its signature checked with `verify/pkg-signature-check.py`, team
-`UBF8T346G9`), Telegram's and Ghostty's from the pinned app bundles (their
+`UBF8T346G9`), Telegram's, Ghostty's and Rex's from the pinned app bundles (their
 signatures, `Info.plist` and executables).
 
 Blocking a process, not a host for every process, leaves Nix's own downloads
