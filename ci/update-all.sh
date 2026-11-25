@@ -157,10 +157,10 @@ done
 
 # nixpkgs, which every package's libraries and tools come from, with the
 # nix-darwin and Home Manager the module checks evaluate against it: weekly
-# (Monday's first run) or when asked for, always through a pull request, since
+# (Monday's first run, at 05 UTC) or when asked for, always through a pull request, since
 # it touches every package. Linux only; check.yml builds the rest.
 if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
-  { { [ -z "$PACKAGES" ] && [ "$(date -u +%u%H)" = 103 ]; } ||
+  { { [ -z "$PACKAGES" ] && [ "$(date -u +%u%H)" = 105 ]; } ||
     [[ " $PACKAGES " == *" nixpkgs "* ]]; }; then
   if nix flake update nixpkgs nix-darwin home-manager; then
     if [ -n "$(git status --porcelain -- flake.lock)" ]; then
