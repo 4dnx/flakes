@@ -5,7 +5,10 @@ name links to the package's own README, with its options, what it turns off
 (self-update, telemetry) and how to turn that back on. For installing them,
 see [the top-level README](../README.md).
 
-See [macOS app launchers](../README.md#macos-app-launchers) for how profile commands select an app bundle.
+On macOS, a profile command that launches an app looks for a copy of the app
+in Home Manager's and then nix-darwin's app folder, and uses it when its
+executable, `Info.plist` and code-signature seal match the package's;
+otherwise it runs the bundle in the Nix store.
 
 | Package | Description |
 |---|---|

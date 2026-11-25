@@ -4,6 +4,13 @@ Guidance for coding agents working in this repo. `README.md` is the
 user-facing doc; keep it, the package table in `pkgs/README.md` and each
 package's README in sync with behavior. Remote: `xr3t/flakes`.
 
+`README.md` holds only general information about the flake: what it is, how
+to install and use it, its outputs and how updates work in general. Don't
+change it for a package, a schedule or a workflow: a package's details go in
+`pkgs/<name>/README.md` and its row in `pkgs/README.md`, files and workflows
+in `LAYOUT.md`. Change `README.md` only when that general information
+changes.
+
 ## Layout
 
 See `LAYOUT.md`; keep it in sync when adding a kind of file or workflow.
