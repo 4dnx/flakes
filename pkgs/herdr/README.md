@@ -1,6 +1,8 @@
 # herdr
 
-On macOS, `herdr-app` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `herdr-app` runs the app's copy in Home Manager's, then nix-darwin's
+app folder when its executable, `Info.plist` and code-signature seal match the
+package's, and falls back to the store bundle.
 
 [Herdr](https://herdr.dev/)'s desktop app together with herdr-core and the
 `herdr` CLI, from upstream's prebuilt releases. Nothing is compiled.

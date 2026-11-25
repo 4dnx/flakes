@@ -1,6 +1,8 @@
 # google-chrome
 
-On macOS, `google-chrome` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `google-chrome` runs the app's copy in Home Manager's, then
+nix-darwin's app folder when its executable, `Info.plist` and code-signature
+seal match the package's, and falls back to the store bundle.
 
 Google Chrome's latest Stable release for macOS, from Google's signed,
 notarized universal dmg, installed untouched as

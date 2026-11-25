@@ -1,6 +1,8 @@
 # helium
 
-On macOS, `helium` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `helium` runs the app's copy in Home Manager's, then nix-darwin's
+app folder when its executable, `Info.plist` and code-signature seal match the
+package's, and falls back to the store bundle.
 
 [Helium](https://helium.computer/), a Chromium-based browser that is private
 by default. Upstream's prebuilt releases, nothing compiled:
