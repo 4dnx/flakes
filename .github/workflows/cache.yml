@@ -14,9 +14,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# A newer main replaces an older one's builds.
+# A newer main replaces an older one's builds. A manual run on a branch
+# can test a cached launcher independently of publishing from main.
 concurrency:
-  group: cache
+  group: ${{ github.ref == 'refs/heads/main' && 'cache' || format('cache-smoke-{0}', github.ref) }}
   cancel-in-progress: true
 
 permissions:
@@ -152,7 +153,8 @@ jobs:
         run: cachix push ret "$STORE_PATH"
 
   nixos-shell-smoke:
-    needs: nixos-shell-launcher
+    needs: [plan, nixos-shell-launcher]
+    if: ${{ !cancelled() && (needs.nixos-shell-launcher.result == 'success' || (github.event_name == 'workflow_dispatch' && needs.nixos-shell-launcher.result == 'skipped' && needs.plan.result != 'failure')) }}
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
@@ -165,6 +167,9 @@ jobs:
           name: ret
           skipPush: true
       - name: Boot the cached guest with no builders
+        env:
+          # Hosted macOS runners can return HV_UNSUPPORTED from nested HVF.
+          QEMU_OPTS: "-machine accel=tcg"
         run: |
           checkout="$PWD"
           cd "$(mktemp -d "$RUNNER_TEMP/nixos-shell.XXXXXXXX")"
