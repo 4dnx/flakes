@@ -3,9 +3,9 @@ name: Update
 on:
   schedule:
     # Three times a day, off the top of the hour, where GitHub delays or
-    # drops scheduled runs the most. The first run stays at 03 UTC:
-    # ci/update-all.sh bumps nixpkgs on Monday's 03 UTC run.
-    - cron: "17 3,11,19 * * *"
+    # drops scheduled runs the most. ci/update-all.sh bumps nixpkgs on
+    # Saturday's 05 UTC run, the first of a UTC Saturday.
+    - cron: "27 5,13,21 * * *"
   workflow_dispatch:
     inputs:
       packages:
