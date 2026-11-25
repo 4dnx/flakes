@@ -10,8 +10,8 @@ Prefer a package's own README (`pkgs/<name>/README.md`) to the repository's
 `README.md`. Write what concerns a package there, and give the package a
 README if it has none: what it installs, its options, what it turns off,
 gotchas and what to recheck on a bump. What concerns several packages goes
-in each of their READMEs or in `pkgs/README.md`; files and workflows go in
-`LAYOUT.md`.
+in each of their READMEs. `pkgs/README.md` holds only the package table, a
+row per package; files and workflows go in `LAYOUT.md`.
 
 `README.md` holds only general information about the flake: what it is, how
 to install and use it, its outputs and how updates work in general. Don't

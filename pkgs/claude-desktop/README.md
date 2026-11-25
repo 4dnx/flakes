@@ -1,6 +1,8 @@
 # claude-desktop
 
-On macOS, `claude-desktop` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `claude-desktop` runs the app's copy in Home Manager's, then
+nix-darwin's app folder when its executable, `Info.plist` and code-signature
+seal match the package's, and falls back to the store bundle.
 
 Claude Desktop for macOS (Claude, Claude Code and Cowork in one app), from
 upstream's signed, notarized universal zip. `$out/Applications/Claude.app`

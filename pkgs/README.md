@@ -5,11 +5,6 @@ name links to the package's own README, with its options, what it turns off
 (self-update, telemetry) and how to turn that back on. For installing them,
 see [the top-level README](../README.md).
 
-On macOS, a profile command that launches an app looks for a copy of the app
-in Home Manager's and then nix-darwin's app folder, and uses it when its
-executable, `Info.plist` and code-signature seal match the package's;
-otherwise it runs the bundle in the Nix store.
-
 | Package | Description |
 |---|---|
 | [1mcp](1mcp) | Unified MCP runtime that aggregates MCP servers behind one endpoint, with a NixOS service module |

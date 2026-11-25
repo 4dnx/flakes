@@ -1,6 +1,8 @@
 # whatsapp
 
-On macOS, `whatsapp` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `whatsapp` runs the app's copy in Home Manager's, then nix-darwin's
+app folder when its executable, `Info.plist` and code-signature seal match the
+package's, and falls back to the store bundle.
 
 The official native WhatsApp for macOS, downloaded as a ZIP from
 `web.whatsapp.com`. The signed `WhatsApp.app` is installed unchanged under

@@ -1,6 +1,8 @@
 # telegram
 
-On macOS, `telegram` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `telegram` runs the app's copy in Home Manager's, then nix-darwin's
+app folder when its executable, `Info.plist` and code-signature seal match the
+package's, and falls back to the store bundle.
 
 Telegram's official **native macOS client**, not the cross-platform Telegram
 Desktop app. The ZIP from `osx.telegram.org` is installed as the untouched

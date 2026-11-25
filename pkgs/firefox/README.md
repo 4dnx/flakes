@@ -1,6 +1,8 @@
 # firefox
 
-On macOS, `firefox` prefers a matching installed app copy and falls back to the store bundle.
+On macOS, `firefox` runs the app's copy in Home Manager's, then nix-darwin's
+app folder when its executable, `Info.plist` and code-signature seal match the
+package's, and falls back to the store bundle.
 
 Mozilla Firefox, the latest release, from Mozilla's own builds (en-US;
 other languages install as language packs from within Firefox). Nothing is
