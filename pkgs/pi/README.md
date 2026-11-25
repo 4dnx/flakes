@@ -13,14 +13,14 @@ the installed Pi launcher and npm use `nodejs-24-lts`.
 ## Use
 
 ```sh
-nix run github:xr3t/flakes#pi -- --version
-nix build github:xr3t/flakes#pi
+nix run github:4dnx/flakes#pi -- --version
+nix build github:4dnx/flakes#pi
 ```
 
-Home Manager or nix-darwin, with `xr3t` passed as an input:
+Home Manager or nix-darwin, with `f0dnx` passed as an input:
 
 ```nix
-home.packages = [ inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.pi ];
+home.packages = [ inputs.f0dnx.packages.${pkgs.stdenv.hostPlatform.system}.pi ];
 ```
 
 Supported platforms: Apple Silicon macOS, Linux ARM64 and Linux x86_64. Only

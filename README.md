@@ -24,7 +24,7 @@ package's README say which systems it supports.
 Try Codex without installing it in a profile:
 
 ```sh
-nix run github:xr3t/flakes#codex -- --version
+nix run github:4dnx/flakes#codex -- --version
 ```
 
 Add it as an input. Its `nix-darwin` and `home-manager` inputs are used only
@@ -34,8 +34,8 @@ inputs with `follows` keeps a single copy of each in the lock file:
 ```nix
 inputs = {
   nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  xr3t = {
-    url = "github:xr3t/flakes";
+  f0dnx = {
+    url = "github:4dnx/flakes";
     inputs.nixpkgs.follows = "nixpkgs";
     # inputs.nix-darwin.follows = "nix-darwin";
     # inputs.home-manager.follows = "home-manager";
@@ -44,7 +44,7 @@ inputs = {
 ```
 
 Packages come straight from the flake (built against its pinned nixpkgs,
-with its unfree packages allowed) or from the overlay, as `pkgs.xr3t.<name>`,
+with its unfree packages allowed) or from the overlay, as `pkgs.f0dnx.<name>`,
 built against the configuration's own nixpkgs; unfree ones then need that
 nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 
@@ -53,10 +53,10 @@ nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 ```nix
 darwinConfigurations.example = nix-darwin.lib.darwinSystem {
   modules = [
-    xr3t.darwinModules.rayfish
+    f0dnx.darwinModules.rayfish
     {
       nixpkgs.hostPlatform = "aarch64-darwin";
-      environment.systemPackages = [ xr3t.packages.aarch64-darwin.ghostty ];
+      environment.systemPackages = [ f0dnx.packages.aarch64-darwin.ghostty ];
       services.rayfish.enable = true;
     }
   ];
@@ -77,12 +77,12 @@ Home Manager.
 ```nix
 nixosConfigurations.example = nixpkgs.lib.nixosSystem {
   modules = [
-    xr3t.nixosModules.rayfish
+    f0dnx.nixosModules.rayfish
     (
       { pkgs, ... }:
       {
-        nixpkgs.overlays = [ xr3t.overlays.default ];
-        environment.systemPackages = [ pkgs.xr3t.codex ];
+        nixpkgs.overlays = [ f0dnx.overlays.default ];
+        environment.systemPackages = [ pkgs.f0dnx.codex ];
         services.rayfish.enable = true;
       }
     )
@@ -103,7 +103,7 @@ split-tunnel exclusions.
 Install Nix with flakes enabled, then either add packages to a profile:
 
 ```bash
-nix profile add github:xr3t/flakes#codex
+nix profile add github:4dnx/flakes#codex
 ```
 
 or use standalone Home Manager, with this flake's `homeManagerModules`:
@@ -112,13 +112,13 @@ or use standalone Home Manager, with this flake's `homeManagerModules`:
 homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
   modules = [
-    xr3t.homeManagerModules.helium
+    f0dnx.homeManagerModules.helium
     {
       home = {
         username = "alice";
         homeDirectory = "/home/alice";
         stateVersion = "25.11";
-        packages = [ xr3t.packages.x86_64-linux.codex ];
+        packages = [ f0dnx.packages.x86_64-linux.codex ];
       };
       targets.genericLinux.enable = true;
       programs.helium.enable = true;
@@ -148,7 +148,7 @@ Differences from NixOS:
 ## Outputs
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
-- `overlays.default`: adds `pkgs.xr3t.<name>`
+- `overlays.default`: adds `pkgs.f0dnx.<name>`
 - `darwinModules.<name>`, `nixosModules.<name>`: system services (launchd
   daemons, systemd units), for the packages that have one
 - `homeManagerModules.<name>`: per-user settings and services, for the
@@ -168,7 +168,7 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
 Packages follow upstream automatically: a scheduled workflow checks for new
 releases and commits them to `main`, and the pinned nixpkgs is bumped weekly.
-Pick them up with `nix flake update xr3t`. Updates of root daemons, network
+Pick them up with `nix flake update f0dnx`. Updates of root daemons, network
 filters and agents, and of nixpkgs, go through a pull request that is merged
 once it builds on every system; see [SECURITY.md](SECURITY.md) for what is
 checked.
@@ -183,7 +183,7 @@ Home Manager's copies in `~/Applications/Home Manager Apps` are writable,
 unless `homeManagerModules.read-only-apps` keeps them read-only:
 
 ```nix
-imports = [ xr3t.homeManagerModules.read-only-apps ];
+imports = [ f0dnx.homeManagerModules.read-only-apps ];
 targets.darwin.copyApps.readOnly = true;
 ```
 

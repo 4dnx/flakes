@@ -8,7 +8,7 @@ Configure the public `ret` Cachix cache, then run a revision whose Cache workflo
 has built, published and booted the VM:
 
 ```sh
-nix run --builders "" --max-jobs 0 'github:xr3t/flakes/<commit-sha>#nixos-shell'
+nix run --builders "" --max-jobs 0 'github:4dnx/flakes/<commit-sha>#nixos-shell'
 ```
 
 The launcher allocates 1 GiB of guest RAM, two vCPUs and a 4 GiB virtual disk.
