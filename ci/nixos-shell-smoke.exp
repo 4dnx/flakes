@@ -10,7 +10,7 @@ proc fail {message} {
 }
 
 expect {
-    -re {root@nixos-shell[^\r\n]*# } {}
+    -re {root@nixos-shell:[^\r\n]*\]#} {}
     timeout { fail "Timed out waiting for the guest shell" }
     eof { fail "The launcher exited before the guest shell was ready" }
 }

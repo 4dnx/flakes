@@ -153,8 +153,8 @@ jobs:
         run: cachix push ret "$STORE_PATH"
 
   nixos-shell-smoke:
-    needs: [plan, nixos-shell-launcher]
-    if: ${{ !cancelled() && (needs.nixos-shell-launcher.result == 'success' || (github.event_name == 'workflow_dispatch' && needs.nixos-shell-launcher.result == 'skipped' && needs.plan.result != 'failure')) }}
+    needs: nixos-shell-launcher
+    if: ${{ !cancelled() && (needs.nixos-shell-launcher.result == 'success' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) }}
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
