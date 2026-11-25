@@ -42,7 +42,7 @@ in
     package = lib.mkOption {
       type = lib.types.nullOr lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.kiri;
-      defaultText = lib.literalExpression "fordnx.packages.\${pkgs.stdenv.hostPlatform.system}.kiri";
+      defaultText = lib.literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.kiri";
       description = ''
         Kiri package to install. null installs nothing and keeps the shell
         integration and update setting, for a Kiri installed elsewhere, such

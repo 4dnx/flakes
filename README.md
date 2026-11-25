@@ -34,7 +34,7 @@ inputs with `follows` keeps a single copy of each in the lock file:
 ```nix
 inputs = {
   nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  fordnx = {
+  f0dnx = {
     url = "github:4dnx/flakes";
     inputs.nixpkgs.follows = "nixpkgs";
     # inputs.nix-darwin.follows = "nix-darwin";
@@ -44,7 +44,7 @@ inputs = {
 ```
 
 Packages come straight from the flake (built against its pinned nixpkgs,
-with its unfree packages allowed) or from the overlay, as `pkgs.fordnx.<name>`,
+with its unfree packages allowed) or from the overlay, as `pkgs.f0dnx.<name>`,
 built against the configuration's own nixpkgs; unfree ones then need that
 nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 
@@ -53,10 +53,10 @@ nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 ```nix
 darwinConfigurations.example = nix-darwin.lib.darwinSystem {
   modules = [
-    fordnx.darwinModules.rayfish
+    f0dnx.darwinModules.rayfish
     {
       nixpkgs.hostPlatform = "aarch64-darwin";
-      environment.systemPackages = [ fordnx.packages.aarch64-darwin.ghostty ];
+      environment.systemPackages = [ f0dnx.packages.aarch64-darwin.ghostty ];
       services.rayfish.enable = true;
     }
   ];
@@ -77,12 +77,12 @@ Home Manager.
 ```nix
 nixosConfigurations.example = nixpkgs.lib.nixosSystem {
   modules = [
-    fordnx.nixosModules.rayfish
+    f0dnx.nixosModules.rayfish
     (
       { pkgs, ... }:
       {
-        nixpkgs.overlays = [ fordnx.overlays.default ];
-        environment.systemPackages = [ pkgs.fordnx.codex ];
+        nixpkgs.overlays = [ f0dnx.overlays.default ];
+        environment.systemPackages = [ pkgs.f0dnx.codex ];
         services.rayfish.enable = true;
       }
     )
@@ -112,13 +112,13 @@ or use standalone Home Manager, with this flake's `homeManagerModules`:
 homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
   modules = [
-    fordnx.homeManagerModules.helium
+    f0dnx.homeManagerModules.helium
     {
       home = {
         username = "alice";
         homeDirectory = "/home/alice";
         stateVersion = "25.11";
-        packages = [ fordnx.packages.x86_64-linux.codex ];
+        packages = [ f0dnx.packages.x86_64-linux.codex ];
       };
       targets.genericLinux.enable = true;
       programs.helium.enable = true;
@@ -148,7 +148,7 @@ Differences from NixOS:
 ## Outputs
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
-- `overlays.default`: adds `pkgs.fordnx.<name>`
+- `overlays.default`: adds `pkgs.f0dnx.<name>`
 - `darwinModules.<name>`, `nixosModules.<name>`: system services (launchd
   daemons, systemd units), for the packages that have one
 - `homeManagerModules.<name>`: per-user settings and services, for the
@@ -168,7 +168,7 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
 Packages follow upstream automatically: a scheduled workflow checks for new
 releases and commits them to `main`, and the pinned nixpkgs is bumped weekly.
-Pick them up with `nix flake update fordnx`. Updates of root daemons, network
+Pick them up with `nix flake update f0dnx`. Updates of root daemons, network
 filters and agents, and of nixpkgs, go through a pull request that is merged
 once it builds on every system; see [SECURITY.md](SECURITY.md) for what is
 checked.
@@ -183,7 +183,7 @@ Home Manager's copies in `~/Applications/Home Manager Apps` are writable,
 unless `homeManagerModules.read-only-apps` keeps them read-only:
 
 ```nix
-imports = [ fordnx.homeManagerModules.read-only-apps ];
+imports = [ f0dnx.homeManagerModules.read-only-apps ];
 targets.darwin.copyApps.readOnly = true;
 ```
 

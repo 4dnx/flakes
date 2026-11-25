@@ -28,7 +28,7 @@ follows Mozilla's releases directly, on the day they ship.
 ## Usage
 
 ```nix
-home.packages = [ inputs.fordnx.packages.${pkgs.stdenv.hostPlatform.system}.firefox ];
+home.packages = [ inputs.f0dnx.packages.${pkgs.stdenv.hostPlatform.system}.firefox ];
 ```
 
 The Linux package is a `wrapFirefox` wrapper, so NixOS' and Home Manager's
@@ -39,7 +39,7 @@ and native messaging hosts through its `override`:
 # NixOS
 programs.firefox = {
   enable = true;
-  package = inputs.fordnx.packages.x86_64-linux.firefox;
+  package = inputs.f0dnx.packages.x86_64-linux.firefox;
 };
 ```
 
@@ -49,7 +49,7 @@ default) and, on macOS, the policies below.
 
 ```nix
 {
-  imports = [ inputs.fordnx.homeManagerModules.firefox ];
+  imports = [ inputs.f0dnx.homeManagerModules.firefox ];
   programs.firefox.enable = true;
 }
 ```
@@ -61,7 +61,7 @@ nix-darwin's root-owned copy in `/Applications/Nix Apps`, but it can replace
 Home Manager's writable copy in `~/Applications/Home Manager Apps`
 (`targets.darwin.copyApps`); on macOS the Home Manager module's
 `DisableAppUpdate` (below) turns it off. Updates come from this flake
-(`nix flake update fordnx`).
+(`nix flake update f0dnx`).
 
 On Linux the package turns the update check off with Mozilla's documented
 `DisableAppUpdate` policy (in the wrapper's `policies.json`; the wrapper's

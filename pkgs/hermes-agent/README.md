@@ -59,7 +59,7 @@ nix.settings = {
   users.users.alice.linger = true;
 
   home-manager.users.alice = {
-    imports = [ inputs.fordnx.homeManagerModules.hermes-agent ];
+    imports = [ inputs.f0dnx.homeManagerModules.hermes-agent ];
 
     programs.hermes-agent.enable = true; # `hermes` on PATH, HERMES_HOME exported
     services.hermes-agent = {
@@ -89,7 +89,7 @@ Then set it up as after install.sh: `hermes setup`, `hermes model`, keys in
 
 What differs:
 
-- Updates come from Nix (`nix flake update fordnx` and a rebuild), not
+- Updates come from Nix (`nix flake update f0dnx` and a rebuild), not
   `hermes update`; the services restart on the new version after the switch.
 - With `gateway.enable` the unit is `hermes-agent`, which Hermes' CLI does
   not know: `hermes gateway status` reports "Running manually". Use
@@ -102,7 +102,7 @@ What differs:
 
   ```nix
   services.hermes-agent.settings.browser.executable_path =
-    lib.getExe inputs.fordnx.packages.${pkgs.stdenv.hostPlatform.system}.helium;
+    lib.getExe inputs.f0dnx.packages.${pkgs.stdenv.hostPlatform.system}.helium;
   ```
 - Each switch merges `settings` (and `terminal.cwd` from `workingDirectory`)
   into `config.yaml`; other keys set with the CLI stay. `.env` is only
@@ -113,7 +113,7 @@ without a git checkout it would follow upstream's main branch and always
 report an update. Hermes refuses `hermes update --set-channel` on Nix, so
 each switch writes the `update.installs.<id>` record for the current store
 path to `config.yaml` (`stable-channel.py`). A new release shows as "Update
-available"; take it with `nix flake update fordnx` and a rebuild.
+available"; take it with `nix flake update f0dnx` and a rebuild.
 
 Set `services.hermes-agent.nixManagesConfig = true` for upstream's managed
 mode instead: the CLI refuses config changes, and the services see only
@@ -165,7 +165,7 @@ with what it would generate and rewrites it when they differ.
 
 ```nix
 {
-  imports = [ inputs.fordnx.nixosModules.hermes-agent ];
+  imports = [ inputs.f0dnx.nixosModules.hermes-agent ];
 
   services.hermes-agent = {
     enable = true;
@@ -211,6 +211,6 @@ On a bump, check:
 ## Outputs
 
 - `packages.x86_64-linux.hermes-agent`
-- `pkgs.fordnx.hermes-agent` through `overlays.default`
+- `pkgs.f0dnx.hermes-agent` through `overlays.default`
 - `nixosModules.hermes-agent`
 - `homeManagerModules.hermes-agent`

@@ -6,7 +6,7 @@ overlay users must allow `claude-code` in their nixpkgs configuration.
 Nothing is compiled.
 
 ```nix
-home.packages = [ inputs.fordnx.packages.${system}.claude-code ];
+home.packages = [ inputs.f0dnx.packages.${system}.claude-code ];
 ```
 
 `libexec/claude-code/claude` is upstream's single Bun-compiled binary. On
@@ -57,7 +57,7 @@ account, `claude import`, the advisor tool, MCP tasks, Code Mode, artifact
 comments and others. To turn metrics off anyway, at that cost:
 
 ```nix
-inputs.fordnx.packages.${system}.claude-code.override { disableTelemetry = true; }
+inputs.f0dnx.packages.${system}.claude-code.override { disableTelemetry = true; }
 ```
 
 or `DISABLE_TELEMETRY=1` in the environment.

@@ -19,13 +19,13 @@ run on NixOS.
 
 ```nix
 {
-  inputs.fordnx.url = "github:4dnx/flakes";
-  inputs.fordnx.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.f0dnx.url = "github:4dnx/flakes";
+  inputs.f0dnx.inputs.nixpkgs.follows = "nixpkgs";
 
   # nix-darwin
   darwinConfigurations.<host> = nix-darwin.lib.darwinSystem {
     modules = [
-      inputs.fordnx.darwinModules.rayfish
+      inputs.f0dnx.darwinModules.rayfish
       { services.rayfish.enable = true; }
     ];
   };
@@ -33,7 +33,7 @@ run on NixOS.
   # NixOS
   nixosConfigurations.<host> = nixpkgs.lib.nixosSystem {
     modules = [
-      inputs.fordnx.nixosModules.rayfish
+      inputs.f0dnx.nixosModules.rayfish
       { services.rayfish.enable = true; }
     ];
   };
@@ -84,7 +84,7 @@ or the next boot.
 
 Everything else passes through to the real binary at `libexec/rayfish/ray`.
 
-Upgrade by updating the flake input (`nix flake update fordnx`), not with
+Upgrade by updating the flake input (`nix flake update f0dnx`), not with
 `ray update`.
 
 After an earlier `sudo ray up`, remove the service it installed before
@@ -97,10 +97,10 @@ since `ray uninstall` is blocked.
 repo's daily workflow runs it, builds the Linux package, runs
 `nix flake check`, and commits to `main`.
 
-Consumers still pick it up with `nix flake update fordnx`.
+Consumers still pick it up with `nix flake update f0dnx`.
 
 ## Outputs
 
 - `packages.<system>.rayfish`
-- `pkgs.fordnx.rayfish` through `overlays.default`
+- `pkgs.f0dnx.rayfish` through `overlays.default`
 - `darwinModules.rayfish`, `nixosModules.rayfish`

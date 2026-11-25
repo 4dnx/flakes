@@ -25,7 +25,7 @@ the partition. The installer holds four components:
 
 ```nix
 {
-  imports = [ inputs.fordnx.darwinModules.google-drive ];
+  imports = [ inputs.f0dnx.darwinModules.google-drive ];
   programs.google-drive.enable = true;
 }
 ```
@@ -59,7 +59,7 @@ Google Drive updates through Google's updater (Google Software Update,
 GoogleUpdater), which its installer installs and registers it with. The
 package and module leave the updater out, and don't register Google Drive
 with it, so nothing updates the copy in `/Applications`; new releases come
-through this flake (`nix flake update fordnx`). Google documents no Drive
+through this flake (`nix flake update f0dnx`). Google documents no Drive
 setting that turns updates off. If Google's updater is on the machine
 anyway (from an earlier install by Google's installer, or another Google
 app), it may still hold a registration for Google Drive; remove it with

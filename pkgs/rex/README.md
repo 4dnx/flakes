@@ -15,7 +15,7 @@ Rex is in testing. Until upstream publishes a stable release, the package
 follows the preview channel, as upstream's install script does.
 
 ```nix
-{ environment.systemPackages = [ inputs.fordnx.packages.aarch64-darwin.rex ]; }
+{ environment.systemPackages = [ inputs.f0dnx.packages.aarch64-darwin.rex ]; }
 ```
 
 The package doesn't install Rex's terminal type (`xterm-rex`) or its ssh
@@ -30,7 +30,7 @@ lists every connection Rex makes: the `rex` command has no update check,
 self-update or telemetry, and connects only to the servers it is given
 and, when turned on, Tailscale.
 Nothing in this package turns anything off. Updates come from this flake
-(`nix flake update fordnx`).
+(`nix flake update f0dnx`).
 
 Rex for Mac, the app this package doesn't include, checks for updates with
 Sparkle at launch and once a day, and upstream says that check can't be

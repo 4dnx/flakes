@@ -37,7 +37,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.google-drive;
-      defaultText = literalExpression "fordnx.packages.\${pkgs.stdenv.hostPlatform.system}.google-drive";
+      defaultText = literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.google-drive";
       description = "Google Drive package to install.";
     };
     automaticErrorReporting = mkOption {

@@ -16,14 +16,14 @@ without patching.
 
 ```nix
 {
-  inputs.fordnx.url = "github:4dnx/flakes";
-  inputs.fordnx.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.f0dnx.url = "github:4dnx/flakes";
+  inputs.f0dnx.inputs.nixpkgs.follows = "nixpkgs";
 
-  environment.systemPackages = [ inputs.fordnx.packages.${system}.nullclaw ];
+  environment.systemPackages = [ inputs.f0dnx.packages.${system}.nullclaw ];
 }
 ```
 
-Through the overlay: `pkgs.fordnx.nullclaw`.
+Through the overlay: `pkgs.f0dnx.nullclaw`.
 
 Or run it without installing:
 
@@ -53,7 +53,7 @@ ran it, which goes stale on update and disappears on GC):
 ```nix
 {
   home-manager.users.alice = {
-    imports = [ inputs.fordnx.homeManagerModules.nullclaw ];
+    imports = [ inputs.f0dnx.homeManagerModules.nullclaw ];
 
     services.nullclaw = {
       enable = true;
@@ -147,7 +147,7 @@ no sandbox; leave it off if the agent has to administer the machine (with
 ## Updating
 
 - `nullclaw update` detects the Nix store path and only prints instructions
-  (for nixpkgs, not this flake). Upgrade with `nix flake update fordnx`.
+  (for nixpkgs, not this flake). Upgrade with `nix flake update f0dnx`.
 - Don't use `nullclaw service install`: it writes a user service pointing at
   the current `/nix/store` path, which keeps running the old version after an
   upgrade and breaks once that path is garbage-collected. Use
@@ -158,12 +158,12 @@ no sandbox; leave it off if the agent has to administer the machine (with
 `update.sh` bumps to the latest upstream release, run by the repo's update
 workflow. NullClaw runs as an agent with the user's access, so the workflow opens a
 pull request for its updates instead of committing to `main`. Consumers pick them up
-with `nix flake update fordnx`.
+with `nix flake update f0dnx`.
 
 ## Outputs
 
 - `packages.<system>.nullclaw`
-- `pkgs.fordnx.nullclaw` through `overlays.default`
+- `pkgs.f0dnx.nullclaw` through `overlays.default`
 - `homeManagerModules.nullclaw`: the `services.nullclaw` user service
 - `nixosModules.nullclaw`, `darwinModules.nullclaw`: only a pointer to the Home
   Manager module, for configs that still set the old system service

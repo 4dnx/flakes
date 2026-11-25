@@ -26,7 +26,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.santa;
-      defaultText = literalExpression "fordnx.packages.\${pkgs.stdenv.hostPlatform.system}.santa";
+      defaultText = literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.santa";
       description = "Santa package to install.";
     };
   };

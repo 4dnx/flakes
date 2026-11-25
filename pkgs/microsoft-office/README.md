@@ -19,7 +19,7 @@ unsupported. macOS 15 or later, as the installers require.
 
 ```nix
 {
-  imports = [ fordnx.darwinModules.microsoft-office ];
+  imports = [ f0dnx.darwinModules.microsoft-office ];
   programs.microsoft-office = {
     word.enable = true;
     excel.enable = true;
@@ -110,7 +110,7 @@ unloads it again (the next activation puts it back).
   installers bring as a separate component, is not installed (Homebrew's
   casks deselect it too), and nor is its root helper and launch agent; the
   apps are not registered with it. Updates come from this flake
-  (`nix flake update fordnx`).
+  (`nix flake update f0dnx`).
 - **Update checks: `autoUpdate.howToCheck = "Manual"`.** Should another
   Microsoft product install MAU, this keeps it from checking and installing
   updates on its own: Microsoft's documented `HowToCheck` in
