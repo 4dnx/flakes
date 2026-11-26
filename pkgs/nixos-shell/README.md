@@ -4,7 +4,7 @@
 Apple Silicon. The terminal attaches to the guest's root console. The guest
 includes Nix with flakes enabled, `jq` and `ripgrep` and uses QEMU user networking for outbound access.
 
-Configure the public `ret` Cachix cache, then run a revision whose Cache workflow
+Configure the public `nan` Cachix cache, then run a revision whose Cache workflow
 has built, published and booted the VM:
 
 ```sh

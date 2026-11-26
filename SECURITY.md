@@ -106,7 +106,7 @@ fixes; there are no release branches.
   otherwise from the store.
 - **Binary cache.** CI pushes only the closures of the packages in
   `ci/cached-packages.sh` (`hermes-agent` and `llama`), built from `main`, to
-  `ret.cachix.org`, and only those it doesn't hold yet; builds of pull requests
+  `nan.cachix.org`, and only those it doesn't hold yet; builds of pull requests
   and `update/<name>` branches never reach it. Trusting that cache means trusting this repository's CI.
 
 ## CI hardening

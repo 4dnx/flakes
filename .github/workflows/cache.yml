@@ -1,8 +1,8 @@
 name: Cache
 
 # Pushes the packages that compile for minutes (ci/cached-packages.sh:
-# hermes-agent, x86_64 only, and llama) to ret.cachix.org, as main has
-# them, and only those ret.cachix.org doesn't hold yet: a change that leaves
+# hermes-agent, x86_64 only, and llama) to nan.cachix.org, as main has
+# them, and only those nan.cachix.org doesn't hold yet: a change that leaves
 # them alone builds nothing. Only from main: builds of pull requests and
 # update/<name> branches never reach the cache. Runs on a push to main (a
 # merged pull request), and is started by update.yml and check.yml's merge
@@ -41,7 +41,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      - name: List the cached packages ret.cachix.org lacks
+      - name: List the cached packages nan.cachix.org lacks
         id: plan
         if: env.HAS_CACHIX == 'true'
         run: ci/cache-plan.sh
@@ -50,7 +50,7 @@ jobs:
         if: env.HAS_CACHIX == 'true'
         run: |
           launcher="$(nix eval --raw .#packages.aarch64-darwin.nixos-shell.outPath)"
-          if ! nix path-info --store https://ret.cachix.org "$launcher"; then
+          if ! nix path-info --store https://nan.cachix.org "$launcher"; then
             echo "missing=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -69,10 +69,10 @@ jobs:
         with:
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # Pull from ret.cachix.org, which is public: no token needed.
+      # Pull from nan.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
-          name: ret
+          name: nan
           skipPush: true
       - name: Build the missing packages
         env:
@@ -95,7 +95,7 @@ jobs:
           for name in $PACKAGES; do
             installables+=(".#packages.$SYSTEM.\"$name\"")
           done
-          nix build --no-link --print-out-paths "${installables[@]}" | cachix push ret
+          nix build --no-link --print-out-paths "${installables[@]}" | cachix push nan
 
   nixos-shell-guest:
     needs: plan
@@ -109,7 +109,7 @@ jobs:
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
-          name: ret
+          name: nan
           skipPush: true
       - name: Build the NixOS guest
         id: guest
@@ -126,7 +126,7 @@ jobs:
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
           STORE_PATHS: ${{ steps.guest.outputs.paths }}
-        run: cachix push ret <<< "$STORE_PATHS"
+        run: cachix push nan <<< "$STORE_PATHS"
 
   nixos-shell-launcher:
     needs: nixos-shell-guest
@@ -139,7 +139,7 @@ jobs:
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
-          name: ret
+          name: nan
           skipPush: true
       - name: Build the macOS launcher using the cached guest
         id: launcher
@@ -150,7 +150,7 @@ jobs:
         env:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
           STORE_PATH: ${{ steps.launcher.outputs.path }}
-        run: cachix push ret "$STORE_PATH"
+        run: cachix push nan "$STORE_PATH"
 
   nixos-shell-smoke:
     needs: nixos-shell-launcher
@@ -164,7 +164,7 @@ jobs:
       - uses: DeterminateSystems/determinate-nix-action@16f94ba7aae399b9f9077c254b6719ec6de7e3e3 # v3.24.2
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
-          name: ret
+          name: nan
           skipPush: true
       - name: Boot the cached guest with no builders
         env:

@@ -54,7 +54,7 @@ jobs:
   # cache between runs: most packages here are upstream's binaries, and
   # restoring and saving a store took longer than fetching what a few
   # changed checks need. Linux pulls the packages that compile for minutes
-  # from ret.cachix.org (ci/cached-packages.sh), which holds nothing for
+  # from nan.cachix.org (ci/cached-packages.sh), which holds nothing for
   # macOS.
   build:
     name: check (${{ matrix.system }})
@@ -72,11 +72,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
-      # Pull from ret.cachix.org, which is public: no token needed.
+      # Pull from nan.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         if: runner.os == 'Linux'
         with:
-          name: ret
+          name: nan
           skipPush: true
       # --keep-going reports every failing check, not just the first.
       - name: Build the checks that differ from the baseline

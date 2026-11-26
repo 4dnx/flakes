@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prints the packages of <system> that CI pushes to ret.cachix.org, one per
+# Prints the packages of <system> that CI pushes to nan.cachix.org, one per
 # line: only those that compile for minutes (hermes-agent, x86_64-linux
 # only, and llama), so their users can download them instead. Every other
 # package is upstream's binary or builds quickly, and stays out of the cache.

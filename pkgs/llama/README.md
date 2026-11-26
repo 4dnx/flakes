@@ -38,7 +38,7 @@ commit that `llama version` reports; `update.sh` reads them from the
 `v<version>-b<build>-<commit>` tag.
 
 Compiling takes minutes, so CI (`cache.yml`) pushes the `x86_64-linux` and
-`aarch64-linux` builds to `ret.cachix.org` from `main` (see `SECURITY.md`);
+`aarch64-linux` builds to `nan.cachix.org` from `main` (see `SECURITY.md`);
 with that cache as a substituter the package is downloaded instead.
 
 ## Updates and telemetry
