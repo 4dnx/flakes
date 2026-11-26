@@ -116,6 +116,12 @@ jobs:
         with:
           # Installer diagnostics stay off.
           diagnostic-endpoint: ""
+          # The guest's Determinate Nix from Determinate's public binary
+          # cache, so it isn't compiled here; the guest's closure, that Nix
+          # included, is then pushed to nan.cachix.org.
+          extra-conf: |
+            extra-substituters = https://install.determinate.systems
+            extra-trusted-public-keys = cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
           name: nan

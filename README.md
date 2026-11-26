@@ -30,7 +30,8 @@ nix run github:4dnx/flakes#codex -- --version
 Add it as an input. Its nixpkgs, nix-darwin and Home Manager come from
 FlakeHub. Its `nix-darwin`, `home-manager` and `determinate` inputs are used
 only by its own checks, which evaluate the modules on a system running
-Determinate Nix, and are never fetched otherwise; pointing them at existing
+Determinate Nix, and `determinate` also by the `nixos-shell` guest; they are
+never fetched otherwise. Pointing them at existing
 inputs with `follows` keeps a single copy of each in the lock file:
 
 ```nix

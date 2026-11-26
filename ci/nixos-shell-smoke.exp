@@ -16,7 +16,7 @@ expect {
 }
 
 # Split the marker so the echoed command cannot satisfy the check.
-send -- {test "$(uname -sm)" = "Linux aarch64" && nix --version && jq --version && rg --version && printf '%s%s\n' NIXOS_SHELL_ SMOKE_OK}
+send -- {test "$(uname -sm)" = "Linux aarch64" && nix --version | grep 'Determinate Nix' && jq --version && rg --version && printf '%s%s\n' NIXOS_SHELL_ SMOKE_OK}
 send -- "\r"
 expect {
     "NIXOS_SHELL_SMOKE_OK" {}

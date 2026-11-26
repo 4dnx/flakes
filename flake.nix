@@ -9,10 +9,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # Only the module checks use these three (checks.<linux>.darwin-modules,
-    # home-modules, darwin-home-modules): the packages, the overlay and the
-    # modules themselves don't, so they are fetched only when checks are
-    # evaluated. A consumer can point them at its own with `follows` to keep
-    # one copy.
+    # home-modules, darwin-home-modules), and `determinate` also the
+    # nixos-shell guest: the other packages, the overlay and the modules
+    # themselves don't, so they are fetched only when those are evaluated. A
+    # consumer can point them at its own with `follows` to keep one copy.
     nix-darwin = {
       url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,8 +21,9 @@
       url = "https://flakehub.com/f/nix-community/home-manager/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Determinate Nix's nix-darwin and Home Manager modules, so the module
-    # checks evaluate against a system that runs Determinate Nix. Its own
+    # Determinate Nix's nix-darwin, Home Manager and NixOS modules: the module
+    # checks evaluate against a system that runs Determinate Nix, and the
+    # nixos-shell guest runs it. Its own
     # nixpkgs isn't followed, as upstream recommends: that would miss
     # FlakeHub Cache.
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
@@ -53,6 +54,9 @@
           # The upstream launcher adjusts virtiofs flags. Darwin uses 9p.
           # Apply its guest defaults and expose nixpkgs' VM runner directly.
           (nixos-shell + "/share/modules/nixos-shell-config.nix")
+          # Determinate Nix in the guest, with its telemetry off by default
+          # (modules/nixos-shell-vm.nix).
+          determinate.nixosModules.default
           ./modules/nixos-shell-vm.nix
           {
             nixpkgs.hostPlatform = "aarch64-linux";
