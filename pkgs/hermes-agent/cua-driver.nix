@@ -24,7 +24,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.cua-driver;
-      defaultText = lib.literalExpression "f0dnx.packages.\${system}.cua-driver";
+      defaultText = lib.literalExpression "flakes.packages.\${system}.cua-driver";
       description = "The cua-driver package.";
     };
   };

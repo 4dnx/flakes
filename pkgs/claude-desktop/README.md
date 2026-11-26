@@ -15,9 +15,9 @@ Systems: `aarch64-darwin`, macOS 13 or later. Upstream also ships Linux
 
 ```nix
 # nix-darwin
-environment.systemPackages = [ inputs.f0dnx.packages.aarch64-darwin.claude-desktop ];
+environment.systemPackages = [ inputs.flakes.packages.aarch64-darwin.claude-desktop ];
 # or Home Manager
-home.packages = [ inputs.f0dnx.packages.aarch64-darwin.claude-desktop ];
+home.packages = [ inputs.flakes.packages.aarch64-darwin.claude-desktop ];
 ```
 
 ## Integrity
@@ -52,7 +52,7 @@ Manager's writable copy in `~/Applications/Home Manager Apps`
 (`targets.darwin.copyApps`) it could replace, unless
 `homeManagerModules.read-only-apps` keeps it read-only (see the
 [top-level README](../../README.md#updates)). Updates belong to this flake
-(`nix flake update f0dnx`).
+(`nix flake update flakes`).
 
 Upstream's documented switch is `disableAutoUpdates` in the
 `com.anthropic.claudefordesktop` domain

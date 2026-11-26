@@ -18,7 +18,7 @@ server, and never downgrades. It downloads the dmg (~280 MB) to hash it.
 
 Chrome's updater, Google's GoogleUpdater, can't replace the copy in the
 read-only Nix store or nix-darwin's root-owned copy in `/Applications/Nix Apps`,
-so updates come from this flake (`nix flake update f0dnx`). Chrome may still
+so updates come from this flake (`nix flake update flakes`). Chrome may still
 install Google's updater under `~/Library` on first launch and show an update
 notice. Home Manager's writable copy in `~/Applications/Home Manager Apps`
 (`targets.darwin.copyApps`) is within that updater's reach unless

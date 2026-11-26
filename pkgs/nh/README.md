@@ -5,11 +5,11 @@ No Rust compilation is performed. Supported systems: `aarch64-darwin`,
 `aarch64-linux`, and `x86_64-linux`.
 
 ```nix
-inputs.f0dnx.url = "github:4dnx/flakes";
-environment.systemPackages = [ inputs.f0dnx.packages.${system}.nh ];
+inputs.flakes.url = "github:4dnx/flakes";
+environment.systemPackages = [ inputs.flakes.packages.${system}.nh ];
 ```
 
-The overlay also provides `pkgs.f0dnx.nh`.
+The overlay also provides `pkgs.flakes.nh`.
 
 The wrapper adds `nix-output-monitor` to PATH, matching the nixpkgs NH wrapper.
 Nix and platform tools such as `darwin-rebuild` must be available in the caller's

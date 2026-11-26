@@ -21,7 +21,7 @@ recheck on a bump.
 
 - Self-update: Microsoft AutoUpdate, which the installer brings as a
   separate component, is not installed; updates come from this flake
-  (`nix flake update f0dnx`). `update.sh` takes the build Microsoft's
+  (`nix flake update flakes`). `update.sh` takes the build Microsoft's
   download link and MAU's manifest (`0409MSWD2019-chk.xml`) agree on.
 - Update checks and telemetry: the module's `autoUpdate.howToCheck`
   (default `"Manual"`) and `diagnosticData` (default

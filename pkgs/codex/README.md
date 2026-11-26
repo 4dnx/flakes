@@ -28,7 +28,7 @@ the rest are configured there, declaratively:
 
 ```nix
 {
-  imports = [ inputs.f0dnx.homeManagerModules.codex ];
+  imports = [ inputs.flakes.homeManagerModules.codex ];
 
   programs.codex = {
     enable = true; # package defaults to this flake's codex

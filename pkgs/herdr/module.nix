@@ -24,7 +24,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.herdr;
-      defaultText = lib.literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.herdr";
+      defaultText = lib.literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.herdr";
       description = "Herdr package to install.";
     };
     telemetry = lib.mkOption {
