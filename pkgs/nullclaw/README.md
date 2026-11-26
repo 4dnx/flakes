@@ -23,7 +23,7 @@ without patching.
 }
 ```
 
-Through the overlay: `pkgs.f0dnx.nullclaw`.
+Through the overlay: `pkgs.flakes.nullclaw`.
 
 Or run it without installing:
 
@@ -163,7 +163,7 @@ with `nix flake update flakes`.
 ## Outputs
 
 - `packages.<system>.nullclaw`
-- `pkgs.f0dnx.nullclaw` through `overlays.default`
+- `pkgs.flakes.nullclaw` through `overlays.default`
 - `homeManagerModules.nullclaw`: the `services.nullclaw` user service
 - `nixosModules.nullclaw`, `darwinModules.nullclaw`: only a pointer to the Home
   Manager module, for configs that still set the old system service

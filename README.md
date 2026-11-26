@@ -44,7 +44,7 @@ inputs = {
 ```
 
 Packages come straight from the flake (built against its pinned nixpkgs,
-with its unfree packages allowed) or from the overlay, as `pkgs.f0dnx.<name>`,
+with its unfree packages allowed) or from the overlay, as `pkgs.flakes.<name>`,
 built against the configuration's own nixpkgs; unfree ones then need that
 nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 
@@ -82,7 +82,7 @@ nixosConfigurations.example = nixpkgs.lib.nixosSystem {
       { pkgs, ... }:
       {
         nixpkgs.overlays = [ flakes.overlays.default ];
-        environment.systemPackages = [ pkgs.f0dnx.codex ];
+        environment.systemPackages = [ pkgs.flakes.codex ];
         services.rayfish.enable = true;
       }
     )
@@ -148,7 +148,7 @@ Differences from NixOS:
 ## Outputs
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
-- `overlays.default`: adds `pkgs.f0dnx.<name>`
+- `overlays.default`: adds `pkgs.flakes.<name>`
 - `darwinModules.<name>`, `nixosModules.<name>`: system services (launchd
   daemons, systemd units), for the packages that have one
 - `homeManagerModules.<name>`: per-user settings and services, for the

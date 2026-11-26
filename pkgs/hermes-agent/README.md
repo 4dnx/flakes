@@ -211,6 +211,6 @@ On a bump, check:
 ## Outputs
 
 - `packages.x86_64-linux.hermes-agent`
-- `pkgs.f0dnx.hermes-agent` through `overlays.default`
+- `pkgs.flakes.hermes-agent` through `overlays.default`
 - `nixosModules.hermes-agent`
 - `homeManagerModules.hermes-agent`

@@ -102,5 +102,5 @@ Consumers still pick it up with `nix flake update flakes`.
 ## Outputs
 
 - `packages.<system>.rayfish`
-- `pkgs.f0dnx.rayfish` through `overlays.default`
+- `pkgs.flakes.rayfish` through `overlays.default`
 - `darwinModules.rayfish`, `nixosModules.rayfish`

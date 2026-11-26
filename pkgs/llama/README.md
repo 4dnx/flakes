@@ -11,7 +11,7 @@ inputs.flakes.url = "github:4dnx/flakes";
 environment.systemPackages = [ inputs.flakes.packages.${system}.llama ];
 ```
 
-The overlay also provides `pkgs.f0dnx.llama`.
+The overlay also provides `pkgs.flakes.llama`.
 
 ```sh
 llama serve    # OpenAI-compatible API and chat UI on http://localhost:9931
