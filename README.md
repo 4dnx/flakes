@@ -34,7 +34,7 @@ inputs with `follows` keeps a single copy of each in the lock file:
 ```nix
 inputs = {
   nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  f0dnx = {
+  flakes = {
     url = "github:4dnx/flakes";
     inputs.nixpkgs.follows = "nixpkgs";
     # inputs.nix-darwin.follows = "nix-darwin";
@@ -53,10 +53,10 @@ nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 ```nix
 darwinConfigurations.example = nix-darwin.lib.darwinSystem {
   modules = [
-    f0dnx.darwinModules.rayfish
+    flakes.darwinModules.rayfish
     {
       nixpkgs.hostPlatform = "aarch64-darwin";
-      environment.systemPackages = [ f0dnx.packages.aarch64-darwin.ghostty ];
+      environment.systemPackages = [ flakes.packages.aarch64-darwin.ghostty ];
       services.rayfish.enable = true;
     }
   ];
@@ -77,11 +77,11 @@ Home Manager.
 ```nix
 nixosConfigurations.example = nixpkgs.lib.nixosSystem {
   modules = [
-    f0dnx.nixosModules.rayfish
+    flakes.nixosModules.rayfish
     (
       { pkgs, ... }:
       {
-        nixpkgs.overlays = [ f0dnx.overlays.default ];
+        nixpkgs.overlays = [ flakes.overlays.default ];
         environment.systemPackages = [ pkgs.f0dnx.codex ];
         services.rayfish.enable = true;
       }
@@ -112,13 +112,13 @@ or use standalone Home Manager, with this flake's `homeManagerModules`:
 homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
   modules = [
-    f0dnx.homeManagerModules.helium
+    flakes.homeManagerModules.helium
     {
       home = {
         username = "alice";
         homeDirectory = "/home/alice";
         stateVersion = "25.11";
-        packages = [ f0dnx.packages.x86_64-linux.codex ];
+        packages = [ flakes.packages.x86_64-linux.codex ];
       };
       targets.genericLinux.enable = true;
       programs.helium.enable = true;
@@ -168,7 +168,7 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
 Packages follow upstream automatically: a scheduled workflow checks for new
 releases and commits them to `main`, and the pinned nixpkgs is bumped weekly.
-Pick them up with `nix flake update f0dnx`. Updates of root daemons, network
+Pick them up with `nix flake update flakes`. Updates of root daemons, network
 filters and agents, and of nixpkgs, go through a pull request that is merged
 once it builds on every system; see [SECURITY.md](SECURITY.md) for what is
 checked.
@@ -183,7 +183,7 @@ Home Manager's copies in `~/Applications/Home Manager Apps` are writable,
 unless `homeManagerModules.read-only-apps` keeps them read-only:
 
 ```nix
-imports = [ f0dnx.homeManagerModules.read-only-apps ];
+imports = [ flakes.homeManagerModules.read-only-apps ];
 targets.darwin.copyApps.readOnly = true;
 ```
 

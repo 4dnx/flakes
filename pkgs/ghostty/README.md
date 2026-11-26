@@ -36,7 +36,7 @@ nixpkgs' `ghostty` or upstream's flake, `github:ghostty-org/ghostty`.
   ```nix
   programs.ghostty = {
     enable = true;
-    package = inputs.f0dnx.packages.${system}.ghostty;
+    package = inputs.flakes.packages.${system}.ghostty;
     settings.auto-update = "off";
   };
   ```

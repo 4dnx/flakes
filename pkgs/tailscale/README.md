@@ -25,13 +25,13 @@ to be set by hand. Set `TS_NO_LOGS_NO_SUPPORT` for the daemon to stop its log up
 
 ```nix
 {
-  inputs.f0dnx.url = "github:4dnx/flakes";
-  inputs.f0dnx.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.flakes.url = "github:4dnx/flakes";
+  inputs.flakes.inputs.nixpkgs.follows = "nixpkgs";
 
   # NixOS: nixpkgs' module runs the package's own unit.
   services.tailscale = {
     enable = true;
-    package = inputs.f0dnx.packages.${pkgs.stdenv.hostPlatform.system}.tailscale;
+    package = inputs.flakes.packages.${pkgs.stdenv.hostPlatform.system}.tailscale;
   };
 }
 ```

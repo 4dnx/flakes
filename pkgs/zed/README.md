@@ -16,7 +16,7 @@ or CPU emulation.
   entry use `bin/zed`; Vulkan and window-system libraries come from nixpkgs.
 
 ```nix
-home.packages = [ inputs.f0dnx.packages.${pkgs.stdenv.hostPlatform.system}.zed ];
+home.packages = [ inputs.flakes.packages.${pkgs.stdenv.hostPlatform.system}.zed ];
 ```
 
 ## Settings, updates and telemetry
@@ -27,7 +27,7 @@ checks, diagnostic submissions and usage metrics to off, for GUI launches
 as well as terminal launches:
 
 ```nix
-imports = [ inputs.f0dnx.homeManagerModules.zed ];
+imports = [ inputs.flakes.homeManagerModules.zed ];
 programs.zed-editor.enable = true;
 ```
 
@@ -54,7 +54,7 @@ explains that updates come through Nix.
 
 `update.sh` follows GitHub's latest stable release and checks all three
 asset downloads against their GitHub SHA-256 digests. New versions go
-through update PRs and CI, then are selected with `nix flake update f0dnx`
+through update PRs and CI, then are selected with `nix flake update flakes`
 and a configuration rebuild. Updates never replace the app's signed files
 in place.
 

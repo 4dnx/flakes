@@ -7,8 +7,8 @@ team: the unified `llama` binary (`llama serve`, `llama cli`, `llama download`,
 `aarch64-linux`); on macOS and Windows llama.app is a desktop app.
 
 ```nix
-inputs.f0dnx.url = "github:4dnx/flakes";
-environment.systemPackages = [ inputs.f0dnx.packages.${system}.llama ];
+inputs.flakes.url = "github:4dnx/flakes";
+environment.systemPackages = [ inputs.flakes.packages.${system}.llama ];
 ```
 
 The overlay also provides `pkgs.f0dnx.llama`.

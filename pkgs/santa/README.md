@@ -16,7 +16,7 @@ is left out.
 
 ```nix
 {
-  imports = [ inputs.f0dnx.darwinModules.santa ];
+  imports = [ inputs.flakes.darwinModules.santa ];
   services.santa.enable = true;
 }
 ```
@@ -68,7 +68,7 @@ it. Remove it with upstream's `conf/uninstall.sh` from the release's
 ## Updates and telemetry
 
 Santa has no self-update: the installed version changes only when a new
-package is installed. Updates come from this flake (`nix flake update f0dnx`)
+package is installed. Updates come from this flake (`nix flake update flakes`)
 and the module's activation installs them. Santa sends nothing anywhere
 unless its configuration names a sync server (`SyncBaseURL`) or a metrics
 endpoint (`MetricURL`); neither is set by default.

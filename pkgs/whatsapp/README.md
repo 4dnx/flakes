@@ -11,7 +11,7 @@ Supports `aarch64-darwin`, macOS 12.1 or later. Unfree: overlay users must
 allow `whatsapp` in their nixpkgs configuration.
 
 ```nix
-home.packages = [ inputs.f0dnx.packages.aarch64-darwin.whatsapp ];
+home.packages = [ inputs.flakes.packages.aarch64-darwin.whatsapp ];
 ```
 
 ## Updates and privacy
@@ -23,7 +23,7 @@ the updater pins the HTTPS download and does not verify that signature.
 The install check verifies the executable, version and build number without
 opening the app or logging into an account.
 
-Updates come through `nix flake update f0dnx`. Nothing in the package turns
+Updates come through `nix flake update flakes`. Nothing in the package turns
 the embedded updater off. WhatsApp's Sparkle plugin (`MacPlugin.bundle`)
 supplies its feed URL itself (`feedURLStringForUpdater:`,
 `https://web.whatsapp.com/desktop/mac_native/updates`), sets
@@ -49,7 +49,7 @@ The Home Manager module installs the app and writes `SUSendProfileInfo` =
 false only while it is absent:
 
 ```nix
-imports = [ inputs.f0dnx.homeManagerModules.whatsapp ];
+imports = [ inputs.flakes.homeManagerModules.whatsapp ];
 programs.whatsapp.enable = true;
 ```
 

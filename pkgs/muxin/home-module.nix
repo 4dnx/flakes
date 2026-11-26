@@ -42,7 +42,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.muxin;
-      defaultText = lib.literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.muxin";
+      defaultText = lib.literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.muxin";
       description = "Muxin package to install.";
     };
     checkUpdates = lib.mkOption {

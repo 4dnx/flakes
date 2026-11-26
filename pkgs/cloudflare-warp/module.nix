@@ -72,7 +72,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.cloudflare-warp;
-      defaultText = literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.cloudflare-warp";
+      defaultText = literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.cloudflare-warp";
       description = "Cloudflare WARP package to run.";
     };
     excludeHosts = mkOption {

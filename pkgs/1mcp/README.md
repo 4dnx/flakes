@@ -16,14 +16,14 @@ libstdc++) so it runs on NixOS; the embedded app survives the patch. It is
 never stripped.
 
 The attribute name starts with a digit, so quote it:
-`inputs.f0dnx.packages.${system}."1mcp"`, `pkgs.f0dnx."1mcp"`,
+`inputs.flakes.packages.${system}."1mcp"`, `pkgs.f0dnx."1mcp"`,
 `services."1mcp"`. `nix run github:4dnx/flakes#1mcp` needs no quotes.
 
 ## Usage (NixOS)
 
 ```nix
 {
-  imports = [ inputs.f0dnx.nixosModules."1mcp" ];
+  imports = [ inputs.flakes.nixosModules."1mcp" ];
 
   services."1mcp" = {
     enable = true;
@@ -53,7 +53,7 @@ The attribute name starts with a digit, so quote it:
 ## Updates
 
 `update.sh` checks the latest upstream release and rewrites `hashes.json`.
-Consumers pick it up with `nix flake update f0dnx`.
+Consumers pick it up with `nix flake update flakes`.
 
 ## Outputs
 

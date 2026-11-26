@@ -72,7 +72,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.nullclaw;
-      defaultText = literalExpression "f0dnx.packages.\${pkgs.stdenv.hostPlatform.system}.nullclaw";
+      defaultText = literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.nullclaw";
       description = "NullClaw package to run.";
     };
     stateDir = mkOption {

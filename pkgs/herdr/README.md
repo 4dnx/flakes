@@ -26,7 +26,7 @@ Finder, the Dock or a desktop entry:
 
 ```nix
 {
-  imports = [ inputs.f0dnx.darwinModules.herdr ];  # or nixosModules
+  imports = [ inputs.flakes.darwinModules.herdr ];  # or nixosModules
   programs.herdr.enable = true;
 }
 ```
