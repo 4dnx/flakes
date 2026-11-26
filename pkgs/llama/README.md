@@ -34,8 +34,9 @@ tag (`v<version>`, which `update.sh` follows) with the same options:
   build time outside the pinned hashes.
 
 The tarball has no git history, so `hashes.json` records the build number and
-commit that `llama version` reports; `update.sh` reads them from the
-`v<version>-b<build>-<commit>` tag.
+commit that `llama version` reports; `update.sh` reads them from the build tag
+on the release's commit: `v<version>-b<build>-<commit>` where upstream made
+one (v1.0.0), else `b<build>` (v1.1.0, the commit then the release's).
 
 Compiling takes minutes, so CI (`cache.yml`) pushes the `x86_64-linux` and
 `aarch64-linux` builds to `nan.cachix.org` from `main` (see `SECURITY.md`);

@@ -9,15 +9,22 @@ cd "$(dirname "$0")"
 version="$(gh_latest llama ggml-org/llama.cpp)"
 skip_if_current llama "$version"
 
-# The release tag v<version> sits on the same commit as a tag that names the
-# build: v<version>-b<number>-<short commit>. The tarball has no git history,
-# so the build needs both.
-tag="$(git ls-remote --tags https://github.com/ggml-org/llama.cpp "refs/tags/v$version-b*" |
-  awk '{ sub("refs/tags/", "", $2); print $2 }' | sort -V | tail -n 1)"
-re="^v${version//./\\.}-b([0-9]+)-([0-9a-f]{7,12})$"
-[[ $tag =~ $re ]] || { echo "llama: no build tag for v$version" >&2; exit 1; }
-build="${BASH_REMATCH[1]}"
-commit="${BASH_REMATCH[2]}"
+# The tarball has no git history, so the build needs the build number and
+# commit that `llama version` reports. They come from the build tag on the
+# release's commit: v<version>-b<number>-<short commit> (v1.0.0), or only
+# b<number> (v1.1.0).
+tags="$(git ls-remote --tags https://github.com/ggml-org/llama.cpp)"
+# An annotated tag's commit is on its peeled (^{}) line, a lightweight one's
+# on its own.
+full="$(awk -v t="refs/tags/v$version" '$2 == t "^{}" { print $1; exit }' <<<"$tags")"
+[ -n "$full" ] ||
+  full="$(awk -v t="refs/tags/v$version" '$2 == t { print $1; exit }' <<<"$tags")"
+[[ $full =~ ^[0-9a-f]{40}$ ]] || { echo "llama: no tag v$version" >&2; exit 1; }
+build="$(awk -v c="$full" '$1 == c && $2 ~ /^refs\/tags\/(v[0-9.]+-)?b[0-9]+(-[0-9a-f]+)?$/ {
+    n = $2; sub(/^refs\/tags\/(v[0-9.]+-)?b/, "", n); sub(/-.*/, "", n); print n
+  }' <<<"$tags" | sort -n | tail -n 1)"
+[[ $build =~ ^[0-9]+$ ]] || { echo "llama: no build tag for v$version" >&2; exit 1; }
+commit="${full:0:7}"
 
 src="$(nix store prefetch-file --unpack --json \
   "https://github.com/ggml-org/llama.cpp/archive/refs/tags/v$version.tar.gz" | jq -er .hash)"
