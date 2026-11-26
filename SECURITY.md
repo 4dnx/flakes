@@ -64,8 +64,9 @@ fixes; there are no release branches.
   branch that `main` has moved past is rebased onto it and checked again). The packages in `ON_REQUEST` (the Office
   apps, a ~1.4 GB download each) update only when a run names them. The pinned nixpkgs, which every package's
   libraries and tools come from, is bumped weekly the same way, with the
-  nix-darwin and Home Manager inputs; those two only evaluate the modules in
-  `checks` and are in no package or module. See
+  nix-darwin, Home Manager and Determinate inputs; those three only evaluate
+  the modules in `checks` and are in no package or module. nixpkgs, nix-darwin
+  and Home Manager are fetched from FlakeHub. See
   [LAYOUT.md](LAYOUT.md) for how the workflow runs.
 - **Checks per system.** CI evaluates every system's checks (on a Linux
   runner: evaluating builds nothing) and rebuilds, on each system's runner,

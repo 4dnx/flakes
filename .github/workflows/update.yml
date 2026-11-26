@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: "Packages to update (space-separated; empty for all but ON_REQUEST; nixpkgs for the nixpkgs, nix-darwin and home-manager inputs)"
+        description: "Packages to update (space-separated; empty for all but ON_REQUEST; nixpkgs for the nixpkgs, nix-darwin, home-manager and determinate inputs)"
         required: false
         default: ""
 

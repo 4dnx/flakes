@@ -156,15 +156,17 @@ for script in pkgs/*/update.sh; do
 done
 
 # nixpkgs, which every package's libraries and tools come from, with the
-# nix-darwin and Home Manager the module checks evaluate against it: weekly
+# nix-darwin, Home Manager and Determinate the module checks evaluate against
+# it: weekly
 # (Saturday's first run, at 05 UTC) or when asked for, always through a pull request, since
 # it touches every package. Linux only; check.yml builds the rest.
 if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
   { { [ -z "$PACKAGES" ] && [ "$(date -u +%u%H)" = 605 ]; } ||
     [[ " $PACKAGES " == *" nixpkgs "* ]]; }; then
-  if nix flake update nixpkgs nix-darwin home-manager; then
+  if nix flake update nixpkgs nix-darwin home-manager determinate; then
     if [ -n "$(git status --porcelain -- flake.lock)" ]; then
-      rev="$(jq -r .nodes.nixpkgs.locked.rev flake.lock)"
+      # The root's nixpkgs: other inputs' nixpkgs share its node names.
+      rev="$(jq -r '.nodes[.nodes.root.inputs.nixpkgs].locked.rev' flake.lock)"
       land nixpkgs "Update nixpkgs to ${rev:0:12}" true
     fi
   else
