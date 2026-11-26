@@ -42,7 +42,10 @@ jobs:
           # The history, to find the baseline among the ancestors.
           fetch-depth: 0
           persist-credentials: false
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: DeterminateSystems/determinate-nix-action@16f94ba7aae399b9f9077c254b6719ec6de7e3e3 # v3.24.2
+        with:
+          # Installer diagnostics stay off.
+          diagnostic-endpoint: ""
       - name: Plan the checks of each system
         id: plan
         env:
@@ -71,7 +74,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: DeterminateSystems/determinate-nix-action@16f94ba7aae399b9f9077c254b6719ec6de7e3e3 # v3.24.2
+        with:
+          # Installer diagnostics stay off.
+          diagnostic-endpoint: ""
       # Pull from nan.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         if: runner.os == 'Linux'

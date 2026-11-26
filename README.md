@@ -27,18 +27,21 @@ Try Codex without installing it in a profile:
 nix run github:4dnx/flakes#codex -- --version
 ```
 
-Add it as an input. Its `nix-darwin` and `home-manager` inputs are used only
-by its own checks and are never fetched otherwise; pointing them at existing
+Add it as an input. Its nixpkgs, nix-darwin and Home Manager come from
+FlakeHub. Its `nix-darwin`, `home-manager` and `determinate` inputs are used
+only by its own checks, which evaluate the modules on a system running
+Determinate Nix, and are never fetched otherwise; pointing them at existing
 inputs with `follows` keeps a single copy of each in the lock file:
 
 ```nix
 inputs = {
-  nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
   flakes = {
     url = "github:4dnx/flakes";
     inputs.nixpkgs.follows = "nixpkgs";
     # inputs.nix-darwin.follows = "nix-darwin";
     # inputs.home-manager.follows = "home-manager";
+    # inputs.determinate.follows = "determinate";
   };
 };
 ```
@@ -50,11 +53,19 @@ nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 
 ### nix-darwin
 
+The modules are checked on a nix-darwin system running
+[Determinate Nix](https://docs.determinate.systems), with Determinate's
+nix-darwin module (`determinate.url =
+"https://flakehub.com/f/DeterminateSystems/determinate/3"`), which leaves
+`/etc/nix/nix.conf` to Determinate Nix:
+
 ```nix
 darwinConfigurations.example = nix-darwin.lib.darwinSystem {
   modules = [
+    determinate.darwinModules.default
     flakes.darwinModules.rayfish
     {
+      determinateNix.enable = true;
       nixpkgs.hostPlatform = "aarch64-darwin";
       environment.systemPackages = [ flakes.packages.aarch64-darwin.ghostty ];
       services.rayfish.enable = true;
@@ -100,7 +111,8 @@ split-tunnel exclusions.
 
 ### Ubuntu and other Linux distributions
 
-Install Nix with flakes enabled, then either add packages to a profile:
+Install Nix with flakes enabled (Determinate Nix, as the checks assume, or
+another Nix), then either add packages to a profile:
 
 ```bash
 nix profile add github:4dnx/flakes#codex
@@ -112,6 +124,8 @@ or use standalone Home Manager, with this flake's `homeManagerModules`:
 homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
   pkgs = nixpkgs.legacyPackages.x86_64-linux;
   modules = [
+    # With Determinate Nix: Nix comes from Determinate, not Home Manager.
+    determinate.homeManagerModules.default
     flakes.homeManagerModules.helium
     {
       home = {

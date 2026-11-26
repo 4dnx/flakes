@@ -2,24 +2,30 @@
   description = "Nix packages by Prompter";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Nixpkgs from FlakeHub: 0.1 is the rolling release of nixos-unstable.
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
     nixos-shell = {
       url = "github:Mic92/nixos-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Only the module checks use these two (checks.<linux>.darwin-modules,
+    # Only the module checks use these three (checks.<linux>.darwin-modules,
     # home-modules, darwin-home-modules): the packages, the overlay and the
     # modules themselves don't, so they are fetched only when checks are
     # evaluated. A consumer can point them at its own with `follows` to keep
     # one copy.
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin";
+      url = "https://flakehub.com/f/nix-darwin/nix-darwin/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     home-manager = {
-      url = "github:nix-community/home-manager";
+      url = "https://flakehub.com/f/nix-community/home-manager/0.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Determinate Nix's nix-darwin and Home Manager modules, so the module
+    # checks evaluate against a system that runs Determinate Nix. Its own
+    # nixpkgs isn't followed, as upstream recommends: that would miss
+    # FlakeHub Cache.
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/3";
   };
 
   outputs =
@@ -28,6 +34,7 @@
       nixpkgs,
       nix-darwin,
       home-manager,
+      determinate,
       nixos-shell,
     }:
     let
@@ -184,10 +191,14 @@
         };
 
       # Used by checks.<linux>.darwin-modules: a nix-darwin system (Apple
-      # Silicon) with every nix-darwin module imported and enabled.
+      # Silicon) running Determinate Nix, with every nix-darwin module
+      # imported and enabled.
       darwinModulesTest = nix-darwin.lib.darwinSystem {
         modules = modulesToTest self.darwinModules ++ [
+          determinate.darwinModules.default
           {
+            # Determinate Nix manages /etc/nix/nix.conf, not nix-darwin.
+            determinateNix.enable = true;
             nixpkgs.hostPlatform = "aarch64-darwin";
             system.stateVersion = 6;
             system.primaryUser = "alice";
@@ -210,13 +221,16 @@
       };
 
       # Used by checks.<linux>.home-modules (this Linux system: a standalone
-      # Home Manager, as on Ubuntu) and darwin-home-modules (macOS): every
-      # Home Manager module imported, and those for the system enabled.
+      # Home Manager, as on Ubuntu) and darwin-home-modules (macOS), with
+      # Determinate Nix's module (Nix comes from Determinate, not Home
+      # Manager): every Home Manager module imported, and those for the
+      # system enabled.
       homeModulesTest =
         system:
         home-manager.lib.homeManagerConfiguration {
           pkgs = pkgsFor.${system};
           modules = modulesToTest self.homeManagerModules ++ [
+            determinate.homeManagerModules.default
             {
               home = {
                 username = "alice";
