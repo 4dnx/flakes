@@ -42,6 +42,7 @@ Every workflow job that runs Nix installs Determinate Nix with
 | `pkgs/<name>/home-module.nix` | Same shape, exported as `homeManagerModules.<name>`. |
 | `pkgs/<name>/*.asc` | Optional. An upstream release signing key that `update.sh` checks signatures against (`claude-code`), pinned by fingerprint in the script. |
 | `pkgs/<name>/*.mobileconfig` | Optional. A macOS configuration profile the package ships for the user to approve, for a setting the app reads only from managed preferences (`claude-desktop`). |
+| `pkgs/nixos-shell/vm.nix` | The NixOS guest's own configuration (named like the `vm.nix` upstream nixos-shell reads), imported by `nixosConfigurations.nixos-shell` in `flake.nix` with Mic92's nixos-shell module and Determinate's NixOS module. Not a `module.nix`, so it isn't exported as a module. |
 | `pkgs/<name>/README.md` | Optional. The package's usage, options and maintenance notes. |
 | `pkgs/README.md` | The package table: each package, what it brings and the systems it runs on, in alphabetical order. The top-level README links to it. |
 | `pkgs/microsoft-office/builder.nix` | The builder the Office app packages (`microsoft-excel`, `microsoft-powerpoint`, `microsoft-word`) share: checks the installer with `verify/office-pkg-signature-check.py`, extracts the app component into `out` and the licensing helper into `licensing`. In the `microsoft-office` package directory, not `ci/`: only the Office apps use it. |

@@ -21,7 +21,8 @@ mounted read-only, and QEMU also provides its standard exchange directory.
 Enter `poweroff` at the guest console to return to macOS.
 
 The launcher uses the guest defaults from Mic92's nixos-shell module and the
-NixOS QEMU runner for macOS. The Cache workflow builds the guest on ARM Linux,
+NixOS QEMU runner for macOS. The guest's own configuration (hostname, VM
+size, shares, packages) is `vm.nix` in this folder. The Cache workflow builds the guest on ARM Linux,
 then builds the macOS launcher using the published guest. VPN credentials can
 be provisioned inside the running guest and kept on its disk, outside the
 flake and binary cache.
@@ -31,7 +32,7 @@ flake and binary cache.
 Determinate Nix collects telemetry and uploads crash reports to Sentry by
 default. The guest sets `DETSYS_IDS_TELEMETRY=disabled`, Determinate's
 documented opt-out of all of it, for the daemon and for login shells, with
-`lib.mkDefault` in `modules/nixos-shell-vm.nix`. Determinate's documentation
+`lib.mkDefault` in `vm.nix`. Determinate's documentation
 notes that this also turns off its staged rollout of new features, so some
 Determinate Nix features may not be available. To turn telemetry back on, set
 `systemd.services.nix-daemon.environment.DETSYS_IDS_TELEMETRY` and

@@ -55,9 +55,9 @@
           # Apply its guest defaults and expose nixpkgs' VM runner directly.
           (nixos-shell + "/share/modules/nixos-shell-config.nix")
           # Determinate Nix in the guest, with its telemetry off by default
-          # (modules/nixos-shell-vm.nix).
+          # (pkgs/nixos-shell/vm.nix).
           determinate.nixosModules.default
-          ./modules/nixos-shell-vm.nix
+          ./pkgs/nixos-shell/vm.nix
           {
             nixpkgs.hostPlatform = "aarch64-linux";
             virtualisation.host.pkgs = nixpkgs.legacyPackages.aarch64-darwin;
