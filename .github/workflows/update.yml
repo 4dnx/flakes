@@ -57,7 +57,10 @@ jobs:
           # The update step pushes with GH_TOKEN (ci/update-all.sh), so the
           # token isn't left in .git/config for the later steps.
           persist-credentials: false
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: DeterminateSystems/determinate-nix-action@16f94ba7aae399b9f9077c254b6719ec6de7e3e3 # v3.24.2
+        with:
+          # Installer diagnostics stay off.
+          diagnostic-endpoint: ""
       # Pull from nan.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
@@ -110,7 +113,10 @@ jobs:
           ref: main
           fetch-depth: 0
           persist-credentials: false
-      - uses: cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086 # v31.11.5
+      - uses: DeterminateSystems/determinate-nix-action@16f94ba7aae399b9f9077c254b6719ec6de7e3e3 # v3.24.2
+        with:
+          # Installer diagnostics stay off.
+          diagnostic-endpoint: ""
       - name: Compute macOS cache key
         id: macos-cache
         run: |
@@ -121,8 +127,9 @@ jobs:
       # once built (ci/update-all.sh), so they never fill it.
       - uses: nix-community/cache-nix-action@7df957e333c1e5da7721f60227dbba6d06080569 # v7.0.2
         with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v2-${{ steps.macos-cache.outputs.key }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-v2-
+          # v3: the store of Determinate Nix, not of the earlier installer.
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-v3-${{ steps.macos-cache.outputs.key }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-v3-
           gc-max-store-size-macos: 4G
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:

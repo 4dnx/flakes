@@ -24,6 +24,10 @@ file lives, so a change in `verify/`, `lib/` or `scripts/` rebuilds only the
 packages that read that file. A change in `ci/` or `check.yml` makes CI
 build every check on every system (`ci/check-plan.sh`).
 
+Every workflow job that runs Nix installs Determinate Nix with
+`DeterminateSystems/determinate-nix-action`, its installer diagnostics off
+(`diagnostic-endpoint: ""`), as the module checks assume.
+
 | Path | Role |
 |---|---|
 | `AGENTS.md`, `CLAUDE.md` | Guidance for coding agents. `CLAUDE.md` only imports `AGENTS.md` for Claude Code, so the guidance stays in one file. |
