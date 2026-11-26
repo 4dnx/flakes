@@ -116,20 +116,21 @@ jobs:
         with:
           # Installer diagnostics stay off.
           diagnostic-endpoint: ""
-          # The guest's Determinate Nix from Determinate's public binary
-          # cache, so it isn't compiled here; the guest's closure, that Nix
-          # included, is then pushed to nan.cachix.org.
-          extra-conf: |
-            extra-substituters = https://install.determinate.systems
-            extra-trusted-public-keys = cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM=
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
           name: nan
           skipPush: true
+      # The guest's Determinate Nix comes from Determinate's public binary
+      # cache, so it isn't compiled here; the guest's closure, that Nix
+      # included, is then pushed to nan.cachix.org. Given on the command line
+      # (the runner user is trusted): set through the installer's
+      # extra-conf, it went unused and Nix was compiled.
       - name: Build the NixOS guest
         id: guest
         run: |
           paths="$(nix build --no-link -L --print-out-paths \
+            --extra-substituters https://install.determinate.systems \
+            --extra-trusted-public-keys cache.flakehub.com-3:hJuILl5sVK4iKm86JzgdXW12Y2Hwd5G07qKtHTOcDCM= \
             .#nixosConfigurations.nixos-shell.config.system.build.toplevel \
             .#nixosConfigurations.nixos-shell.config.system.build.initialRamdisk)"
           {
