@@ -1,9 +1,9 @@
 {
-  "version": "1.0.0",
-  "build": "12359",
-  "commit": "b1b770d",
+  "version": "1.1.0",
+  "build": "12774",
+  "commit": "1715275",
   "hashes": {
-    "src": "sha256-aYziwYzK9Zj7sopAEsrANhMGs4BO0F2g0cDCGmYLxDA=",
-    "ui": "sha256-Jz0dTkEHFfSDJXnJeGjhKNgJRsG96G1oKrBrS4RAkzs="
+    "src": "sha256-0O3An2dgjy3HGF6T3ZDiEPwnv26+6B8os7htE6ocG8I=",
+    "ui": "sha256-ht6xhA/6YOGw1D0eLv3b0IoJk2k7nJoNgCVL/Iq2+tA="
   }
 }

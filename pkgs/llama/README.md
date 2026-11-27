@@ -52,5 +52,5 @@ with that cache as a substituter the package is downloaded instead.
   from Hugging Face only on request (`llama download`, `-hf`, the chat UI).
 
 Recheck on a bump: `llama update` in `app/llama.cpp`, any new network call at
-startup, and that `tools/ui/dist` is still what `scripts/ui-assets.cmake` looks
-for first.
+startup, and that `ui/apps/chat/dist` (`tools/ui/dist` before v1.1.0) is
+still what `scripts/ui-assets.cmake` looks for first.
