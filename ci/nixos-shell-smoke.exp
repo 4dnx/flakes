@@ -10,13 +10,15 @@ proc fail {message} {
 }
 
 expect {
-    -re {root@nixos-shell:[^\r\n]*\]#} {}
+    -re {nixos@nixos-shell:[^\r\n]*\]\$} {}
     timeout { fail "Timed out waiting for the guest shell" }
     eof { fail "The launcher exited before the guest shell was ready" }
 }
 
-# Split the marker so the echoed command cannot satisfy the check.
-send -- {test "$(uname -sm)" = "Linux aarch64" && nix --version | grep 'Determinate Nix' && jq --version && rg --version && printf '%s%s\n' NIXOS_SHELL_ SMOKE_OK}
+# Logged in as nixos, with sudo; writes and then edits a file in the shared
+# folder, which the workflow then reads on the host. Split the marker so the
+# echoed command cannot satisfy the check.
+send -- {test "$(id -un)" = nixos && sudo -n true && test "$(uname -sm)" = "Linux aarch64" && nix --version | grep 'Determinate Nix' && jq --version && rg --version && echo one > /tmp/shared/smoke && echo two >> /tmp/shared/smoke && printf '%s%s\n' NIXOS_SHELL_ SMOKE_OK}
 send -- "\r"
 expect {
     "NIXOS_SHELL_SMOKE_OK" {}
@@ -24,7 +26,7 @@ expect {
     eof { fail "The launcher exited before the guest CLI checks completed" }
 }
 
-send -- "poweroff\r"
+send -- "sudo poweroff\r"
 expect {
     eof {}
     timeout { fail "Timed out waiting for the guest to power off" }

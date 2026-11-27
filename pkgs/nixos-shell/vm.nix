@@ -7,6 +7,31 @@ let
 in
 {
   networking.hostName = "nixos-shell";
+
+  # The guest's own user, logged in on the console instead of root. UID 501
+  # is the first account's on a Mac: through the 9p shares (security_model
+  # none), the guest sees the host's owners, so files the Mac user owns in
+  # the shared folder are nixos's, and nixos can write them.
+  # NixOS keeps isNormalUser for UIDs from 1000, so nixos is declared a
+  # system user and given what isNormalUser would: home, shell, group.
+  users.users.nixos = {
+    isSystemUser = true;
+    uid = 501;
+    group = "users";
+    home = "/home/nixos";
+    createHome = true;
+    useDefaultShell = true;
+    extraGroups = [ "wheel" ];
+    # No password, as root had: the console logs in automatically.
+    initialHashedPassword = "";
+  };
+  # nixos-shell's module logs root in; this replaces it.
+  services.getty.autologinUser = lib.mkForce "nixos";
+  # Root's work through sudo, without a password, as on root's console.
+  security.sudo.wheelNeedsPassword = false;
+  # nixos may use Nix as root may (extra substituters, builds), beside root,
+  # which NixOS trusts already: it can become root through sudo anyway.
+  nix.settings.trusted-users = [ "nixos" ];
   networking.firewall.enable = true;
   system.stateVersion = "26.05";
 

@@ -200,5 +200,12 @@ jobs:
             exit 1
           fi
           checkout="$PWD"
+          # The launcher's default shared folder, which the guest writes to.
+          echo "host user: $(id -un) ($(id -u))"
+          rm -rf /tmp/nixos-shell
           cd "$(mktemp -d "$RUNNER_TEMP/nixos-shell.XXXXXXXX")"
           /usr/bin/expect "$checkout/ci/nixos-shell-smoke.exp" "github:$GITHUB_REPOSITORY/$GITHUB_SHA#nixos-shell"
+          if [ "$(cat /tmp/nixos-shell/smoke)" != "$(printf 'one\ntwo')" ]; then
+            echo "The guest's file is missing from the shared folder, or differs" >&2
+            exit 1
+          fi
