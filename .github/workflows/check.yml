@@ -16,6 +16,13 @@ concurrency:
 permissions:
   contents: read
 
+# Determinate Nix's telemetry and crash reports off for the nix commands
+# the steps run; ci/determinate-telemetry-off.sh does the same for the
+# daemon.
+env:
+  DETSYS_IDS_TELEMETRY: disabled
+  NIX_SENTRY_ENDPOINT: ""
+
 jobs:
   # Which checks each system builds, worked out on Linux: those whose
   # derivation differs from a successful run of an ancestor (ci/check-plan.sh),
@@ -46,6 +53,8 @@ jobs:
         with:
           # Installer diagnostics stay off.
           diagnostic-endpoint: ""
+      - name: Turn Determinate Nix's telemetry off
+        run: ci/determinate-telemetry-off.sh
       - name: Plan the checks of each system
         id: plan
         env:
@@ -78,6 +87,8 @@ jobs:
         with:
           # Installer diagnostics stay off.
           diagnostic-endpoint: ""
+      - name: Turn Determinate Nix's telemetry off
+        run: ci/determinate-telemetry-off.sh
       # Pull from nan.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         if: runner.os == 'Linux'

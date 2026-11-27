@@ -41,6 +41,13 @@ concurrency:
 permissions:
   contents: read
 
+# Determinate Nix's telemetry and crash reports off for the nix commands
+# the steps run; ci/determinate-telemetry-off.sh does the same for the
+# daemon.
+env:
+  DETSYS_IDS_TELEMETRY: disabled
+  NIX_SENTRY_ENDPOINT: ""
+
 jobs:
   plan:
     # A dispatch, or a pull request labeled `build-office` (on a labeled
@@ -63,6 +70,8 @@ jobs:
         with:
           # Installer diagnostics stay off.
           diagnostic-endpoint: ""
+      - name: Turn Determinate Nix's telemetry off
+        run: ci/determinate-telemetry-off.sh
       # Evaluation only: the apps' aarch64-darwin derivations here and on
       # the base branch. A base without them (or that doesn't evaluate)
       # builds them all.
@@ -101,6 +110,8 @@ jobs:
         with:
           # Installer diagnostics stay off.
           diagnostic-endpoint: ""
+      - name: Turn Determinate Nix's telemetry off
+        run: ci/determinate-telemetry-off.sh
       - name: Build the changed Office apps
         env:
           PACKAGES: ${{ needs.plan.outputs.packages }}
