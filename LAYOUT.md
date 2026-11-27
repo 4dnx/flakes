@@ -26,7 +26,10 @@ build every check on every system (`ci/check-plan.sh`).
 
 Every workflow job that runs Nix installs Determinate Nix with
 `DeterminateSystems/determinate-nix-action`, its installer diagnostics off
-(`diagnostic-endpoint: ""`), as the module checks assume.
+(`diagnostic-endpoint: ""`), as the module checks assume, then turns its
+telemetry off with `ci/determinate-telemetry-off.sh`; each workflow sets the
+same opt-outs (`DETSYS_IDS_TELEMETRY=disabled`, `NIX_SENTRY_ENDPOINT=""`)
+for the `nix` commands its steps run.
 
 | Path | Role |
 |---|---|
@@ -68,6 +71,7 @@ Every workflow job that runs Nix installs Determinate Nix with
 | `ci/check-plan.sh` | Run by `check.yml`'s `plan` job, on Linux. For each system, selects the checks that differ from the newest successful ancestor Check run of this repository (a pull request's, a dispatch's, or an earlier push to `main`'s), and outputs one matrix entry per system that has any; falls back to all checks without a baseline or when check machinery changes (`check.yml` or `ci/`). Also evaluates every package of every system and builds `formatting`. |
 | `ci/cached-packages.sh` | The packages CI pushes to nan.cachix.org, those that compile for minutes (`hermes-agent`, x86_64 only, and `llama`), filtered to a system; read by `cache.yml` and `update.yml`. |
 | `ci/cache-plan.sh` | Run by `cache.yml`'s `plan` job: per Linux system, the cached packages whose output nan.cachix.org doesn't hold yet. |
+| `ci/determinate-telemetry-off.sh` | Run after each Determinate Nix install in the workflows: gives the Nix daemon (systemd `nix-daemon.service` on Linux, launchd `systems.determinate.nix-daemon` on macOS) `DETSYS_IDS_TELEMETRY=disabled` and `NIX_SENTRY_ENDPOINT=""`, sets `telemetry.sentry.endpoint` to null in `/etc/determinate/config.json`, restarts the daemon and fails unless the running daemon has the opt-out. |
 | `ci/macos-cache-key.sh` | Hashes macOS package derivations (including rolling packages) for the store cache `update.yml`'s macOS job keeps between runs; Linux-only changes do not replace it. |
 | `.github/workflows/check.yml` | On pull requests (checked out at their head, not GitHub's merge commit) and on Run workflow; `main` gets no run of its own. A `plan` job on Linux evaluates every system's checks and packages, builds `formatting`, and lists per system the checks that differ from a successful ancestor run (`ci/check-plan.sh`); one runner starts per system with any (Linux x86_64, Linux aarch64, macOS), to build just those, with no store kept between runs, so a change to macOS packages alone starts only the macOS runner, and the Linux runners only for the packages with a `-codesign` check. `Validate all systems` passes once all of them did; the tested head is the tree that lands while it contains `main` (the `merge` job ensures that for update branches; other pull requests are brought up to date before merging). No branch rule requires it: one would also reject `update.yml`'s direct pushes to `main`. Cancels older Check runs for the same branch, with PR events separate so they cannot cancel update merges; read-only token, not kept in the checkout; pushes nothing to Cachix. When `update.yml` starts it on `update/<name>` and all systems pass, its `merge` job runs `ci/merge-update.sh`. |
 | `.github/workflows/cache.yml` | On a push to `main`, or when `update.yml` or `check.yml`'s `merge` job starts it after landing an update (their token's merges and pushes start no workflow): builds the packages of `ci/cached-packages.sh` that nan.cachix.org doesn't hold yet at `main`'s version (`ci/cache-plan.sh`), on the Linux runner of their system, and pushes their runtime closures; nothing when the cache holds them all, or without a Cachix token. Only from `main`; the token reaches only the push step. Also builds the NixOS shell guest on ARM Linux and its launcher on Apple Silicon when the launcher is missing from the cache. |
