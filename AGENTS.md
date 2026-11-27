@@ -124,9 +124,11 @@ output, such as an error message, stays as the program prints it.
 ## Checking changes
 
 ```sh
-# Evaluate everything and build this host's packages; on Linux also lint
-# scripts and workflows.
-nix flake check --all-systems
+# Build this host's checks (every package, and on Linux the lint of scripts
+# and workflows); then evaluate every system's checks. Determinate Nix's
+# `--all-systems` builds the other systems' checks too, which fails here.
+nix flake check
+nix eval --json .#checks --apply 'builtins.mapAttrs (_: builtins.mapAttrs (_: c: c.drvPath))' >/dev/null
 nix build .#<name> && ./result/bin/<prog> --version
 nix fmt   # nixfmt; checks.formatting fails otherwise
 # One check's tool on its own, at the version the checks use.
