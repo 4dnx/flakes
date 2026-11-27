@@ -114,10 +114,14 @@ land() {
     echo "$name: already proposed on update/$name"
     discard "$name"; return 0
   fi
-  # Build every package of this system, so packages built on this one (they
-  # take it as an argument) are checked too, and this one itself if checks
-  # leave it out (a rolling build). --keep-going reports every failure.
-  if ! nix flake check --all-systems --keep-going -L ||
+  # Evaluate every system's checks, then build this system's, so packages
+  # built on this one (they take it as an argument) are checked too, and this
+  # one itself if checks leave it out (a rolling build). Determinate Nix's
+  # `nix flake check --all-systems` builds every system's checks, which fails
+  # on the systems this runner can't build, so the other systems are only
+  # evaluated, to their derivation paths. --keep-going reports every failure.
+  if ! nix eval --json .#checks --apply 'builtins.mapAttrs (_: builtins.mapAttrs (_: c: c.drvPath))' >/dev/null ||
+    ! nix flake check --keep-going -L ||
     { [ "$name" != nixpkgs ] &&
       nix eval --quiet ".#packages.$UPDATE_SYSTEM.\"$name\".drvPath" >/dev/null 2>&1 &&
       ! nix build --no-link -L ".#packages.$UPDATE_SYSTEM.\"$name\""; }; then
