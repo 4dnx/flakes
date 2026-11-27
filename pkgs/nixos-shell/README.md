@@ -21,6 +21,14 @@ host's home and Nix profile are excluded from shares. The host Nix store is
 mounted read-only, and QEMU also provides its standard exchange directory.
 Enter `sudo poweroff` at the guest console to return to macOS.
 
+The launcher uses the guest defaults from Mic92's nixos-shell module and the
+NixOS QEMU runner for macOS, which the flake's `nixos-shell` package wraps
+to set the shared folder. The guest's own configuration (hostname, user, VM
+size, shares, packages) is `vm.nix` in this folder. The Cache workflow
+builds the guest on ARM Linux, then builds the macOS launcher using the
+published guest. VPN credentials can be provisioned inside the running guest
+and kept on its disk, outside the flake and binary cache.
+
 ## User
 
 The console logs in as `nixos` (UID 501, group `users`, home `/home/nixos`),
@@ -46,14 +54,6 @@ guest sees the host's owners and permissions. `nixos` has UID 501, the first
 account's on a Mac, so it owns the Mac user's files there and can write
 them. For a Mac account with another UID, write in the shared folder with
 `sudo`.
-
-The launcher uses the guest defaults from Mic92's nixos-shell module and the
-NixOS QEMU runner for macOS, which the flake's `nixos-shell` package wraps
-to set the shared folder. The guest's own configuration (hostname, user, VM
-size, shares, packages) is `vm.nix` in this folder. The Cache workflow
-builds the guest on ARM Linux, then builds the macOS launcher using the
-published guest. VPN credentials can be provisioned inside the running guest
-and kept on its disk, outside the flake and binary cache.
 
 ## Telemetry
 
