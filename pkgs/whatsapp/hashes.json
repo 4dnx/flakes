@@ -1,8 +1,8 @@
 {
-  "version": "26.47.19",
-  "build": "1122858778",
-  "url": "https://web.whatsapp.com/desktop/mac_native/release/?version=2.26.47.19&extension=zip&configuration=Release&branch=master&is_buck=true",
+  "version": "26.47.21",
+  "build": "1123745202",
+  "url": "https://web.whatsapp.com/desktop/mac_native/release/?version=2.26.47.21&extension=zip&configuration=Release&branch=master&is_buck=true",
   "hashes": {
-    "WhatsApp.app.zip": "sha256-MsSOWKKrlCsaHU8auzOo8PQYoWgCXOHdpMTZPazPU/U="
+    "WhatsApp.app.zip": "sha256-mGU5z5EmF7JtBuqd95f9s2bgwtHfqxWk9qI2cPblWMI="
   }
 }
