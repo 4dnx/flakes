@@ -36,16 +36,16 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   # The chat UI llama.cpp's own releases embed. Upstream's build downloads it
-  # when it finds no tools/ui/dist, which the sandbox forbids; npm is not
-  # needed.
+  # when it finds no ui/apps/chat/dist (tools/ui/dist before v1.1.0), which
+  # the sandbox forbids; npm is not needed.
   ui = fetchurl {
     url = "https://huggingface.co/buckets/ggml-org/llama-ui/resolve/b${build}/dist.tar.gz";
     hash = hashes.ui;
   };
 
   postPatch = ''
-    mkdir tools/ui/dist
-    tar -xzf ${finalAttrs.ui} -C tools/ui/dist
+    mkdir ui/apps/chat/dist
+    tar -xzf ${finalAttrs.ui} -C ui/apps/chat/dist
   '';
 
   nativeBuildInputs = [
