@@ -279,7 +279,14 @@
         system:
         lib.filterAttrs (available system) (mkPackagesFor pkgsFor.${system})
         // lib.optionalAttrs (system == "aarch64-darwin") {
-          nixos-shell = shellVM.config.system.build.vm;
+          # The VM runner, with a Mac folder shared at the guest's
+          # /tmp/shared: $SHARED_DIR if set, else /tmp/nixos-shell, created
+          # when missing.
+          nixos-shell = pkgsFor.aarch64-darwin.writeShellScriptBin "nixos-shell" ''
+            export SHARED_DIR="''${SHARED_DIR:-/tmp/nixos-shell}"
+            mkdir -p "$SHARED_DIR"
+            exec ${shellVM.config.system.build.vm}/bin/run-nixos-shell-vm "$@"
+          '';
         }
       );
 
