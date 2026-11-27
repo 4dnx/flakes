@@ -1,8 +1,8 @@
 {
-  "version": "0.1.0-preview.24",
+  "version": "0.1.0-preview.25",
   "channel": "preview",
-  "commit": "ad122d66146b2d239c0f5f3c297f8318d49b29c9",
+  "commit": "b070aae645f5cbfac65d65d031a8b712b2ebca36",
   "hashes": {
-    "aarch64-darwin": "sha256-GP2DxjeBmU2DpBGtSO7FwHJHMIwrAc6dw5L8DyltEEQ="
+    "aarch64-darwin": "sha256-zvc61ROhJvwIdFUUx6+YhyTzl8TZOcZwq+xYdbqIcn0="
   }
 }
