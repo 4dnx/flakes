@@ -19,7 +19,11 @@ skip_if_current hermes-agent "$version"
 rev="$(git ls-remote "https://github.com/$repo" "refs/tags/$latest^{}" | cut -f1)"
 [ -n "$rev" ] || rev="$(git ls-remote "https://github.com/$repo" "refs/tags/$latest" | cut -f1)"
 [[ $rev =~ ^[0-9a-f]{40}$ ]] || { echo "hermes-agent: no commit for $latest" >&2; exit 1; }
-narHash="$(nix flake metadata --json "github:$repo/$rev" | jq -er .locked.narHash)"
+# The NAR hash of the source as fetched: `nix flake metadata` leaves narHash
+# out of the locked reference when the revision already locks it (Determinate
+# Nix's lazy locks).
+narHash="$(nix flake prefetch --json "github:$repo/$rev" | jq -er .hash)" ||
+  { echo "hermes-agent: could not fetch github:$repo/$rev" >&2; exit 1; }
 
 jq -n --arg v "$version" --arg r "$rev" --arg h "$narHash" \
   '{version: $v, rev: $r, narHash: $h}' > hashes.json
