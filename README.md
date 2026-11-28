@@ -181,17 +181,11 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
 ## Updates
 
-Packages follow upstream automatically: a scheduled workflow commits new
-releases to `main`, and the pinned nixpkgs is bumped weekly. Updates of root
-daemons, network filters and agents, and of nixpkgs, go through a pull request
-that is merged once it builds on every system; see [SECURITY.md](SECURITY.md)
-for what is checked. Pick them up with `nix flake update xr3t`.
+Packages follow their upstream releases automatically, and the pinned nixpkgs
+is bumped weekly. Pick them up with `nix flake update xr3t`.
 
 Self-updates, update checks and telemetry are turned off wherever the program
-allows it; each package's README says what is off and how to turn it back on.
-On macOS, [`read-only-apps`](modules/README.md#read-only-apps) keeps Home
-Manager's app copies out of the apps' own updaters' reach, and
-[firewall/](firewall/README.md) cuts updaters off the network.
+allows it; each package's README says how.
 
 ## References
 
