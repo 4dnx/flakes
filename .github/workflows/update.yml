@@ -68,10 +68,10 @@ jobs:
           diagnostic-endpoint: ""
       - name: Turn Determinate Nix's telemetry off
         run: ci/determinate-telemetry-off.sh
-      # Pull from nan.cachix.org, which is public: no token needed.
+      # Pull from ret.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
-          name: nan
+          name: ret
           skipPush: true
 
       - name: Update packages
@@ -91,9 +91,9 @@ jobs:
           CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
         run: |
           mapfile -t names < <(ci/cached-packages.sh x86_64-linux)
-          nix build --no-link --print-out-paths "${names[@]/#/.#}" | cachix push nan
+          nix build --no-link --print-out-paths "${names[@]/#/.#}" | cachix push ret
       # The other Linux system's builds: this token's push to main starts no
-      # workflow. cache.yml builds only what nan.cachix.org lacks.
+      # workflow. cache.yml builds only what ret.cachix.org lacks.
       - name: Start the Cache workflow on main
         if: ${{ !cancelled() }}
         env:
@@ -142,7 +142,7 @@ jobs:
           gc-max-store-size-macos: 4G
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         with:
-          name: nan
+          name: ret
           skipPush: true
       # macOS ships bash 3.2 and BSD tools; the update scripts run with
       # nixpkgs' bash and GNU tools, as on Linux.

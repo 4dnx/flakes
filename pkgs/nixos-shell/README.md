@@ -7,7 +7,7 @@ runs [Determinate Nix](https://docs.determinate.systems) (Determinate's NixOS
 module, with Determinate Nixd as its daemon) with flakes enabled, includes
 `jq` and `ripgrep` and uses QEMU user networking for outbound access.
 
-Configure the public `nan` Cachix cache, then run a revision whose Cache workflow
+Configure the public `ret` Cachix cache, then run a revision whose Cache workflow
 has built, published and booted the VM:
 
 ```sh
@@ -72,6 +72,6 @@ variable inside the guest.
 Determinate Nix isn't in `cache.nixos.org`. The Cache workflow builds the
 guest with Determinate's public cache, `install.determinate.systems`, as an
 extra substituter, and pushes the guest's closure, Determinate Nix included,
-to `nan.cachix.org`, so the launcher needs only that cache. Recheck on a bump
+to `ret.cachix.org`, so the launcher needs only that cache. Recheck on a bump
 of the `determinate` input that the guest still boots with builds disabled
 (the Cache workflow's smoke test).
