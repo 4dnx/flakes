@@ -161,11 +161,14 @@ done
 
 # nixpkgs, which every package's libraries and tools come from, with the
 # nix-darwin, Home Manager and Determinate the module checks evaluate against
-# it: weekly
-# (Saturday's first run, at 05 UTC) or when asked for, always through a pull request, since
-# it touches every package. Linux only; check.yml builds the rest.
+# it: weekly, by the first run once the locked nixpkgs is a week old, or when
+# asked for, always through a pull request, since it touches every package.
+# The age, not a run's time, decides, as GitHub delays and drops scheduled
+# runs. Linux only; check.yml builds the rest.
+# The root's nixpkgs: other inputs' nixpkgs share its node names.
+nixpkgs_modified="$(jq -er '.nodes[.nodes.root.inputs.nixpkgs].locked.lastModified' flake.lock)"
 if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
-  { { [ -z "$PACKAGES" ] && [ "$(date -u +%u%H)" = 605 ]; } ||
+  { { [ -z "$PACKAGES" ] && [ $(($(date -u +%s) - nixpkgs_modified)) -ge $((7 * 86400)) ]; } ||
     [[ " $PACKAGES " == *" nixpkgs "* ]]; }; then
   if nix flake update nixpkgs nix-darwin home-manager determinate; then
     if [ -n "$(git status --porcelain -- flake.lock)" ]; then
