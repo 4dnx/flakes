@@ -3,8 +3,8 @@ name: Update
 on:
   schedule:
     # Three times a day, off the top of the hour, where GitHub delays or
-    # drops scheduled runs the most. ci/update-all.sh bumps nixpkgs once the
-    # locked one is a week old, whichever run that is.
+    # drops scheduled runs the most. ci/update-all.sh bumps nixpkgs once
+    # flake.lock last changed a week ago, whichever run that is.
     - cron: "27 5,13,21 * * *"
   workflow_dispatch:
     inputs:
