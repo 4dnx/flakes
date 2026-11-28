@@ -47,7 +47,7 @@ NixOS config (a Home Manager user can't add trusted substituters):
 ```nix
 nix.settings = {
   extra-substituters = [ "https://ret.cachix.org" ];
-  extra-trusted-public-keys = [ "ret.cachix.org-1:YL30LBJosldYUgKW5g6WUmpIh6/v++xzdj9Ctx8PPT8=" ];
+  extra-trusted-public-keys = [ "ret.cachix.org-1:HMnojVQWxSIXaxj3+q1s3RzzCPXXIIamAMCYeMEcNP8=" ];
 };
 ```
 
