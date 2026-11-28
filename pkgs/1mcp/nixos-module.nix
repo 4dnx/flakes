@@ -33,7 +33,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}."1mcp";
-      defaultText = literalExpression ''flakes.packages.''${pkgs.stdenv.hostPlatform.system}."1mcp"'';
+      defaultText = literalExpression ''xr3t.packages.''${pkgs.stdenv.hostPlatform.system}."1mcp"'';
       description = "1MCP package to run.";
     };
     user = mkOption {

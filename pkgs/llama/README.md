@@ -7,11 +7,11 @@ team: the unified `llama` binary (`llama serve`, `llama cli`, `llama download`,
 `aarch64-linux`); on macOS and Windows llama.app is a desktop app.
 
 ```nix
-inputs.flakes.url = "github:xr3t/flakes";
-environment.systemPackages = [ inputs.flakes.packages.${system}.llama ];
+inputs.xr3t.url = "github:xr3t/flakes";
+environment.systemPackages = [ inputs.xr3t.packages.${system}.llama ];
 ```
 
-The overlay also provides `pkgs.flakes.llama`.
+The overlay also provides `pkgs.xr3t.llama`.
 
 ```sh
 llama serve    # OpenAI-compatible API and chat UI on http://localhost:9931

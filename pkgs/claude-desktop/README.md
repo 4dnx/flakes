@@ -15,9 +15,9 @@ Systems: `aarch64-darwin`, macOS 13 or later. Upstream also ships Linux
 
 ```nix
 # nix-darwin
-environment.systemPackages = [ inputs.flakes.packages.aarch64-darwin.claude-desktop ];
+environment.systemPackages = [ inputs.xr3t.packages.aarch64-darwin.claude-desktop ];
 # or Home Manager
-home.packages = [ inputs.flakes.packages.aarch64-darwin.claude-desktop ];
+home.packages = [ inputs.xr3t.packages.aarch64-darwin.claude-desktop ];
 ```
 
 ## Integrity
@@ -51,8 +51,8 @@ replace the read-only store copy or nix-darwin's root-owned, read-only copy in
 Manager's writable copy in `~/Applications/Home Manager Apps`
 (`targets.darwin.copyApps`) it could replace, unless
 `homeManagerModules.read-only-apps` keeps it read-only (see the
-[top-level README](../../README.md#updates)). Updates belong to this flake
-(`nix flake update flakes`).
+[modules README](../../modules/README.md#read-only-apps)). Updates belong to this flake
+(`nix flake update xr3t`).
 
 Upstream's documented switch is `disableAutoUpdates` in the
 `com.anthropic.claudefordesktop` domain
