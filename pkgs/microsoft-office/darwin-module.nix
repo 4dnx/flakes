@@ -53,7 +53,7 @@ let
     package = mkOption {
       type = types.package;
       default = self.packages.${system}."microsoft-${app}";
-      defaultText = literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.microsoft-${app}";
+      defaultText = literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.microsoft-${app}";
       description = "${name} package to install.";
     };
   };

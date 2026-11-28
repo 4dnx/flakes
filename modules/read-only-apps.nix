@@ -1,7 +1,6 @@
 # targets.darwin.copyApps.readOnly: keeps every app Home Manager copies into
 # `~/Applications/Home Manager Apps`, and that folder, read-only, so no app's
-# own updater can replace or stage beside its copy. See "Updates" in
-# README.md.
+# own updater can replace or stage beside its copy. See README.md here.
 { config, lib, ... }:
 {
   options.targets.darwin.copyApps.readOnly = lib.mkEnableOption ''

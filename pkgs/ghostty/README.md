@@ -30,13 +30,13 @@ nixpkgs' `ghostty` or upstream's flake, `github:ghostty-org/ghostty`.
   `/Applications/Nix Apps`, but it can replace Home Manager's writable copy in
   `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`), unless
   `homeManagerModules.read-only-apps` keeps it read-only (see the
-  [top-level README](../../README.md#updates)). Turn it off
+  [modules README](../../modules/README.md#read-only-apps)). Turn it off
   in the Ghostty config, e.g. with Home Manager:
 
   ```nix
   programs.ghostty = {
     enable = true;
-    package = inputs.flakes.packages.${system}.ghostty;
+    package = inputs.xr3t.packages.${system}.ghostty;
     settings.auto-update = "off";
   };
   ```

@@ -23,14 +23,14 @@ Systems: `aarch64-darwin` (macOS 13 or later), `x86_64-linux`,
 ## Usage
 
 ```nix
-home.packages = [ inputs.flakes.packages.${pkgs.stdenv.hostPlatform.system}.helium ];
+home.packages = [ inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.helium ];
 ```
 
 Or with the Home Manager module, which also keeps its update check off:
 
 ```nix
 {
-  imports = [ inputs.flakes.homeManagerModules.helium ];
+  imports = [ inputs.xr3t.homeManagerModules.helium ];
   programs.helium.enable = true;
 }
 ```
@@ -75,7 +75,7 @@ Sparkle can't replace the bundle in the read-only Nix store or nix-darwin's
 root-owned copy in `/Applications/Nix Apps`, but it can replace Home Manager's
 writable copy in `~/Applications/Home Manager Apps`
 (`targets.darwin.copyApps`), unless `homeManagerModules.read-only-apps` keeps
-it read-only (see the [top-level README](../../README.md#updates)). Its update check is a
+it read-only (see the [modules README](../../modules/README.md#read-only-apps)). Its update check is a
 per-profile setting, on by default: the updates toggle on the Helium services
 page of the privacy settings (`helium.services.browser_updates` in
 `~/Library/Application Support/net.imput.helium/<profile>/Preferences`).

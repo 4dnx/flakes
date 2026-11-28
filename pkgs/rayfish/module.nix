@@ -71,7 +71,7 @@ in
     package = mkOption {
       type = types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.rayfish;
-      defaultText = literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.rayfish";
+      defaultText = literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.rayfish";
       description = "Rayfish package to run.";
     };
     resolver.enable = mkOption {

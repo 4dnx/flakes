@@ -34,13 +34,13 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "cl
 
 ```nix
 {
-  inputs.flakes.url = "github:xr3t/flakes";
-  inputs.flakes.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.xr3t.url = "github:xr3t/flakes";
+  inputs.xr3t.inputs.nixpkgs.follows = "nixpkgs";
 
   # nix-darwin
   darwinConfigurations.<host> = nix-darwin.lib.darwinSystem {
     modules = [
-      inputs.flakes.darwinModules.cloudflare-warp
+      inputs.xr3t.darwinModules.cloudflare-warp
       { services.cloudflare-warp.enable = true; }
     ];
   };
@@ -48,7 +48,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "cl
   # NixOS
   nixosConfigurations.<host> = nixpkgs.lib.nixosSystem {
     modules = [
-      inputs.flakes.nixosModules.cloudflare-warp
+      inputs.xr3t.nixosModules.cloudflare-warp
       { services.cloudflare-warp.enable = true; }
     ];
   };
@@ -124,7 +124,7 @@ out; `taskbar.enable` then defaults to `false`:
 {
   services.cloudflare-warp = {
     enable = true;
-    package = inputs.flakes.packages.${pkgs.stdenv.hostPlatform.system}.cloudflare-warp.override {
+    package = inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.cloudflare-warp.override {
       headless = true;
     };
   };

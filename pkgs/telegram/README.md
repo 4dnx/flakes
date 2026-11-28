@@ -10,7 +10,7 @@ signed `$out/Applications/Telegram.app`, with a `bin/telegram` launcher.
 Supports `aarch64-darwin` (Apple Silicon, macOS 11 or later). No compilation.
 
 ```nix
-home.packages = [ inputs.flakes.packages.aarch64-darwin.telegram ];
+home.packages = [ inputs.xr3t.packages.aarch64-darwin.telegram ];
 ```
 
 ## Updates and privacy
@@ -35,8 +35,8 @@ and download updates. Home Manager's writable copy in
 `~/Applications/Home Manager Apps` (`targets.darwin.copyApps`) it can replace,
 and nothing in the app turns it off. The nix-darwin copy is out of its reach,
 and `homeManagerModules.read-only-apps` keeps Home Manager's copy read-only
-(see the [top-level README](../../README.md#updates)). Use
-`nix flake update flakes` to update the installed package; avoid using the
+(see the [modules README](../../modules/README.md#read-only-apps)). Use
+`nix flake update xr3t` to update the installed package; avoid using the
 in-app installer.
 
 On a bump, recheck the appcast enclosure, version/build numbers, native

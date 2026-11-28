@@ -95,7 +95,7 @@ own config holds, and only the Nix config turns an update check back on, with
 a module option (`checkUpdates`). A self-update stays off: it would replace
 the store copy, a root daemon could write into the store, and on macOS an
 app's updater can replace Home Manager's writable copy of the app
-(`targets.darwin.copyApps`, see "Updates" in `README.md`; `read-only-apps`
+(`targets.darwin.copyApps`, see `modules/README.md`; `read-only-apps`
 keeps those copies read-only). Don't call an
 app's updater harmless because the store is read-only: say which installs it
 can replace. Where an app reads its switch only from managed preferences,

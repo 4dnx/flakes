@@ -10,7 +10,7 @@ Serve that directory with any web server and point the UI at the channel's
 WebSocket, e.g. with Caddy on the same origin:
 
 ```caddy
-root * ${pkgs.flakes.nullclaw-chat-ui}/share/nullclaw-chat-ui
+root * ${pkgs.xr3t.nullclaw-chat-ui}/share/nullclaw-chat-ui
 handle /ws {
   reverse_proxy 127.0.0.1:32123
 }

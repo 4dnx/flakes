@@ -37,7 +37,7 @@ inputs with `follows` keeps a single copy of each in the lock file:
 ```nix
 inputs = {
   nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
-  flakes = {
+  xr3t = {
     url = "github:xr3t/flakes";
     inputs.nixpkgs.follows = "nixpkgs";
     # inputs.nix-darwin.follows = "nix-darwin";
@@ -48,7 +48,7 @@ inputs = {
 ```
 
 Packages come straight from the flake (built against its pinned nixpkgs,
-with its unfree packages allowed) or from the overlay, as `pkgs.flakes.<name>`,
+with its unfree packages allowed) or from the overlay, as `pkgs.xr3t.<name>`,
 built against the configuration's own nixpkgs; unfree ones then need that
 nixpkgs' config to allow them (`nixpkgs.config.allowUnfreePredicate`).
 
@@ -64,11 +64,11 @@ nix-darwin module (`determinate.url =
 darwinConfigurations.example = nix-darwin.lib.darwinSystem {
   modules = [
     determinate.darwinModules.default
-    flakes.darwinModules.rayfish
+    xr3t.darwinModules.rayfish
     {
       determinateNix.enable = true;
       nixpkgs.hostPlatform = "aarch64-darwin";
-      environment.systemPackages = [ flakes.packages.aarch64-darwin.ghostty ];
+      environment.systemPackages = [ xr3t.packages.aarch64-darwin.ghostty ];
       services.rayfish.enable = true;
     }
   ];
@@ -89,12 +89,12 @@ Home Manager.
 ```nix
 nixosConfigurations.example = nixpkgs.lib.nixosSystem {
   modules = [
-    flakes.nixosModules.rayfish
+    xr3t.nixosModules.rayfish
     (
       { pkgs, ... }:
       {
-        nixpkgs.overlays = [ flakes.overlays.default ];
-        environment.systemPackages = [ pkgs.flakes.codex ];
+        nixpkgs.overlays = [ xr3t.overlays.default ];
+        environment.systemPackages = [ pkgs.xr3t.codex ];
         services.rayfish.enable = true;
       }
     )
@@ -127,13 +127,13 @@ homeConfigurations.alice = home-manager.lib.homeManagerConfiguration {
   modules = [
     # With Determinate Nix: Nix comes from Determinate, not Home Manager.
     determinate.homeManagerModules.default
-    flakes.homeManagerModules.helium
+    xr3t.homeManagerModules.helium
     {
       home = {
         username = "alice";
         homeDirectory = "/home/alice";
         stateVersion = "25.11";
-        packages = [ flakes.packages.x86_64-linux.codex ];
+        packages = [ xr3t.packages.x86_64-linux.codex ];
       };
       targets.genericLinux.enable = true;
       programs.helium.enable = true;
@@ -163,12 +163,12 @@ Differences from NixOS:
 ## Outputs
 
 - `packages.<system>.<name>`: only packages that build on `<system>`
-- `overlays.default`: adds `pkgs.flakes.<name>`
+- `overlays.default`: adds `pkgs.xr3t.<name>`
 - `darwinModules.<name>`, `nixosModules.<name>`: system services (launchd
   daemons, systemd units), for the packages that have one
 - `homeManagerModules.<name>`: per-user settings and services, for the
   packages that have them, and `read-only-apps`, which keeps Home Manager's
-  copies of macOS apps read-only (see "Updates")
+  copies of macOS apps read-only (see [modules/](modules/README.md#read-only-apps))
 - `checks.<system>`: the flake's own tests: every package built (but the
   rolling `ghostty-tip`, the heavy Office apps and `nixos-shell`, which their
   own workflows build), every `.nix` file formatted, and the modules evaluated
@@ -181,35 +181,11 @@ Systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`.
 
 ## Updates
 
-Packages follow upstream automatically: a scheduled workflow checks for new
-releases and commits them to `main`, and the pinned nixpkgs is bumped weekly.
-Pick them up with `nix flake update flakes`. Updates of root daemons, network
-filters and agents, and of nixpkgs, go through a pull request that is merged
-once it builds on every system; see [SECURITY.md](SECURITY.md) for what is
-checked.
+Packages follow their upstream releases automatically, and the pinned nixpkgs
+is bumped weekly. Pick them up with `nix flake update xr3t`.
 
 Self-updates, update checks and telemetry are turned off wherever the program
-allows it. Each package's README says what is off, how, and how to turn it
-back on.
-
-On macOS an app's own updater can replace a writable copy of its bundle. The
-Nix store and nix-darwin's copies in `/Applications/Nix Apps` are read-only;
-Home Manager's copies in `~/Applications/Home Manager Apps` are writable,
-unless `homeManagerModules.read-only-apps` keeps them read-only:
-
-```nix
-imports = [ flakes.homeManagerModules.read-only-apps ];
-targets.darwin.copyApps.readOnly = true;
-```
-
-Before dropping the module from the imports, make the folder writable again:
-
-```sh
-chmod -R u+w ~/Applications/Home\ Manager\ Apps
-```
-
-[firewall/](firewall/README.md) holds a Little Snitch rule group that cuts app
-updaters off the network.
+allows it; each package's README says how.
 
 ## References
 

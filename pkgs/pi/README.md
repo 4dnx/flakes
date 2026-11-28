@@ -17,10 +17,10 @@ nix run github:xr3t/flakes#pi -- --version
 nix build github:xr3t/flakes#pi
 ```
 
-Home Manager or nix-darwin, with `flakes` passed as an input:
+Home Manager or nix-darwin, with `xr3t` passed as an input:
 
 ```nix
-home.packages = [ inputs.flakes.packages.${pkgs.stdenv.hostPlatform.system}.pi ];
+home.packages = [ inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.pi ];
 ```
 
 Supported platforms: Apple Silicon macOS, Linux ARM64 and Linux x86_64. Only

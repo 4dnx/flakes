@@ -21,14 +21,14 @@ Systems: `aarch64-darwin`, `x86_64-linux`, `aarch64-linux`.
 ## Usage
 
 ```nix
-home.packages = [ inputs.flakes.packages.${pkgs.stdenv.hostPlatform.system}.muxin ];
+home.packages = [ inputs.xr3t.packages.${pkgs.stdenv.hostPlatform.system}.muxin ];
 ```
 
 Or with the Home Manager module, which also keeps its update check off:
 
 ```nix
 {
-  imports = [ inputs.flakes.homeManagerModules.muxin ];
+  imports = [ inputs.xr3t.homeManagerModules.muxin ];
   programs.muxin.enable = true;
 }
 ```

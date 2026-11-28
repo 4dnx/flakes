@@ -22,7 +22,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = self.packages.${pkgs.stdenv.hostPlatform.system}.whatsapp;
-      defaultText = lib.literalExpression "flakes.packages.\${pkgs.stdenv.hostPlatform.system}.whatsapp";
+      defaultText = lib.literalExpression "xr3t.packages.\${pkgs.stdenv.hostPlatform.system}.whatsapp";
       description = "WhatsApp package to install.";
     };
   };
