@@ -16,7 +16,7 @@ without patching.
 
 ```nix
 {
-  inputs.flakes.url = "github:4dnx/flakes";
+  inputs.flakes.url = "github:xr3t/flakes";
   inputs.flakes.inputs.nixpkgs.follows = "nixpkgs";
 
   environment.systemPackages = [ inputs.flakes.packages.${system}.nullclaw ];
@@ -28,7 +28,7 @@ Through the overlay: `pkgs.flakes.nullclaw`.
 Or run it without installing:
 
 ```sh
-nix run github:4dnx/flakes#nullclaw -- --version
+nix run github:xr3t/flakes#nullclaw -- --version
 ```
 
 Configuration lives in `~/.nullclaw`, as upstream documents; start with

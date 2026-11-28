@@ -34,7 +34,7 @@ nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "cl
 
 ```nix
 {
-  inputs.flakes.url = "github:4dnx/flakes";
+  inputs.flakes.url = "github:xr3t/flakes";
   inputs.flakes.inputs.nixpkgs.follows = "nixpkgs";
 
   # nix-darwin
