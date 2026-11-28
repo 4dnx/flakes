@@ -39,7 +39,7 @@ on the release's commit: `v<version>-b<build>-<commit>` where upstream made
 one (v1.0.0), else `b<build>` (v1.1.0, the commit then the release's).
 
 Compiling takes minutes, so CI (`cache.yml`) pushes the `x86_64-linux` and
-`aarch64-linux` builds to `nan.cachix.org` from `main` (see `SECURITY.md`);
+`aarch64-linux` builds to `ret.cachix.org` from `main` (see `SECURITY.md`);
 with that cache as a substituter the package is downloaded instead.
 
 ## Updates and telemetry

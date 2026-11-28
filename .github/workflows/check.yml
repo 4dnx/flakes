@@ -66,7 +66,7 @@ jobs:
   # cache between runs: most packages here are upstream's binaries, and
   # restoring and saving a store took longer than fetching what a few
   # changed checks need. Linux pulls the packages that compile for minutes
-  # from nan.cachix.org (ci/cached-packages.sh), which holds nothing for
+  # from ret.cachix.org (ci/cached-packages.sh), which holds nothing for
   # macOS.
   build:
     name: check (${{ matrix.system }})
@@ -89,11 +89,11 @@ jobs:
           diagnostic-endpoint: ""
       - name: Turn Determinate Nix's telemetry off
         run: ci/determinate-telemetry-off.sh
-      # Pull from nan.cachix.org, which is public: no token needed.
+      # Pull from ret.cachix.org, which is public: no token needed.
       - uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
         if: runner.os == 'Linux'
         with:
-          name: nan
+          name: ret
           skipPush: true
       # --keep-going reports every failing check, not just the first.
       - name: Build the checks that differ from the baseline

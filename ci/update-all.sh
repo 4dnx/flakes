@@ -161,20 +161,39 @@ done
 
 # nixpkgs, which every package's libraries and tools come from, with the
 # nix-darwin, Home Manager and Determinate the module checks evaluate against
-# it: weekly, by the first run once the locked nixpkgs is a week old, or when
-# asked for, always through a pull request, since it touches every package.
-# The age, not a run's time, decides, as GitHub delays and drops scheduled
-# runs. Linux only; check.yml builds the rest.
-# The root's nixpkgs: other inputs' nixpkgs share its node names.
-nixpkgs_modified="$(jq -er '.nodes[.nodes.root.inputs.nixpkgs].locked.lastModified' flake.lock)"
+# it: weekly, by the first run once flake.lock last changed a week ago, or
+# when asked for, always through a pull request, since it touches every
+# package. The lock's age, not a run's time, decides, as GitHub delays and
+# drops scheduled runs; and not nixpkgs' own age, which stays old while its
+# channel doesn't move, and would then bump the other inputs in every run.
+lock_changed="$(git log -1 --format=%ct -- flake.lock)"
+inputs=(nixpkgs nix-darwin home-manager determinate)
 if [ "$UPDATE_SYSTEM" = x86_64-linux ] &&
-  { { [ -z "$PACKAGES" ] && [ $(($(date -u +%s) - nixpkgs_modified)) -ge $((7 * 86400)) ]; } ||
+  { { [ -z "$PACKAGES" ] && [ $(($(date -u +%s) - ${lock_changed:-0})) -ge $((7 * 86400)) ]; } ||
     [[ " $PACKAGES " == *" nixpkgs "* ]]; }; then
-  if nix flake update nixpkgs nix-darwin home-manager determinate; then
+  # locked INPUT: the root input's locked reference, as JSON. Other inputs'
+  # nixpkgs share the root's node names, so go through the root.
+  locked() { jq -c --arg i "$1" '.nodes[.nodes.root.inputs[$i]].locked' flake.lock; }
+  declare -A before
+  for input in "${inputs[@]}"; do before[$input]="$(locked "$input")"; done
+  if nix flake update "${inputs[@]}"; then
     if [ -n "$(git status --porcelain -- flake.lock)" ]; then
-      # The root's nixpkgs: other inputs' nixpkgs share its node names.
-      rev="$(jq -r '.nodes[.nodes.root.inputs.nixpkgs].locked.rev' flake.lock)"
-      land nixpkgs "Update nixpkgs to ${rev:0:12}" true
+      # The title names nixpkgs' new revision, or else the inputs that moved.
+      if [ "$(locked nixpkgs)" != "${before[nixpkgs]}" ]; then
+        rev="$(jq -r '.nodes[.nodes.root.inputs.nixpkgs].locked.rev' flake.lock)"
+        title="Update nixpkgs to ${rev:0:12}"
+      else
+        moved=()
+        for input in "${inputs[@]}"; do
+          [ "$(locked "$input")" = "${before[$input]}" ] || moved+=("$input")
+        done
+        # "a", "a and b", "a, b and c".
+        title="Update ${moved[0]}"
+        for ((i = 1; i < ${#moved[@]}; i++)); do
+          if ((i == ${#moved[@]} - 1)); then title+=" and ${moved[i]}"; else title+=", ${moved[i]}"; fi
+        done
+      fi
+      land nixpkgs "$title" true
     fi
   else
     echo "::error::nixpkgs: nix flake update failed"

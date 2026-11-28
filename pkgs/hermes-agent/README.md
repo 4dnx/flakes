@@ -41,13 +41,13 @@ and `nix/nixosModules.nix` in the pinned source.
 
 Either way, use the input without `inputs.nixpkgs.follows`; Hermes is built
 from upstream's nixpkgs anyway, and keeping the lock as is lets the host fetch
-it from `nan.cachix.org` instead of compiling it. Add the cache in the
+it from `ret.cachix.org` instead of compiling it. Add the cache in the
 NixOS config (a Home Manager user can't add trusted substituters):
 
 ```nix
 nix.settings = {
-  extra-substituters = [ "https://nan.cachix.org" ];
-  extra-trusted-public-keys = [ "nan.cachix.org-1:6E0Dkeoj0cAaOn3/b+Uut9WyoIYcfqPJEUmwNxnmHRI=" ];
+  extra-substituters = [ "https://ret.cachix.org" ];
+  extra-trusted-public-keys = [ "ret.cachix.org-1:YL30LBJosldYUgKW5g6WUmpIh6/v++xzdj9Ctx8PPT8=" ];
 };
 ```
 
