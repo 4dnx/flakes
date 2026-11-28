@@ -1,5 +1,5 @@
 {
-  "name": "Block app updaters (4dnx/flakes)",
+  "name": "Block app updaters (xr3t/flakes)",
   "description": "Denies the network to macOS app updaters, so updates come through Nix: the updaters that run as processes of their own (Google's GoogleUpdater and Keystone, Microsoft AutoUpdate) entirely, and apps that update from inside their own process (Telegram, Ghostty) only towards their update hosts. Rules match the vendor's code signature, not a path, so they hold wherever the app or updater is installed. Nix's own downloads (nix-daemon) are not affected. Disable this group to let the updaters run again.",
   "rules": [
     {

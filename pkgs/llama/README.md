@@ -7,7 +7,7 @@ team: the unified `llama` binary (`llama serve`, `llama cli`, `llama download`,
 `aarch64-linux`); on macOS and Windows llama.app is a desktop app.
 
 ```nix
-inputs.flakes.url = "github:4dnx/flakes";
+inputs.flakes.url = "github:xr3t/flakes";
 environment.systemPackages = [ inputs.flakes.packages.${system}.llama ];
 ```
 

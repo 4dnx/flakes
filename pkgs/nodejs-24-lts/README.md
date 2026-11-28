@@ -8,8 +8,8 @@ shebangs to this runtime, and patches Linux dynamic-library paths.
 The signed macOS Node executable is not modified or re-signed.
 
 ```sh
-nix run github:4dnx/flakes#nodejs-24-lts -- --version
-nix build github:4dnx/flakes#nodejs-24-lts
+nix run github:xr3t/flakes#nodejs-24-lts -- --version
+nix build github:xr3t/flakes#nodejs-24-lts
 ```
 
 Supports Apple Silicon macOS, Linux ARM64 and Linux x86_64 (glibc, not musl).

@@ -13,8 +13,8 @@ the installed Pi launcher and npm use `nodejs-24-lts`.
 ## Use
 
 ```sh
-nix run github:4dnx/flakes#pi -- --version
-nix build github:4dnx/flakes#pi
+nix run github:xr3t/flakes#pi -- --version
+nix build github:xr3t/flakes#pi
 ```
 
 Home Manager or nix-darwin, with `flakes` passed as an input:

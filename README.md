@@ -24,7 +24,7 @@ package's README say which systems it supports.
 Try Codex without installing it in a profile:
 
 ```sh
-nix run github:4dnx/flakes#codex -- --version
+nix run github:xr3t/flakes#codex -- --version
 ```
 
 Add it as an input. Its nixpkgs, nix-darwin and Home Manager come from
@@ -38,7 +38,7 @@ inputs with `follows` keeps a single copy of each in the lock file:
 inputs = {
   nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
   flakes = {
-    url = "github:4dnx/flakes";
+    url = "github:xr3t/flakes";
     inputs.nixpkgs.follows = "nixpkgs";
     # inputs.nix-darwin.follows = "nix-darwin";
     # inputs.home-manager.follows = "home-manager";
@@ -116,7 +116,7 @@ Install Nix with flakes enabled (Determinate Nix, as the checks assume, or
 another Nix), then either add packages to a profile:
 
 ```bash
-nix profile add github:4dnx/flakes#codex
+nix profile add github:xr3t/flakes#codex
 ```
 
 or use standalone Home Manager, with this flake's `homeManagerModules`:

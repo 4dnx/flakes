@@ -11,7 +11,7 @@ Configure the public `nan` Cachix cache, then run a revision whose Cache workflo
 has built, published and booted the VM:
 
 ```sh
-nix run --builders "" --max-jobs 0 'github:4dnx/flakes/<commit-sha>#nixos-shell'
+nix run --builders "" --max-jobs 0 'github:xr3t/flakes/<commit-sha>#nixos-shell'
 ```
 
 The launcher allocates 1 GiB of guest RAM, two vCPUs and a 4 GiB virtual disk.
@@ -43,7 +43,7 @@ The launcher shares one Mac folder at `/tmp/shared` in the guest, writable:
 `$SHARED_DIR` if set, else `/tmp/nixos-shell`, which it creates when missing.
 
 ```sh
-SHARED_DIR="$HOME/Projects/demo" nix run --builders "" --max-jobs 0 'github:4dnx/flakes/<commit-sha>#nixos-shell'
+SHARED_DIR="$HOME/Projects/demo" nix run --builders "" --max-jobs 0 'github:xr3t/flakes/<commit-sha>#nixos-shell'
 ```
 
 `/tmp` on macOS is shared by every user of the Mac and emptied on reboot,

@@ -5,7 +5,7 @@ No Rust compilation is performed. Supported systems: `aarch64-darwin`,
 `aarch64-linux`, and `x86_64-linux`.
 
 ```nix
-inputs.flakes.url = "github:4dnx/flakes";
+inputs.flakes.url = "github:xr3t/flakes";
 environment.systemPackages = [ inputs.flakes.packages.${system}.nh ];
 ```
 

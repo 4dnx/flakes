@@ -17,7 +17,7 @@ never stripped.
 
 The attribute name starts with a digit, so quote it:
 `inputs.flakes.packages.${system}."1mcp"`, `pkgs.flakes."1mcp"`,
-`services."1mcp"`. `nix run github:4dnx/flakes#1mcp` needs no quotes.
+`services."1mcp"`. `nix run github:xr3t/flakes#1mcp` needs no quotes.
 
 ## Usage (NixOS)
 
